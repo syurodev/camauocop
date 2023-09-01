@@ -17,6 +17,7 @@ export interface IProducts {
 export interface IAddProductTypes {
   _id: string;
   name: string;
+  userId: string
 }
 
 export interface PopupProps {

@@ -1,10 +1,17 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import User from './users';
 
 export interface IProductTypes extends Document {
+  userId: string
   name: string;
 }
 
 const ProductTypesSchema: Schema = new Schema({
+  userId: {
+    type: mongoose.Types.ObjectId,
+    ref: User,
+    required: true
+  },
   name: { type: String, required: true },
 });
 

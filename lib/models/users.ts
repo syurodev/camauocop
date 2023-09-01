@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import ProductType from './productTypes';
 
 export interface IUser extends Document {
   username: string;
@@ -11,6 +12,7 @@ export interface IUser extends Document {
   provider: string;
   image: string;
   email_verified?: boolean;
+  productTypes?: string[];
 }
 
 const UserSchema: Schema = new Schema({
@@ -24,6 +26,12 @@ const UserSchema: Schema = new Schema({
   image: { type: String, default: '' },
   role: { type: String, enum: ['individual', 'shop', 'business'], required: true, default: 'individual' },
   provider: { type: String, required: true, default: 'credentials' },
+  productTypes: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: ProductType,
+    }
+  ]
 },
   { timestamps: true }
 );
