@@ -61,7 +61,7 @@ export default function SigninPage() {
 
   return (
     <motion.section
-      className='glassmorphism max-sm:w-full md:max-w-xl w-[500px] px-4 sm:px-6 md:px-8'
+      className='glassmorphism max-sm:w-full md:max-w-xl w-[500px] p-4 sm:px-6 md:px-8'
       initial={{ y: 0, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
     >

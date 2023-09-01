@@ -26,8 +26,6 @@ const SearchBox: React.FC = () => {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
 
-  console.log(open)
-
   return (
     <>
       <Button

@@ -14,6 +14,11 @@ export interface IProducts {
   images: string[];
 }
 
+export interface IAddProductTypes {
+  _id: string;
+  name: string;
+}
+
 export interface PopupProps {
   children: React.ReactElement,
   content: React.ReactElement,

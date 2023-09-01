@@ -12,6 +12,7 @@ export interface IProduct extends Document {
   images: string[];
   createAt: Date;
   deleteAt?: Date;
+  auction: boolean;
 }
 
 const ProductSchema: Schema = new Schema({
@@ -23,6 +24,7 @@ const ProductSchema: Schema = new Schema({
   quantity: { type: Number, required: true },
   images: [{ type: String }],
   deleteAt: [{ type: Date }],
+  auction: { type: Boolean, required: true, default: false }
 }, {
   timestamps: true
 }

@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/providers/theme-provider'
 import '@/app/globals.css'
 import Navbar from '@/components/navbar'
 import Providers from '@/components/providers/session-provider'
+import { Toaster } from "@/components/ui/toaster"
 
 const noto = Noto_Sans({ subsets: ['vietnamese'], weight: ["300", "400", "500", "600", "700"], style: ["normal", "italic"] })
 
@@ -29,7 +30,12 @@ export default function RootLayout({
             enableSystem={false}
           >
             <Navbar />
-            {children}
+            <div className="bg-[#fffecd] absolute top-[-6rem] -z-10 right-[11rem] h-[31.25rem] w-[31.25rem] rounded-full blur-[10rem] sm:w-[68.75rem] dark:hidden" ></div>
+            <div className="bg-[#d0f1fc] absolute lg:top-[-1rem] -z-10 left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem] dark:hidden"></div>
+            <main className='max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8'>
+              {children}
+            </main>
+            <Toaster />
           </ThemeProvider>
         </body>
       </Providers>

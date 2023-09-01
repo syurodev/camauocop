@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { motion } from "framer-motion"
@@ -22,24 +22,24 @@ import Link from 'next/link';
 
 
 const Navbar: React.FC = () => {
-  // const [topOfPage, setTopOfPage] = useState(true);
+  const [topOfPage, setTopOfPage] = useState(true);
   const [notification, setNotification] = useState([]);
   const { data: session } = useSession();
   const router = useRouter()
 
-  // const handleScroll = () => {
-  //   setTopOfPage(window.scrollY <= 50);
-  // };
+  const handleScroll = () => {
+    setTopOfPage(window.scrollY <= 50);
+  };
 
-  // useEffect(() => {
-  //   window.addEventListener('scroll', handleScroll);
-  //   return () => window.removeEventListener('scroll', handleScroll);
-  // }, []);
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <motion.nav
-      className={`sticky h-[60px] top-0 z-40 w-full backdrop-blur-xl flex-none 
-      transition-colors duration-500 lg:z-50 lg:border-b lg:border-slate-900/10
+      className={`sticky h-[60px] top-0 z-40 w-full backdrop-blur-sm flex-none 
+      transition-colors duration-150 ${topOfPage ? "" : "shadow-md"} lg:z-50 lg:border-b lg:border-slate-900/10
        dark:border-slate-50/[0.06] supports-backdrop-blur:bg-white/95 
        dark:bg-transparent`}
       initial={{ y: -100, opacity: 0 }}

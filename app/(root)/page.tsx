@@ -1,8 +1,17 @@
+import React from "react"
 
-export default function Home() {
+import Categories from "@/components/Categories"
+import Promotions from "@/components/Promotion"
+import Recommendation from "@/components/Recommendation"
+
+const Home: React.FC = () => {
   return (
-    <div>
-      <p>Hello</p>
-    </div>
+    <section className="flex flex-col place-items-center justify-center pt-5">
+      <Promotions />
+      <Categories className="mt-4" />
+      <Recommendation className="mt-4" />
+    </section>
   )
 }
+
+export default Home
