@@ -20,7 +20,7 @@ const Categories: React.FC<ICategories> = ({ className }) => {
       transition={{ delay: 0.4 }}
     >
       <ScrollArea className="h-fit w-full rounded-md border">
-        <div className="flex">
+        <div className="flex justify-around">
           {/* TODO: MAP ITEM */}
           <Button variant={"ghost"}>
             <Link href={"/"}>1</Link>

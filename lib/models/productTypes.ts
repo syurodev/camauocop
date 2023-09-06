@@ -7,11 +7,7 @@ export interface IProductTypes extends Document {
 }
 
 const ProductTypesSchema: Schema = new Schema({
-  userId: {
-    type: mongoose.Types.ObjectId,
-    ref: User,
-    required: true
-  },
+  userId: { type: Schema.Types.ObjectId, ref: User, required: true },
   name: { type: String, required: true },
 });
 

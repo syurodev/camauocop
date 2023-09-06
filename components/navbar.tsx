@@ -38,14 +38,14 @@ const Navbar: React.FC = () => {
 
   return (
     <motion.nav
-      className={`sticky h-[60px] top-0 z-40 w-full backdrop-blur-sm flex-none 
+      className={`sticky h-[60px] top-0 z-50 w-full backdrop-blur-sm flex-none 
       transition-colors duration-150 ${topOfPage ? "" : "shadow-md"} lg:z-50 lg:border-b lg:border-slate-900/10
        dark:border-slate-50/[0.06] supports-backdrop-blur:bg-white/95 
        dark:bg-transparent`}
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
     >
-      <div className='flex px-2 max-w-[90rem] h-full mx-auto xl:px-0 justify-between items-center'>
+      <div className='flex px-2 max-w-[90rem] h-full mx-auto justify-between items-center'>
         <div className='flex items-center h-full gap-5'>
           <Link href={"/"}>SeaMarketHub</Link>
           {/* <NavTab /> */}
@@ -55,7 +55,7 @@ const Navbar: React.FC = () => {
           <SearchBox />
           <ModeToggle />
 
-          <div className='hidden lg:flex items-center h-full gap-5'>
+          <div className='hidden lg:!flex items-center h-full gap-5'>
             {
               session?.user ? (
                 <>
@@ -118,7 +118,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* MOBILE */}
-          <div className='flex lg:hidden items-center h-full gap-5'>
+          <div className='flex lg:!hidden items-center h-full gap-5'>
             {
               session?.user ? (
                 <Popover>

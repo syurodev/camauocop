@@ -9,7 +9,39 @@ body,
   box-sizing: border-box;
 }
 
+h1 {
+  font-size: 2em;
+}
 
+h2 {
+  font-size: 1.5em;
+}
+
+h3 {
+  font-size: 1.3em;
+}
+
+h4 {
+  font-size: 1em;
+}
+
+h5 {
+  font-size: 0.8em;
+}
+
+h6 {
+  font-size: 0.7em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+  font-style: normal;
+}
 
 @layer base {
   :root {
@@ -74,4 +106,24 @@ body,
 
 .glassmorphism {
   @apply rounded-md border bg-white/10 shadow-md backdrop-blur-md;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  @apply bg-slate-50/25 rounded-md
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-500 rounded-md
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
