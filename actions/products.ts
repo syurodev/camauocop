@@ -72,3 +72,49 @@ export async function addProductType(data: IAddProductTypeZodSchema) {
     return { satus: false, message: "Có lỗi trong quá trình thêm loại hàng hoá. Vui lòng thử lại" }
   }
 }
+
+export async function getProducts(page: number = 1) {
+  const limit = 20;
+  const skip = (page - 1) * limit;
+
+  try {
+    const totalProducts = await Product.countDocuments({});
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const products = await Product.find({})
+      .sort({ createdAt: -1 }) // sort by newest
+      .skip(skip) // skip products for pagination
+      .limit(limit) // limit to 20 products per page
+      .populate({
+        path: 'sellerId',
+        select: 'username image' // select username and image of the seller
+      })
+      .populate({
+        path: 'productType',
+        select: 'name' // select name of the product type
+      })
+      .select('name images price') // select name, images, and price of the product
+
+    // Format the data
+    const formattedProducts = products.map(product => ({
+      _id: product._id,
+      productName: product.name,
+      productTypeName: product.productType.name,
+      sellerName: product.sellerId.username,
+      sellerAvatar: product.sellerId.image,
+      productImages: product.images,
+      productPrice: product.price
+    }));
+
+    return {
+      products: formattedProducts,
+      totalPages
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      products: [],
+      totalPages: 0
+    };
+  }
+}

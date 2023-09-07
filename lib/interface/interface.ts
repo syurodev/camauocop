@@ -1,17 +1,11 @@
 export interface IProducts {
   _id: string;
-  sellerId: {
-    _id: string;
-    username?: string;
-    name?: string;
-  };
-  productType: {
-    _id: string;
-    name: string;
-  };
-  name: string;
-  price: number;
-  images: string[];
+  productName: string;
+  productTypeName: string;
+  sellerName: string;
+  sellerAvatar: string;
+  productImages: string[];
+  productPrice: number;
 }
 
 export interface IAddProductTypes {

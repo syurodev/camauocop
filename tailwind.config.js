@@ -6,7 +6,7 @@ module.exports = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
+  ],
   theme: {
     container: {
       center: true,
@@ -50,6 +50,12 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "lightgreen": "#00C299",
+        "paleyellow": "#F8FC99",
+        "yellow": "#FFD155",
+        "pinkorange": "#FCC699",
+        "violet": "#C89AFF",
+
       },
       borderRadius: {
         lg: "var(--radius)",

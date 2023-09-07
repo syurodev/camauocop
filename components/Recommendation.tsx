@@ -1,12 +1,13 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import CardItem from './elements/CardItem';
-import { IProducts } from '@/lib/interface/interface';
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import CardItem from "./elements/CardItem";
+import { IProducts } from "@/lib/interface/interface";
+import { getProducts } from "@/actions/products";
 
 interface IRecommendation {
-  className?: string
+  className?: string;
 }
 
 const Recommendation: React.FC<IRecommendation> = ({ className }) => {
@@ -14,21 +15,15 @@ const Recommendation: React.FC<IRecommendation> = ({ className }) => {
 
   useEffect(() => {
     const fetchApi = async () => {
-      const result = await fetch(`/api/products`, {
-        method: 'GET',
-        headers: {
-          "Content-Type": "application/json",
-        }
-      })
-      if (result.ok) {
-        const data: IProducts[] = await result.json()
-        setRecommendation(data)
+      const res = await getProducts();
+      if (res.products.length > 0) {
+        setRecommendation(res.products);
       } else {
-        console.error("Lỗi khi lấy dữ liệu:", result.statusText);
+        setRecommendation([]);
       }
-    }
-    fetchApi()
-  }, [])
+    };
+    fetchApi();
+  }, []);
 
   return (
     <motion.section
@@ -37,18 +32,17 @@ const Recommendation: React.FC<IRecommendation> = ({ className }) => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.6 }}
     >
-      <h3 className='w-full text-left font-bold text-2xl'>GỢI Ý HÔM NAY</h3>
+      <h3 className="w-full text-left font-bold text-2xl">GỢI Ý HÔM NAY</h3>
 
-      <div className='grid items-center grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3'>
+      <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
         {/* TODO:Carditem */}
-        {
-          recommendation.length > 0 && recommendation.map((item) => {
-            return <CardItem key={item?._id} data={item} />
-          })
-        }
+        {recommendation.length > 0 &&
+          recommendation.map((item) => {
+            return <CardItem key={item?._id} data={item} />;
+          })}
       </div>
     </motion.section>
   );
-}
+};
 
-export default Recommendation
+export default Recommendation;

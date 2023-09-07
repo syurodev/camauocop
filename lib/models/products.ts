@@ -29,6 +29,7 @@ const ProductSchema: Schema = new Schema({
     version: { type: String },
   },
   price: { type: Number, required: true },
+  sold: { type: Number, required: true, default: 0 },
   quantity: { type: Number, required: true },
   images: [{ type: String }],
   deleteAt: [{ type: Date }],
