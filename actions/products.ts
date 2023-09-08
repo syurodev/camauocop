@@ -3,7 +3,7 @@
 import Product from "@/lib/models/products"
 import ProductType from "@/lib/models/productTypes";
 import { type IAddProductZodSchema } from '@/lib/zodSchema/products';
-import { type IAddProductTypes } from "@/lib/interface/interface";
+import { IProductDetail, type IAddProductTypes } from "@/lib/interface/interface";
 import { type IAddProductTypeZodSchema } from "@/lib/zodSchema/products";
 import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
@@ -97,7 +97,7 @@ export async function getProducts(page: number = 1) {
 
     // Format the data
     const formattedProducts = products.map(product => ({
-      _id: product._id,
+      _id: product._id.toString(),
       productName: product.name,
       productTypeName: product.productType.name,
       sellerName: product.sellerId.username,
@@ -116,5 +116,46 @@ export async function getProducts(page: number = 1) {
       products: [],
       totalPages: 0
     };
+  }
+}
+
+export async function getProductDetail(_id: string) {
+  try {
+    const product = await Product.findById(_id)
+      .populate({
+        path: 'sellerId',
+        select: 'username _id image' // select username, _id and image of the seller
+      })
+      .populate({
+        path: 'productType',
+        select: 'name _id' // select name and _id of the product type
+      });
+
+    if (!product) {
+      return null;
+    }
+
+    // Format the data
+    const formattedProduct:IProductDetail = {
+      _id: product._id.toString(),
+      productName: product.name,
+      productDescription: product.description,
+      productPrice: product.price,
+      productQuantity: product.quantity,
+      productImages: product.images,
+      productCreatedAt: product.createdAt,
+      productDeletedAt: product.deleteAt,
+      productAuction: product.auction,
+      sellerName: product.sellerId.username,
+      sellerId: product.sellerId._id,
+      sellerAvatar: product.sellerId.image,
+      productTypeName: product.productType.name,
+      productTypeId: product.productType._id
+    };
+
+    return formattedProduct;
+  } catch (error) {
+    console.log(error);
+    return null;
   }
 }

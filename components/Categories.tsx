@@ -1,14 +1,13 @@
-'use client'
+"use client";
 
-import * as React from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Button } from './ui/button';
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-
+import * as React from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Button } from "./ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface ICategories {
-  className?: string
+  className?: string;
 }
 
 const Categories: React.FC<ICategories> = ({ className }) => {
@@ -19,7 +18,7 @@ const Categories: React.FC<ICategories> = ({ className }) => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.4 }}
     >
-      <ScrollArea className="h-fit w-full rounded-md border">
+      <ScrollArea className="h-fit w-full rounded-md">
         <div className="flex justify-around">
           {/* TODO: MAP ITEM */}
           <Button variant={"ghost"}>
@@ -57,6 +56,6 @@ const Categories: React.FC<ICategories> = ({ className }) => {
       </ScrollArea>
     </motion.section>
   );
-}
+};
 
-export default Categories
+export default Categories;

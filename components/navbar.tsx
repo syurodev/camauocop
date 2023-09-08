@@ -188,7 +188,9 @@ const Navbar: React.FC = () => {
                 </Popover>
               </>
             ) : (
-              <Button onClick={() => router.push("/login")}>Đăng nhập</Button>
+              <Button onClick={() => router.push("/login")} variant={"default"}>
+                Đăng nhập
+              </Button>
             )}
           </div>
 

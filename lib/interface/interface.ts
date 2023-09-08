@@ -23,3 +23,24 @@ export interface PopupProps {
   | "click",
   [key: string]: any
 }
+
+export interface IProductDetail {
+    _id: string;
+    productName: string;
+    productDescription: {
+      time: number;
+      blocks: any[];
+      version: string;
+    };
+    productPrice: number;
+    productQuantity: number;
+    productImages: string[];
+    productCreatedAt: Date;
+    productDeletedAt?: Date;
+    productAuction: boolean;
+    sellerName: string;
+    sellerId: string;
+    sellerAvatar: string;
+    productTypeName: string;
+    productTypeId: string;
+}

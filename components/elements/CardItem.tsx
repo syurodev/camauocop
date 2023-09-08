@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import Link from "next/link";
 
 interface CardItemProps {
   data: IProducts;
@@ -32,37 +33,85 @@ const CardItem: React.FC<CardItemProps> = ({ data }) => {
     formattedPriceWithUnit = `${formattedPrice}/Kg`;
   }
 
-  const handleClick = () => {
-    router.push(`/products/product/${data._id}`);
-  };
-
   return (
-    <Card
-      className="text-white min-w-[230px] max-w-[250px] h-[250px] relative 
-    shadow-md m-auto overflow-hidden"
-    >
-      <CardContent className="relative flex flex-col justify-center items-center">
-        <div className="flex justify-between items-center w-full absolute p-2 top-0 z-30">
-          {/* TODO: Chuyển đến trang profile */}
-          <Avatar className="shadow-md shadow-black/50 cursor-pointer">
-            <AvatarImage src={data.sellerAvatar} alt={data.sellerName} />
-            <AvatarFallback>{data.sellerName}</AvatarFallback>
-          </Avatar>
+    <Card className="w-full min-w-[300px] max-w-[400px] h-[150px] relative m-auto overflow-hidden flex">
+      <CardContent className="relative flex flex-col hover:w-full hover:absolute transition-all duration-150 z-10 w-2/5 justify-center items-center shadow-sm">
+        <Link
+          href={`/products/product/${data._id}`}
+          className="cursor-pointer w-full h-[150px] relative object-cover overflow-hidden productImage"
+        >
+          <Image
+            src={data.productImages[0]}
+            alt="productImages"
+            fill
+            sizes="100%"
+            style={{
+              objectFit: "cover",
+            }}
+          />
+        </Link>
+      </CardContent>
+      <CardFooter className="bg-inherit flex flex-col justify-between w-3/5 text-center items-center p-2 transition-all duration-150">
+        <div>
+          <p className="line-clamp-1 text-base uppercase font-semibold">
+            {data.productName}
+          </p>
+          <p className="font-medium text-secondary-foreground opacity-80 select-none">
+            {data.productTypeName}
+          </p>
+        </div>
+        <div className="w-fit mt-2">
+          <p className="px-2 py-1 rounded-full bg-secondary text-white">
+            {formattedPriceWithUnit}
+          </p>
+        </div>
+        <div className="flex justify-between items-center w-full">
+          {/* TODO: Thêm vào danh sách yêu thích */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  className="rounded-full"
+                  size={"icon"}
+                  variant={"outline"}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                    />
+                  </svg>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Thêm vào danh sách yêu thích</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           {/* TODO: Thêm vào giỏ hàng */}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  className="rounded-full bg-lightgreen shadow-sm shadow-black/50"
+                  className="rounded-full"
                   size={"icon"}
+                  variant={"outline"}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
-                    stroke="white"
+                    stroke="currentColor"
                     className="w-6 h-6"
                   >
                     <path
@@ -79,41 +128,6 @@ const CardItem: React.FC<CardItemProps> = ({ data }) => {
             </Tooltip>
           </TooltipProvider>
         </div>
-
-        <div
-          className="cursor-pointer w-full h-[250px] relative object-cover overflow-hidden rounded-md productImage"
-          onClick={handleClick}
-        >
-          <Image
-            src={data.productImages[0]}
-            alt="productImages"
-            fill
-            sizes="100%"
-            style={{
-              objectFit: "cover",
-            }}
-          />
-        </div>
-      </CardContent>
-      <CardFooter className="absolute bottom-0 left-0 right-0 top-[65%] shadow-md">
-        <div className="absolute z-10 flex flex-col justify-between items-center w-full h-full">
-          <h4
-            className="font-medium mt-1 line-clamp-1 px-2 cursor-pointer"
-            onClick={handleClick}
-          >
-            {data.productName}
-          </h4>
-          <h5 className="text-white/80">{data.productTypeName}</h5>
-
-          <h5 className="select-none font-medium py-1 px-2 mb-2 bg-lightgreen text-white rounded-full">
-            {formattedPriceWithUnit}
-          </h5>
-        </div>
-
-        <div
-          className="w-full h-full dark:bg-slate-950/50 backdrop-blur-xl
-        transition-colors duration-150 rounded-s-md rounded-e-md"
-        ></div>
       </CardFooter>
     </Card>
   );
