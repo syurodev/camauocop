@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const ProductDetail: React.FC<Props> = async ({ params }) => {
+const ProductDetailPage: React.FC<Props> = async ({ params }) => {
   const data: IProductDetail | null = await getProductDetail(params.id);
   console.log(data);
   return (
@@ -30,4 +30,4 @@ const ProductDetail: React.FC<Props> = async ({ params }) => {
     </div>
   );
 };
-export default ProductDetail;
+export default ProductDetailPage;

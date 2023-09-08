@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-export default function Register() {
+export default function RegisterPage() {
   const router = useRouter();
   const [userError, setUserError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 
-export default function SigninPage() {
+export default function LoginPage() {
   const router = useRouter();
   const [userError, setUserError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
