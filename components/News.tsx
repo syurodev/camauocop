@@ -6,9 +6,22 @@ import CardItem from "./elements/CardItem";
 import { IProducts } from "@/lib/interface/interface";
 import { getProducts } from "@/actions/products";
 
-interface INews {
+type INews = {
   className?: string;
-}
+};
+
+type Response = {
+  products: {
+    _id: string;
+    productName: string;
+    productTypeName: string;
+    sellerName: string;
+    sellerAvatar: string;
+    productImages: string[];
+    productPrice: number;
+  }[];
+  totalPages: number;
+};
 
 const News: React.FC<INews> = ({ className }) => {
   const [news, setNews] = useState<IProducts[]>([]);
@@ -32,11 +45,11 @@ const News: React.FC<INews> = ({ className }) => {
 
   useEffect(() => {
     const fetchApi = async () => {
-      const res = await getProducts();
-      setNews(res.products);
+      const res: Response = await getProducts();
+      setNews(res?.products);
     };
     fetchApi();
-  });
+  }, []);
 
   return (
     <motion.section
