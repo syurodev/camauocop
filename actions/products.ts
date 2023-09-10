@@ -12,23 +12,6 @@ import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth/next";
 import { connectToDB } from "@/lib/utils";
-import { ObjectId } from "mongodb";
-
-type Product = {
-  _id: ObjectId;
-  sellerId: {
-    _id: ObjectId;
-    username: string;
-    image: string;
-  };
-  productType: {
-    _id: ObjectId;
-    name: string;
-  };
-  name: string;
-  price: number;
-  images: string[];
-};
 
 export async function addProduct(data: IAddProductZodSchema) {
   try {
@@ -134,18 +117,19 @@ export async function getProducts(page: number = 1) {
 
     if (products && products.length > 0) {
       // Format the data
-      const formattedProducts = products.map((product: Product) => {
-        console.log(product);
-        return {
-          _id: product._id.toString(),
-          productName: product.name,
-          productTypeName: product.productType.name || "",
-          sellerName: product.sellerId.username,
-          sellerAvatar: product.sellerId.image,
-          productImages: product.images,
-          productPrice: product.price,
-        };
-      });
+      const formattedProducts = products.map(
+        (product: Omit<Omit<any, never>, never>) => {
+          return {
+            _id: product._id.toString(),
+            productName: product.name,
+            productTypeName: product.productType.name || "",
+            sellerName: product.sellerId.username,
+            sellerAvatar: product.sellerId.image,
+            productImages: product.images,
+            productPrice: product.price,
+          };
+        }
+      );
       return {
         products: formattedProducts,
         totalPages,
