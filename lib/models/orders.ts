@@ -7,7 +7,7 @@ interface IProductInOrder {
   quantity: number;
 }
 
-export interface IOrder extends Document {
+export interface IOrderSchema extends Document {
   buyerId: string;
   products: IProductInOrder[];
   totalAmount: number;
@@ -26,4 +26,4 @@ const OrderSchema: Schema = new Schema({
   orderDate: { type: Date, required: true, default: Date.now() }
 });
 
-export default mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);
+export default mongoose.models.Order || mongoose.model<IOrderSchema>('Order', OrderSchema);

@@ -6,24 +6,37 @@ import CardItem from "./elements/CardItem";
 import { IProducts } from "@/lib/interface/interface";
 import { getProducts } from "@/actions/products";
 
-interface IRecommendation {
+interface INews {
   className?: string;
 }
 
-const Recommendation: React.FC<IRecommendation> = ({ className }) => {
-  const [recommendation, setRecommendation] = useState<IProducts[]>([]);
+const News: React.FC<INews> = ({ className }) => {
+  const [news, setNews] = useState<IProducts[]>([]);
+
+  // useEffect(() => {
+  //   const fetchApi = async () => {
+  //     const res = await fetch(
+  //       `/api/products/recommendation/64fd798338b9356ce033171a`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "content-type": "application/json",
+  //         },
+  //       }
+  //     );
+  //     const data = await res.json();
+  //     setRecommendation(data);
+  //   };
+  //   fetchApi();
+  // }, []);
 
   useEffect(() => {
     const fetchApi = async () => {
       const res = await getProducts();
-      if (res.products.length > 0) {
-        setRecommendation(res.products);
-      } else {
-        setRecommendation([]);
-      }
+      setNews(res.products);
     };
     fetchApi();
-  }, []);
+  });
 
   return (
     <motion.section
@@ -32,12 +45,12 @@ const Recommendation: React.FC<IRecommendation> = ({ className }) => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.6 }}
     >
-      <h3 className="w-full text-left font-bold text-2xl">GỢI Ý HÔM NAY</h3>
+      <h3 className="w-full text-left font-bold text-2xl">SẢN PHẨM MỚI</h3>
 
       <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {/* TODO:Carditem */}
-        {recommendation.length > 0 &&
-          recommendation.map((item) => {
+        {news.length > 0 &&
+          news.map((item) => {
             return <CardItem key={item?._id} data={item} />;
           })}
       </div>
@@ -45,4 +58,4 @@ const Recommendation: React.FC<IRecommendation> = ({ className }) => {
   );
 };
 
-export default Recommendation;
+export default News;

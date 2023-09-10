@@ -1,8 +1,9 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import User from './users';
-import ProductType from './productTypes';
+import mongoose, { Document, Schema } from "mongoose";
+import User from "./users";
+import ProductType from "./productTypes";
 
-export interface IProduct extends Document {
+export interface IProductSchema extends Document {
+  _id: string;
   sellerId: string;
   productType: string;
   name: string;
@@ -19,24 +20,31 @@ export interface IProduct extends Document {
   auction: boolean;
 }
 
-const ProductSchema: Schema = new Schema({
-  sellerId: { type: Schema.Types.ObjectId, ref: User, required: true },
-  productType: { type: Schema.Types.ObjectId, ref: ProductType, required: true },
-  name: { type: String, required: true },
-  description: {
-    time: { type: Number },
-    blocks: { type: Array },
-    version: { type: String },
+const ProductSchema: Schema = new Schema(
+  {
+    sellerId: { type: Schema.Types.ObjectId, ref: User, required: true },
+    productType: {
+      type: Schema.Types.ObjectId,
+      ref: ProductType,
+      required: true,
+    },
+    name: { type: String, required: true },
+    description: {
+      time: { type: Number },
+      blocks: { type: Array },
+      version: { type: String },
+    },
+    price: { type: Number, required: true },
+    sold: { type: Number, required: true, default: 0 },
+    quantity: { type: Number, required: true },
+    images: [{ type: String }],
+    deleteAt: [{ type: Date }],
+    auction: { type: Boolean, required: true, default: false },
   },
-  price: { type: Number, required: true },
-  sold: { type: Number, required: true, default: 0 },
-  quantity: { type: Number, required: true },
-  images: [{ type: String }],
-  deleteAt: [{ type: Date }],
-  auction: { type: Boolean, required: true, default: false }
-}, {
-  timestamps: true
-}
+  {
+    timestamps: true,
+  }
 );
 
-export default mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);
+export default mongoose.models.Product ||
+  mongoose.model<IProductSchema>("Product", ProductSchema);

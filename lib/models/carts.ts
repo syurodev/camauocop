@@ -8,7 +8,7 @@ interface IProductInCart {
   addedDate: Date;
 }
 
-export interface ICart extends Document {
+export interface ICartSchema extends Document {
   userId: string;
   products: IProductInCart[];
   totalAmount: number;
@@ -24,4 +24,4 @@ const CartSchema: Schema = new Schema({
   totalAmount: { type: Number, required: true },
 });
 
-export default mongoose.models.Cart || mongoose.model<ICart>('Cart', CartSchema);
+export default mongoose.models.Cart || mongoose.model<ICartSchema>('Cart', CartSchema);
