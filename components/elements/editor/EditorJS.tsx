@@ -39,7 +39,7 @@ const Editor: React.FC<EditorProps> = ({ value, onChange }) => {
     <div>
       <div
         id="editor-container"
-        className="p-3 border rounded-md sm:max-h-[304px] max-h-[500px] overflow-auto"
+        className="border rounded-md sm:max-h-[304px] max-h-[500px] overflow-auto"
       ></div>
     </div>
   );
