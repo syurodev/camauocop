@@ -12,6 +12,23 @@ import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth/next";
 import { connectToDB } from "@/lib/utils";
+import { ObjectId } from "mongodb";
+
+type Product = {
+  _id: ObjectId;
+  sellerId: {
+    _id: ObjectId;
+    username: string;
+    image: string;
+  };
+  productType: {
+    _id: ObjectId;
+    name: string;
+  };
+  name: string;
+  price: number;
+  images: string[];
+};
 
 export async function addProduct(data: IAddProductZodSchema) {
   try {
@@ -115,19 +132,11 @@ export async function getProducts(page: number = 1) {
       })
       .select("name images price"); // select name, images, and price of the product
 
-    console.log(products);
-
     if (products && products.length > 0) {
       // Format the data
-      const formattedProducts = products.map(
-        (product: {
-          _id: { toString: () => string };
-          name: string;
-          productType: { name: string };
-          sellerId: { username: string; image: string };
-          images: string;
-          price: number;
-        }) => ({
+      const formattedProducts = products.map((product: Product) => {
+        console.log(product);
+        return {
           _id: product._id.toString(),
           productName: product.name,
           productTypeName: product.productType.name || "",
@@ -135,8 +144,8 @@ export async function getProducts(page: number = 1) {
           sellerAvatar: product.sellerId.image,
           productImages: product.images,
           productPrice: product.price,
-        })
-      );
+        };
+      });
       return {
         products: formattedProducts,
         totalPages,
