@@ -5,6 +5,23 @@ import Vector from "vector-object";
 // import Favorite, { IFavoriteSchema } from "@/lib/models/favorites";
 // import Order, { IOrderSchema } from "@/lib/models/orders";
 import Product, { IProductSchema } from "@/lib/models/products";
+import { ObjectId } from "mongodb";
+
+type Product = {
+  _id: ObjectId;
+  sellerId: {
+    _id: ObjectId;
+    username: string;
+    image: string;
+  };
+  productType: {
+    _id: ObjectId;
+    name: string;
+  };
+  name: string;
+  price: number;
+  images: string[];
+};
 
 type ProductDataItem = {
   _id: string;
@@ -156,7 +173,7 @@ export const getSimilarProducts = async (_id: string) => {
 
   const productIds = productSimilarList.map((item) => item.id);
   try {
-    const products = await Product.find({ _id: { $in: productIds } })
+    const products: Product[] = await Product.find({ _id: { $in: productIds } })
       .populate({
         path: "sellerId",
         select: "username image", // select username and image of the seller
@@ -167,25 +184,40 @@ export const getSimilarProducts = async (_id: string) => {
       })
       .select("name images price");
 
-    const formattedProducts = products.map(
-      (product: {
-        _id: { toString: () => any };
-        name: any;
-        productType: { name: any };
-        sellerId: { username: any; image: any };
-        images: any;
-        price: any;
-      }) => ({
-        _id: product._id.toString(),
-        productName: product.name,
-        productTypeName: product.productType.name,
-        sellerName: product.sellerId.username,
-        sellerAvatar: product.sellerId.image,
-        productImages: product.images,
-        productPrice: product.price,
-      })
-    );
-    return formattedProducts;
+    if (products && products.length > 0) {
+      // Format the data
+      const formattedProducts = products.map(
+        (product: {
+          _id: { toString: () => string };
+          name: string;
+          productType: { name: string };
+          sellerId: { username: string; image: string };
+          images: string[];
+          price: number;
+        }): {
+          _id: string;
+          productName: string;
+          productTypeName: string;
+          sellerName: string;
+          sellerAvatar: string;
+          productImages: string[];
+          productPrice: number;
+        } => {
+          return {
+            _id: product._id?.toString(),
+            productName: product.name,
+            productTypeName: product.productType?.name,
+            sellerName: product.sellerId?.username,
+            sellerAvatar: product.sellerId?.image,
+            productImages: product.images,
+            productPrice: product.price,
+          };
+        }
+      );
+      return formattedProducts;
+    } else {
+      return [];
+    }
   } catch (error) {
     console.error("Lỗi truy vấn sản phẩm:", error);
     return [];
