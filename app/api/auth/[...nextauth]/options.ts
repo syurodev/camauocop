@@ -1,8 +1,8 @@
-import type { NextAuthOptions, Profile, Session, Account } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import GoogleProvider, { GoogleProfile } from "next-auth/providers/google"
-import { connectToDB } from "@/lib/utils"
-import User from "@/lib/models/users"
+import type { NextAuthOptions, Profile, Session, Account } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
+import { connectToDB } from "@/lib/utils";
+import User from "@/lib/models/users";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
@@ -13,18 +13,18 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     CredentialsProvider({
-      name: 'credentials',
+      name: "credentials",
       credentials: {
         username: {
-          label: 'Username',
-          type: 'text',
-          placeholder: 'Username',
+          label: "Username",
+          type: "text",
+          placeholder: "Username",
         },
         password: {
-          label: 'Password',
-          type: 'password',
-          placeholder: 'Password',
-        }
+          label: "Password",
+          type: "password",
+          placeholder: "Password",
+        },
       },
       async authorize(credentials) {
         //Lấy thông tin tài khoản từ database
@@ -39,8 +39,8 @@ export const authOptions: NextAuthOptions = {
           body: JSON.stringify({
             username: credentials?.username,
             password: credentials?.password,
-          })
-        })
+          }),
+        });
 
         const user = await res.json();
 
@@ -49,44 +49,46 @@ export const authOptions: NextAuthOptions = {
         } else {
           return null;
         }
-      }
-    })
+      },
+    }),
   ],
   pages: {
-    signIn: "/auth/login"
+    signIn: "/auth/login",
   },
   callbacks: {
     async signIn({ user, account, profile }): Promise<boolean> {
       if (account?.type === "oauth") {
-        const res = await signInWithOAuth({ account, profile })
-        return res
+        const res = await signInWithOAuth({ account, profile });
+        return res;
       }
-      return true
+      return true;
     },
 
     async jwt({ token, user }) {
-      const tokenData = await getUserByEmail({ email: token.email })
-      token = tokenData
-      return token
+      const tokenData = await getUserByEmail({ email: token.email });
+      token = tokenData;
+      return token;
     },
 
     async session({ session, token }): Promise<Session> {
-      session.user = token as any
-      return session
-    }
-  }
-}
+      session.user = token as any;
+      return session;
+    },
+  },
+};
 
 async function signInWithOAuth({
-  account, profile
+  account,
+  profile,
 }: {
-  account: Account, profile: Profile | undefined
+  account: Account;
+  profile: Profile | undefined;
 }): Promise<boolean> {
-  await connectToDB()
+  await connectToDB();
   //user account adready -> login
-  const userExistting = await User.findOne({ email: profile?.email })
+  const userExistting = await User.findOne({ email: profile?.email });
   if (userExistting) {
-    return true
+    return true;
   }
 
   //user not found -> register -> login
@@ -97,26 +99,27 @@ async function signInWithOAuth({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: profile?.name?.toLocaleLowerCase().replace(/\s/g, ''),
+        username: profile?.name?.toLocaleLowerCase().replace(/\s/g, ""),
         email: profile?.email,
         email_verified: profile?.email_verified,
         password: "null",
         provider: account?.provider,
-        image: profile?.picture
-      })
-    })
+        image: profile?.picture,
+      }),
+    });
 
-    return true
+    return true;
   } catch (error) {
     console.error("Error calling /api/users/register", error);
-    return false
+    return false;
   }
 }
 
 async function getUserByEmail({ email }: { email: string | null | undefined }) {
-  const user = await User.findOne({ email: email }).select("-password")
+  await connectToDB();
+  const user = await User.findOne({ email: email }).select("-password");
 
-  if (!user) throw new Error("User not found")
+  if (!user) throw new Error("User not found");
 
-  return { ...user._doc }
+  return { ...user._doc };
 }

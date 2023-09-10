@@ -167,15 +167,24 @@ export const getSimilarProducts = async (_id: string) => {
       })
       .select("name images price");
 
-    const formattedProducts = products.map((product) => ({
-      _id: product._id.toString(),
-      productName: product.name,
-      productTypeName: product.productType.name,
-      sellerName: product.sellerId.username,
-      sellerAvatar: product.sellerId.image,
-      productImages: product.images,
-      productPrice: product.price,
-    }));
+    const formattedProducts = products.map(
+      (product: {
+        _id: { toString: () => any };
+        name: any;
+        productType: { name: any };
+        sellerId: { username: any; image: any };
+        images: any;
+        price: any;
+      }) => ({
+        _id: product._id.toString(),
+        productName: product.name,
+        productTypeName: product.productType.name,
+        sellerName: product.sellerId.username,
+        sellerAvatar: product.sellerId.image,
+        productImages: product.images,
+        productPrice: product.price,
+      })
+    );
     return formattedProducts;
   } catch (error) {
     console.error("Lỗi truy vấn sản phẩm:", error);
