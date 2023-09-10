@@ -134,17 +134,34 @@ export async function getProducts(page: number = 1) {
 
     if (products && products.length > 0) {
       // Format the data
-      const formattedProducts = products.map((product: Product) => {
-        return {
-          _id: product._id?.toString(),
-          productName: product.name,
-          productTypeName: product.productType?.name,
-          sellerName: product.sellerId?.username,
-          sellerAvatar: product.sellerId?.image,
-          productImages: product.images,
-          productPrice: product.price,
-        };
-      });
+      const formattedProducts = products.map(
+        (product: {
+          _id: { toString: () => string };
+          name: string;
+          productType: { name: string };
+          sellerId: { username: string; image: string };
+          images: string[];
+          price: number;
+        }): {
+          _id: string;
+          productName: string;
+          productTypeName: string;
+          sellerName: string;
+          sellerAvatar: string;
+          productImages: string[];
+          productPrice: number;
+        } => {
+          return {
+            _id: product._id?.toString(),
+            productName: product.name,
+            productTypeName: product.productType?.name,
+            sellerName: product.sellerId?.username,
+            sellerAvatar: product.sellerId?.image,
+            productImages: product.images,
+            productPrice: product.price,
+          };
+        }
+      );
       return {
         products: formattedProducts,
         totalPages,
