@@ -19,6 +19,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import Link from "next/link";
+import {
+  AiOutlineShoppingCart,
+  AiOutlinePlus,
+  AiOutlineUser,
+  AiOutlineLogout,
+  AiOutlineBell,
+} from "react-icons/ai";
 
 const Navbar: React.FC = () => {
   const [topOfPage, setTopOfPage] = useState(true);
@@ -37,7 +44,7 @@ const Navbar: React.FC = () => {
 
   return (
     <motion.nav
-      className={`sticky h-[60px] top-0 z-50 w-full backdrop-blur-sm flex-none 
+      className={`sticky h-[60px] top-0 z-50 w-full backdrop-blur-xl flex-none 
       transition-colors duration-150 ${
         topOfPage ? "" : "shadow-md"
       } lg:z-50 lg:border-b lg:border-slate-900/10
@@ -56,6 +63,10 @@ const Navbar: React.FC = () => {
           <SearchBox />
           <ModeToggle />
 
+          <Button variant={"ghost"} size={"icon"} className="p-2 rounded-full">
+            <AiOutlineBell className="text-xl" />
+          </Button>
+
           <div className="hidden lg:!flex items-center h-full gap-5">
             {session?.user ? (
               <>
@@ -63,43 +74,9 @@ const Navbar: React.FC = () => {
                 <Button
                   variant={"ghost"}
                   size={"icon"}
-                  className="p-2 rounded-full"
+                  className="p-2 rounded-full text-xl"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-                    />
-                  </svg>
-                </Button>
-
-                <Button
-                  variant={"ghost"}
-                  size={"icon"}
-                  className="p-2 rounded-full"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
-                    />
-                  </svg>
+                  <AiOutlineShoppingCart />
                 </Button>
 
                 {/* Thêm hàng */}
@@ -110,20 +87,7 @@ const Navbar: React.FC = () => {
                     onClick={() => router.push("/products/product/add")}
                     className="p-2 rounded-full"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-6 h-6"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 4.5v15m7.5-7.5h-15"
-                      />
-                    </svg>
+                    <AiOutlinePlus className="text-xl" />
                   </Button>
                 )}
 
@@ -145,20 +109,7 @@ const Navbar: React.FC = () => {
                         size={"icon"}
                         className="w-full !justify-start"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-6 h-6"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                          />
-                        </svg>
+                        <AiOutlineUser className="text-xl" />
                         <span className="ml-2">Thông tin tài khoản</span>
                       </Button>
                       <Button
@@ -167,20 +118,7 @@ const Navbar: React.FC = () => {
                         className="w-full !justify-start"
                         onClick={() => signOut()}
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-6 h-6"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-                          />
-                        </svg>
+                        <AiOutlineLogout className="text-xl" />
                         <span className="ml-2">Đăng xuất</span>
                       </Button>
                     </div>
@@ -215,20 +153,7 @@ const Navbar: React.FC = () => {
                       size={"icon"}
                       className="w-full mt-3 p-2 !justify-start"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-6 h-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                        />
-                      </svg>
+                      <AiOutlineUser className="text-xl" />
                       <span className="ml-2">Thông tin tài khoản</span>
                     </Button>
 
@@ -237,20 +162,7 @@ const Navbar: React.FC = () => {
                       size={"icon"}
                       className="w-full p-2 !justify-start"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-6 h-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-                        />
-                      </svg>
+                      <AiOutlineShoppingCart className="text-xl" />
                       <span className="ml-2">Giỏ hàng</span>
                     </Button>
                     {session?.user?.role !== "individual" && (
@@ -260,21 +172,8 @@ const Navbar: React.FC = () => {
                         onClick={() => router.push("/products/product/add")}
                         className="w-full p-2 !justify-start"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-6 h-6"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 4.5v15m7.5-7.5h-15"
-                          />
-                        </svg>
-                        <span className="ml-2">Thêm hàng</span>
+                        <AiOutlinePlus className="text-xl" />
+                        <span className="ml-2 text-base">Thêm hàng</span>
                       </Button>
                     )}
 
@@ -286,20 +185,7 @@ const Navbar: React.FC = () => {
                       className="w-full mb-3 p-2 !justify-start"
                       onClick={() => signOut()}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-6 h-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-                        />
-                      </svg>
+                      <AiOutlineLogout className="text-xl" />
                       <span className="ml-2">Đăng xuất</span>
                     </Button>
                   </div>

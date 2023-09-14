@@ -6,11 +6,20 @@ import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
+import { getTopProductType } from "@/actions/productType";
+
 interface ICategories {
   className?: string;
 }
 
 const Categories: React.FC<ICategories> = ({ className }) => {
+  React.useEffect(() => {
+    const serverAction = async () => {
+      const res = await getTopProductType();
+      console.log(res);
+    };
+    serverAction();
+  }, []);
   return (
     <motion.section
       className={`glassmorphism w-full mt-5`}
