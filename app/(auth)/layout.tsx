@@ -1,5 +1,5 @@
 import '@/app/globals.css'
-import { ModeToggle } from '@/components/mode-toggle'
+import { ModeToggle } from '@/components/ModeToggle'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { Noto_Sans } from 'next/font/google'
 

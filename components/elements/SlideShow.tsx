@@ -7,7 +7,7 @@ import { Button } from "../ui/button";
 import { RxDotFilled } from "react-icons/rx";
 
 type IProps = {
-  images: string[] | undefined;
+  images: string[];
 };
 const SlideShow: React.FC<IProps> = ({ images }) => {
   const [currentIndex, setCurrentIndex] = useState(0);

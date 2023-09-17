@@ -18,6 +18,7 @@ export interface IProductSchema extends Document {
   createAt: Date;
   deleteAt?: Date;
   auction: boolean;
+  sold: number;
 }
 
 const ProductSchema: Schema = new Schema(

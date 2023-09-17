@@ -20,7 +20,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { IAddProductTypes } from "@/lib/interface/interface";
 import { addProductType, getProductTypes } from "@/actions/products";
 import { IAddProductTypeZodSchema } from "@/lib/zodSchema/products";
 import { Label } from "../ui/label";

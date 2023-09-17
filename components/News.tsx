@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import CardItem from "./elements/CardItem";
-import { IProducts } from "@/lib/interface/interface";
 import { getProducts } from "@/actions/products";
 
 // import { Skeleton } from "@nextui-org/skeleton";
@@ -13,44 +12,15 @@ type INews = {
   className?: string;
 };
 
-type Response = {
-  products: {
-    _id: string;
-    productName: string;
-    productTypeName: string;
-    sellerName: string;
-    sellerAvatar: string;
-    productImages: string[];
-    productPrice: number;
-  }[];
-  totalPages: number;
-};
-
 const News: React.FC<INews> = ({ className }) => {
   const [news, setNews] = useState<IProducts[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // useEffect(() => {
-  //   const fetchApi = async () => {
-  //     const res = await fetch(
-  //       `/api/products/recommendation/64fd798338b9356ce033171a`,
-  //       {
-  //         method: "GET",
-  //         headers: {
-  //           "content-type": "application/json",
-  //         },
-  //       }
-  //     );
-  //     const data = await res.json();
-  //     setRecommendation(data);
-  //   };
-  //   fetchApi();
-  // }, []);
 
   useEffect(() => {
     const fetchApi = async () => {
       setIsLoading(true);
-      const res: Response = await getProducts();
+      const res: IProductsResponse = await getProducts();
       setNews(res?.products);
       setIsLoading(false);
     };

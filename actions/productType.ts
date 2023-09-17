@@ -1,6 +1,5 @@
 "use server";
 import Product from "@/lib/models/products";
-import ProductType from "@/lib/models/productTypes";
 
 export async function getTopProductType() {
   try {
@@ -31,6 +30,9 @@ export async function getTopProductType() {
           typeName: "$_id",
           totalSold: 1,
         },
+      },
+      {
+        $limit: 10,
       },
     ]);
     if (data.length > 0) {

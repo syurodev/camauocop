@@ -3,10 +3,6 @@
 import Product from "@/lib/models/products";
 import ProductType from "@/lib/models/productTypes";
 import { type IAddProductZodSchema } from "@/lib/zodSchema/products";
-import {
-  IProductDetail,
-  type IAddProductTypes,
-} from "@/lib/interface/interface";
 import { type IAddProductTypeZodSchema } from "@/lib/zodSchema/products";
 import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
@@ -109,7 +105,9 @@ export async function addProductType(data: IAddProductTypeZodSchema) {
   }
 }
 
-export async function getProducts(page: number = 1) {
+export async function getProducts(
+  page: number = 1
+): Promise<IProductsResponse> {
   const limit = 20;
   const skip = (page - 1) * limit;
 
@@ -221,5 +219,99 @@ export async function getProductDetail(_id: string) {
   } catch (error) {
     console.log("Lỗi lấy chi tiết sản phẩm", error);
     return null;
+  }
+}
+
+export async function searchProducts(
+  slug: string,
+  page: number
+): Promise<IProductsResponse> {
+  try {
+    await connectToDB();
+
+    const productTypes = await ProductType.find({
+      name: { $regex: slug, $options: "i" },
+    });
+
+    if (!productTypes || productTypes.length === 0) {
+      return {
+        products: [],
+        totalPages: 0,
+      };
+    }
+
+    const productTypeIds = productTypes.map((productType) => productType._id);
+
+    const limit = 20;
+    const skip = (page - 1) * limit;
+
+    const products: Product[] = await Product.find({
+      productType: { $in: productTypeIds },
+    })
+      .sort({ sold: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "sellerId",
+        select: "username image",
+      })
+      .populate({
+        path: "productType",
+        select: "name",
+      })
+      .select("name images price");
+
+    if (products && products.length > 0) {
+      // Format the data
+      const formattedProducts = products.map(
+        (product: {
+          _id: { toString: () => string };
+          name: string;
+          productType: { name: string };
+          sellerId: { username: string; image: string };
+          images: string[];
+          price: number;
+        }): {
+          _id: string;
+          productName: string;
+          productTypeName: string;
+          sellerName: string;
+          sellerAvatar: string;
+          productImages: string[];
+          productPrice: number;
+        } => {
+          return {
+            _id: product._id?.toString(),
+            productName: product.name,
+            productTypeName: product.productType?.name,
+            sellerName: product.sellerId?.username,
+            sellerAvatar: product.sellerId?.image,
+            productImages: product.images,
+            productPrice: product.price,
+          };
+        }
+      );
+
+      const totalProducts = await Product.countDocuments({
+        productType: { $in: productTypeIds },
+      });
+
+      const totalPages = Math.ceil(totalProducts / limit);
+      return {
+        products: formattedProducts,
+        totalPages,
+      };
+    } else {
+      return {
+        products: [],
+        totalPages: 0,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      products: [],
+      totalPages: 0,
+    };
   }
 }

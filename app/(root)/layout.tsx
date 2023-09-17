@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
+import { NextProviders } from "@/components/providers/NextUIProvider";
+
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import "@/app/globals.css";
-import Navbar from "@/components/navbar";
 import Providers from "@/components/providers/session-provider";
 import { Toaster } from "@/components/ui/toaster";
+import NavbarComponent from "@/components/Navbar";
 
 const noto = Noto_Sans({
   subsets: ["vietnamese"],
@@ -26,18 +28,20 @@ export default function RootLayout({
     <html lang="vi" suppressHydrationWarning>
       <Providers>
         <body className={noto.className}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            storageKey="seamarkethub-theme"
-            enableSystem={false}
-          >
-            <Navbar />
-            <main className="max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8">
-              {children}
-            </main>
-            <Toaster />
-          </ThemeProvider>
+          <NextProviders>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              storageKey="seamarkethub-theme"
+              enableSystem={false}
+            >
+              <NavbarComponent />
+              <main className="max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8">
+                {children}
+              </main>
+              <Toaster />
+            </ThemeProvider>
+          </NextProviders>
         </body>
       </Providers>
     </html>
