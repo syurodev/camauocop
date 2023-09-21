@@ -112,8 +112,8 @@ h6 {
 
 /* width */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 0px;
+  height: 0px;
 }
 
 /* Track */

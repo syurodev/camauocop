@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import CardItem from "./elements/CardItem";
 import { getProducts } from "@/actions/products";
-
-// import { Skeleton } from "@nextui-org/skeleton";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardBody, CardFooter, Image, Skeleton } from "@nextui-org/react";
 
 type INews = {
   className?: string;
@@ -15,7 +13,6 @@ type INews = {
 const News: React.FC<INews> = ({ className }) => {
   const [news, setNews] = useState<IProducts[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
 
   useEffect(() => {
     const fetchApi = async () => {
@@ -38,28 +35,35 @@ const News: React.FC<INews> = ({ className }) => {
         SẢN PHẨM MỚI
       </motion.h3>
 
-      <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-        {isLoading ? (
-          <>
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg" />
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg hidden sm:block" />
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg lg:block hidden" />
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg xl:block hidden" />
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg" />
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg hidden sm:block" />
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg lg:block hidden" />
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg xl:block hidden" />
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg" />
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg hidden sm:block" />
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg lg:block hidden" />
-            <Skeleton className="w-full min-w-[300px] max-w-[400px] h-[150px] rounded-lg xl:block hidden" />
-          </>
-        ) : (
-          news.length > 0 &&
-          news.map((item) => {
-            return <CardItem key={item?._id} data={item} />;
-          })
-        )}
+      <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4 xl:gap-5">
+        {isLoading
+          ? Array.from({ length: 20 }).map((_, index) => (
+              <Card
+                shadow="sm"
+                key={index}
+                fullWidth={false}
+                className="w-[100%]"
+              >
+                <Skeleton isLoaded={!isLoading} className="rounded-lg">
+                  <CardBody className="overflow-visible p-0 flex items-center justify-center">
+                    <div className="max-w-lg bg-default-50 max-h-lg h-[256px] w-auto object-cover aspect-[1/0.5]"></div>
+                  </CardBody>
+                </Skeleton>
+
+                <CardFooter className="text-small flex-col h-[84px] justify-between">
+                  <Skeleton isLoaded={!isLoading} className="rounded-lg">
+                    <b className="line-clamp-2">productname</b>
+                  </Skeleton>
+                  <Skeleton isLoaded={!isLoading} className="rounded-lg">
+                    <p className="text-default-500">productprice</p>
+                  </Skeleton>
+                </CardFooter>
+              </Card>
+            ))
+          : news.length > 0 &&
+            news.map((item) => {
+              return <CardItem key={item?._id} data={item} />;
+            })}
       </div>
     </section>
   );

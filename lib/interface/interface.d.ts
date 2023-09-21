@@ -10,7 +10,7 @@ type IProducts = {
 
 type IProductsResponse = {
   products: IProducts[] | [];
-  totalPages: number;
+  totalPages?: number;
 };
 
 type IAddProductTypes = {
@@ -35,6 +35,7 @@ type IProductDetail = {
     version: string;
   };
   productPrice: number;
+  productSold: number;
   productQuantity: number;
   productImages: string[];
   productCreatedAt: Date;
@@ -47,25 +48,35 @@ type IProductDetail = {
   productTypeId: string;
 };
 
-// export interface Products {
-//   description: {
-//     time: number;
-//     blocks: any[];
-//     version: string;
-//   };
-//   _id: string;
-//   sellerId: {
-//     _id: string;
-//     username: string;
-//     image: string;
-//   };
-//   productType: {
-//     _id: string;
-//     name: string;
-//   };
-//   name: string;
-//   price: number;
-//   images: string[];
-//   createdAt: Date;
-//   sold: number;
-// }
+type IGeolocation = {
+  display_name: string;
+  province: string;
+  district: string;
+  ward: string;
+};
+
+type ProvinceGHNData = {
+  ProvinceID: number;
+  ProvinceName: string;
+  CountryID: number;
+  Code: string;
+  NameExtension: NameExtension;
+  IsEnable: number;
+  RegionID: number;
+  RegionCPN: number;
+  UpdatedBy: number;
+  CreatedAt: string;
+  UpdatedAt: string;
+  CanUpdateCOD: boolean;
+  Status: number;
+  UpdatedIP: string;
+  UpdatedEmployee: number;
+  UpdatedSource: string;
+  UpdatedDate: string;
+};
+
+type GHNApiProvinceResponse = {
+  code: number;
+  message: string;
+  data: ProvinceGHNData[];
+};

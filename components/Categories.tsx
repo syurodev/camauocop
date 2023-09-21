@@ -49,7 +49,10 @@ const Categories: React.FC<ICategories> = ({ className }) => {
             {productTypes.length > 0 &&
               productTypes.map((type) => (
                 <Button key={type.typeName} variant={"ghost"}>
-                  <Link href={`/products/${encodeURIComponent(type.typeName)}`}>
+                  <Link
+                    className="whitespace-nowrap"
+                    href={`/products/${encodeURIComponent(type.typeName)}`}
+                  >
                     {type.typeName}
                   </Link>
                 </Button>

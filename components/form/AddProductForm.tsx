@@ -1,39 +1,22 @@
 "use client";
 
-import React, {
-  useState,
-  experimental_useOptimistic as useOptimistic,
-} from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { motion } from "framer-motion";
-import { OutputData } from "@editorjs/editorjs";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, Input, Select, SelectItem, Textarea } from "@nextui-org/react";
 import { useToast } from "@/components/ui/use-toast";
 
 import FileUpload from "@/components/elements/FileUpload";
-import { addProduct } from "@/actions/products";
+import { addProduct, getProductTypes } from "@/actions/products";
 import {
   AddProductZodSchema,
   type IAddProductZodSchema,
 } from "@/lib/zodSchema/products";
 import { Session } from "next-auth";
 import { useRouter } from "next/navigation";
-import ProductTypes from "../elements/ProductTypes";
+import ProductTypes from "../modal/ProductTypes";
 import Editor from "../elements/editor/EditorJS";
-import CustomInput from "../elements/CustomInput";
 
 type AddProductFormProps = {
   session: Session | null;
@@ -43,35 +26,42 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
   const router = useRouter();
   const { toast } = useToast();
 
+  const [productTypes, setProductTypes] = useState<IAddProductTypes[]>([]);
   //const [description, setDescription] = useState<OutputData | null>(null);
-  const [productAuction, setProductAuction] = useState<boolean>(false);
+  const [priceInputFormated, setPriceInputFormated] = useState<string>("");
 
-  const form = useForm<IAddProductZodSchema>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    getValues,
+    setValue,
+  } = useForm<IAddProductZodSchema>({
     resolver: zodResolver(AddProductZodSchema),
-    defaultValues: {
-      name: "",
-      description: {
-        time: 1693924805318,
-        blocks: [],
-        version: "2.28.0",
-      },
-      price: 0,
-      productType: "",
-      quantity: 0,
-      sellerId: "",
-      images: [],
-      auction: false,
-    },
   });
 
+  // GET PRODUCT TYPE
+  React.useEffect(() => {
+    const fetchApi = async () => {
+      const res = await getProductTypes();
+      setProductTypes(res);
+    };
+    fetchApi();
+  }, []);
+
   const onSubmit = async (data: IAddProductZodSchema) => {
+    console.log("submit");
     data = {
       ...data,
       sellerId: session?.user._id || "",
     };
     const res = await addProduct(data);
     if (res) {
-      // TODO: dẫn về trang sản phẩm cá nhân
+      toast({
+        title: "Thêm sản phẩm thành công",
+        description: `Đã thêm thành công sản phẩm ${getValues("name")}`,
+      });
       router.push("/");
     } else {
       toast({
@@ -80,199 +70,138 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
           "Hãy kiểm tra bạn đã nhập đầy đủ các trường chưa và thử lại",
       });
     }
-    console.log(res);
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const numericValue = parseFloat(e.target.value);
+    setValue("price", numericValue);
+    if (numericValue && !isNaN(numericValue)) {
+      const formattedPrice = new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+      }).format(numericValue);
+
+      // Cập nhật giá trị vào trạng thái priceInput
+      const formattedPriceWithUnit = `${formattedPrice}/Kg`;
+      setPriceInputFormated(formattedPriceWithUnit);
+    } else {
+      setPriceInputFormated("");
+    }
   };
 
   return (
-    <Form {...form}>
-      <form className="mt-7 px-2" onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="flex flex-col sm:!flex-row sm:gap-5">
-          <div className="w-full">
-            <motion.div
-              className="mt-4"
-              initial={{ y: 0, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-            >
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tên sản phẩm: </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Tên sản phẩm" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </motion.div>
+    <form className="mt-7 px-2" onSubmit={handleSubmit(onSubmit)}>
+      <div className="flex flex-col sm:!flex-row sm:gap-5">
+        <div className="flex flex-col gap-4 w-full">
+          <Input
+            isRequired
+            type="text"
+            label="Tên sản phẩm"
+            placeholder="Nhập tên sản phẩm"
+            className="max-w-full"
+            {...register("name")}
+            isInvalid={!!errors.name}
+            errorMessage={errors.name && errors.name.message}
+          />
 
-            <motion.div
-              className="mt-4"
-              initial={{ y: 0, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
+          {/* Loại sản phẩm */}
+          <div className="flex items-center">
+            <Select
+              items={productTypes}
+              label="Loại sản phẩm"
+              placeholder="Chọn loại sản phẩm"
+              className="max-w-full"
+              isRequired
+              {...register("productType")}
+              isInvalid={!!errors.productType}
+              errorMessage={errors.productType && errors.productType.message}
             >
-              <FormField
-                control={form.control}
-                name="productType"
-                render={({ field }) => (
-                  <FormItem>
-                    <ProductTypes
-                      sessionId={session?.user._id}
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </motion.div>
-
-            <motion.div
-              className="mt-4"
-              initial={{ y: 0, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Số lượng sản phẩm (Kg): </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Số lượng sản phẩm"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </motion.div>
-
-            <motion.div
-              className="mt-4"
-              initial={{ y: 0, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Giá sản phẩm: </FormLabel>
-                    <FormControl>
-                      <CustomInput
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </motion.div>
+              {(type) => <SelectItem key={type._id}>{type.name}</SelectItem>}
+            </Select>
+            <ProductTypes
+              id={session?.user._id}
+              productTypes={productTypes}
+              setProductTypes={setProductTypes}
+            />
           </div>
 
-          <div className="w-full sm:max-w-[50%]">
-            <motion.div
-              className="mt-4"
-              initial={{ y: 0, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mô tả sản phẩm: </FormLabel>
-                    <FormControl>
-                      {/* <Textarea placeholder="Nhập mô tả sản phẩm" {...field} /> */}
-                      <Editor
-                        value={field.value as OutputData}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </motion.div>
+          {/* Số lượng sp */}
+          <Input
+            isRequired
+            type="number"
+            label="Số lượng sản phẩm"
+            placeholder="0"
+            className="max-w-full"
+            endContent={
+              <div className="flex items-center">
+                <label className="sr-only" htmlFor="unit">
+                  unit
+                </label>
+                <select
+                  className="outline-none border-0 bg-transparent text-default-400 text-small"
+                  id="unit"
+                  name="unit"
+                >
+                  <option>Kg</option>
+                  <option>Tấn</option>
+                </select>
+              </div>
+            }
+            {...register("quantity")}
+            isInvalid={!!errors.quantity}
+            errorMessage={errors.quantity && errors.quantity.message}
+          />
 
-            <motion.div
-              className="mt-4"
-              initial={{ y: 0, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.6 }}
-            >
-              <FormField
-                control={form.control}
-                name="auction"
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between">
-                    <FormLabel htmlFor="auction">Sản phẩm đấu giá: </FormLabel>
-                    <FormControl>
-                      <Switch
-                        className="!mt-0"
-                        id="auction"
-                        checked={field.value}
-                        onCheckedChange={(newValue) => {
-                          field.onChange(newValue);
-                          setProductAuction(newValue);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </motion.div>
-          </div>
+          {/* Giá sản phẩm */}
+          <Input
+            isRequired
+            type="number"
+            label="Giá sản phẩm"
+            placeholder="0"
+            className="max-w-full"
+            endContent={
+              <div className="pointer-events-none flex items-center">
+                <span className="text-default-400 text-small">
+                  {priceInputFormated}
+                </span>
+              </div>
+            }
+            {...register("price")}
+            isInvalid={!!errors.price}
+            errorMessage={errors.price && errors.price.message}
+            onChange={handlePriceChange}
+          />
         </div>
 
-        <motion.div
-          className="mt-4"
-          initial={{ y: 0, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          <FormField
-            control={form.control}
-            name="images"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Hình ảnh: </FormLabel>
-                <FormControl>
-                  <FileUpload
-                    enpoint="productImages"
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </motion.div>
+        <div className="w-full sm:max-w-[50%] mb-2">
+          {/* Mô tả sản phẩm */}
+          {/* <Textarea
+            label="Mô tả sản phẩm"
+            labelPlacement="outside"
+            placeholder="Nhập mô tả sản phẩm"
+            className="max-w-xs"
+          /> */}
+          <Editor getValues={getValues} setValue={setValue} />
+          {errors.description && (
+            <p className="text-rose-500 font-bold">Phải có mô tả sản phẩm</p>
+          )}
+        </div>
+      </div>
 
-        <motion.div
-          className="flex items-center justify-end mt-4"
-          initial={{ y: 0, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.7 }}
-        >
-          <Button type="submit">Thêm sản phẩm</Button>
-        </motion.div>
-      </form>
-    </Form>
+      {/* Hình ảnh */}
+      <FileUpload
+        endpoint="productImages"
+        getValue={getValues}
+        setValue={setValue}
+      />
+      {errors.images && (
+        <p className="text-rose-500 text-center font-bold">
+          Phải có ít nhất một hình ảnh
+        </p>
+      )}
+
+      <Button type="submit">Thêm sản phẩm</Button>
+    </form>
   );
 };
 

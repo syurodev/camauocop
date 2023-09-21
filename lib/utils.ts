@@ -9,8 +9,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Connect DB
+let isConnected = false;
 export const connectToDB = async () => {
-  let isConnected = false;
   mongoose.set("strictQuery", true)
 
   if (isConnected) {

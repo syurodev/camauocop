@@ -179,10 +179,9 @@ export async function getProducts(
   }
 }
 
-export async function getProductDetail(_id: string) {
+export async function getProductDetail(_id: string): Promise<IProductDetail | null> {
   try {
     await connectToDB();
-
     const product = await Product.findById(_id)
       .populate({
         path: "sellerId",
@@ -203,6 +202,7 @@ export async function getProductDetail(_id: string) {
       productName: product.name,
       productDescription: product.description,
       productPrice: product.price,
+      productSold: product.sold,
       productQuantity: product.quantity,
       productImages: product.images,
       productCreatedAt: product.createdAt,

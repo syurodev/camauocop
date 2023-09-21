@@ -29,9 +29,6 @@ type ProductDataItem = {
 };
 
 type ProductData = ProductDataItem[];
-type TrainedData = {
-  [key: string]: ProductDataItem;
-};
 
 const processedDocs: ProductData = [];
 
@@ -46,7 +43,9 @@ export const getProductData = async () => {
         content: "",
       };
       data._id = product._id;
-      data.content = extractProductDescription(product);
+      data.content =
+        extractProductDescription(product) +
+        ` Giá sản phẩm: ${product.price} Số lượng đã bán: ${product.sold}`;
       processedDocs.push(data);
     });
     return processedDocs;
@@ -112,7 +111,7 @@ export const createVectorsFromDocs = async () => {
 export const calcSimilarities = async () => {
   const docVectors = await createVectorsFromDocs();
   // number of results that you want to return.
-  const MAX_SIMILAR = 20;
+  const MAX_SIMILAR = 6;
   // min cosine similarity score that should be returned.
   const MIN_SCORE = 0.2;
   const data: { [key: string]: any[] } = {};
@@ -151,7 +150,6 @@ export const calcSimilarities = async () => {
 };
 
 export const getSimilarDocuments = async (_id: string) => {
-  console.log("getSimilarDocuments");
   if (!_id) {
     return [];
   }
@@ -164,11 +162,16 @@ export const getSimilarDocuments = async (_id: string) => {
   return similarDocuments;
 };
 
-export const getSimilarProducts = async (_id: string) => {
+export const getSimilarProducts = async (
+  _id: string
+): Promise<IProductsResponse> => {
   const productSimilarList = await getSimilarDocuments(_id);
 
   if (productSimilarList.length <= 0) {
-    return [];
+    return {
+      products: [],
+      totalPages: 0,
+    };
   }
 
   const productIds = productSimilarList.map((item) => item.id);
@@ -214,12 +217,33 @@ export const getSimilarProducts = async (_id: string) => {
           };
         }
       );
-      return formattedProducts;
+      return {
+        products: formattedProducts,
+      };
     } else {
-      return [];
+      return {
+        products: [],
+      };
     }
   } catch (error) {
     console.error("Lỗi truy vấn sản phẩm:", error);
-    return [];
+    return {
+      products: [],
+    };
+  }
+};
+
+export const getRecommentdation = async (id: string) => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/recommendation/${id}`
+    );
+    const data: IProductsResponse = await res.json();
+    return data;
+  } catch (error) {
+    console.log(error);
+    return {
+      products: [],
+    };
   }
 };
