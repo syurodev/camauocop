@@ -5,7 +5,7 @@ import { NextProviders } from "@/components/providers/NextUIProvider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import "@/app/globals.css";
 import Providers from "@/components/providers/session-provider";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "react-hot-toast";
 import NavbarComponent from "@/components/Navbar";
 
 const noto = Noto_Sans({
@@ -39,7 +39,7 @@ export default function RootLayout({
               <main className="max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8">
                 {children}
               </main>
-              <Toaster />
+              <Toaster position="top-right" />
             </ThemeProvider>
           </NextProviders>
         </body>

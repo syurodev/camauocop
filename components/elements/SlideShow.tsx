@@ -68,7 +68,7 @@ const SlideShow: React.FC<IProps> = ({ images }) => {
             width={"full"}
             height={256}
             alt="product image"
-            className="max-w-screen min-h-[500px] h-full w-full object-cover aspect-[1/0.5]"
+            className="max-w-screen min-h-[500px] h-full w-full object-cover aspect-[1/1]"
           />
         )}
         {/* {images &&

@@ -13,7 +13,6 @@ const Transport: React.FC = () => {
   useEffect(() => {
     const fetchApi = async () => {
       const res: GHNApiProvinceResponse = await getGHNLocationCode();
-      console.log(res);
     };
     fetchApi();
   }, []);

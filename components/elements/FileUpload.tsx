@@ -4,16 +4,9 @@ import React from "react";
 import { UploadDropzone, UploadButton } from "@/lib/uploadthing";
 import "@uploadthing/react/styles.css";
 import Image from "next/image";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { X } from "lucide-react";
-
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { UseFormGetValues } from "react-hook-form";
+import { Tooltip, Button } from "@nextui-org/react";
 
 interface FileUploadProps {
   getValue: UseFormGetValues<{
@@ -57,26 +50,21 @@ const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <div className="flex justify-center items-center gap-1 ">
       {images && images.length > 0 ? (
-        <ScrollArea className="h-fit min-h-[200px] w-fit max-w-full min-w-[200px] rounded-md border !overflow-visible">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => {
-                    setValue("images", []);
-                    setImages(getValue("images"));
-                  }}
-                  className="bg-rose-500 text-white rounded-full p-1 absolute top-[-7px] right-[-7px] shadow-sm z-30"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Xoá hình ảnh</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
+        <div className="h-fit min-h-[200px] w-fit max-w-full min-w-[200px] rounded-md border !overflow-visible">
+          <Tooltip content="Xoá hình ảnh">
+            <Button
+              variant="ghost"
+              isIconOnly
+              radius="full"
+              onClick={() => {
+                setValue("images", []);
+                setImages(getValue("images"));
+              }}
+              className="bg-rose-500 border-none text-white rounded-full p-1 absolute top-[-7px] right-[-7px] shadow-sm z-30"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </Tooltip>
           <div className="flex space-x-4 py-4 justify-start ">
             {images.map((image, index) => (
               <Image
@@ -90,8 +78,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               />
             ))}
           </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+        </div>
       ) : (
         <UploadDropzone
           endpoint={endpoint}

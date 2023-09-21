@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useToast } from "@/components/ui/use-toast";
+import toast from "react-hot-toast";
 
 import {
   Modal,
@@ -27,7 +27,6 @@ const ProductTypes: React.FC<IProductTypeModel> = ({
   setProductTypes,
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { toast } = useToast();
 
   const [newProductTypes, setNewProductTypes] = React.useState<string>("");
   const [error, setError] = React.useState<string>("");
@@ -43,10 +42,7 @@ const ProductTypes: React.FC<IProductTypeModel> = ({
     });
 
     if (res.satus && res.newProductType) {
-      toast({
-        title: "Thêm loại sản phẩm thành công",
-        description: res.message,
-      });
+      toast.success(res.message);
       setNewProductTypes("");
       setProductTypes([...productTypes, res.newProductType]);
     } else {

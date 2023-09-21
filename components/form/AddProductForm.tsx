@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button, Input, Select, SelectItem, Textarea } from "@nextui-org/react";
-import { useToast } from "@/components/ui/use-toast";
+import { Button, Input, Select, SelectItem } from "@nextui-org/react";
+import toast from "react-hot-toast";
 
 import FileUpload from "@/components/elements/FileUpload";
 import { addProduct, getProductTypes } from "@/actions/products";
@@ -24,7 +24,6 @@ type AddProductFormProps = {
 
 const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
   const router = useRouter();
-  const { toast } = useToast();
 
   const [productTypes, setProductTypes] = useState<IAddProductTypes[]>([]);
   //const [description, setDescription] = useState<OutputData | null>(null);
@@ -51,24 +50,16 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
   }, []);
 
   const onSubmit = async (data: IAddProductZodSchema) => {
-    console.log("submit");
     data = {
       ...data,
       sellerId: session?.user._id || "",
     };
     const res = await addProduct(data);
     if (res) {
-      toast({
-        title: "Thêm sản phẩm thành công",
-        description: `Đã thêm thành công sản phẩm ${getValues("name")}`,
-      });
+      toast.success(`Đã thêm thành công sản phẩm ${getValues("name")}`);
       router.push("/");
     } else {
-      toast({
-        title: "Có lỗi trong quá trình thêm sản phẩm",
-        description:
-          "Hãy kiểm tra bạn đã nhập đầy đủ các trường chưa và thử lại",
-      });
+      toast.error("Có lỗi trong quá trình thêm sản phẩm");
     }
   };
 
