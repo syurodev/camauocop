@@ -35,18 +35,22 @@ const NavbarComponent: React.FC = () => {
 
       <NavbarContent justify="end" className="flex items-center gap-2">
         <ModeToggle className="!hidden lg:!flex" />
-        <Tooltip content="Thông báo">
-          <Badge content="99+" shape="circle" color="danger">
-            <Button
-              radius="full"
-              isIconOnly
-              aria-label="more than 99 notifications"
-              variant="light"
-            >
-              <AiOutlineBell className="text-xl" />
-            </Button>
-          </Badge>
-        </Tooltip>
+        {
+          session?.user && (
+            <Tooltip content="Thông báo">
+              <Badge content="99+" shape="circle" color="danger">
+                <Button
+                  radius="full"
+                  isIconOnly
+                  aria-label="more than 99 notifications"
+                  variant="light"
+                >
+                  <AiOutlineBell className="text-xl" />
+                </Button>
+              </Badge>
+            </Tooltip>
+          )
+        }
 
         <div className="flex items-center h-full gap-5">
           {session?.user ? (

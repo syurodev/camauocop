@@ -37,7 +37,7 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
     <article className="mt-2">
       <div className="flex flex-col lg:flex-row">
         <SlideShow images={data?.productImages || []} />
-        <div className="ml-3">
+        <div className="ml-3 lg:flex-1">
           <h1 className="font-bold text-4xl uppercase">{data?.productName}</h1>
           <Link href={`/products/${data?.productTypeName}`}>
             {data?.productTypeName}
