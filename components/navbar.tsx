@@ -78,7 +78,12 @@ const NavbarComponent: React.FC = () => {
               <UserMenu session={session} />
             </>
           ) : (
-            <Button onClick={() => router.push("/login")}>Đăng nhập</Button>
+            <Button
+              className="bg-primary"
+              onClick={() => router.push("/login")}
+            >
+              Đăng nhập
+            </Button>
           )}
         </div>
       </NavbarContent>

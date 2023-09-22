@@ -8,41 +8,42 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { AiOutlineGoogle } from "react-icons/ai";
-
-import { Button } from "@/components/ui/button";
+import {
+  AiOutlineGoogle,
+  AiOutlineEye,
+  AiOutlineEyeInvisible,
+} from "react-icons/ai";
+import {
+  Input,
+  Button,
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+} from "@nextui-org/react";
 import {
   UserRegisterZodSchema,
   IUserRegisterZodSchema,
 } from "@/lib/zodSchema/auth";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-
 export default function RegisterPage() {
   const router = useRouter();
   const [userError, setUserError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVisiblePass, setIsVisiblePass] = useState(false);
+  const [isVisibleRePass, setIsVisibleRePass] = useState(false);
 
-  const form = useForm<IUserRegisterZodSchema>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<IUserRegisterZodSchema>({
     resolver: zodResolver(UserRegisterZodSchema),
-    defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
   });
 
+  const toggleVisibilityPass = () => setIsVisiblePass(!isVisiblePass);
+  const toggleVisibilityRePass = () => setIsVisibleRePass(!isVisibleRePass);
+
   const onSubmit = async (data: IUserRegisterZodSchema) => {
-    setIsSubmitting(true);
     const res = await fetch("/api/users/register", {
       method: "POST",
       headers: {
@@ -54,139 +55,136 @@ export default function RegisterPage() {
     if (res.ok) {
       const result = await res.json();
       if (result.status === 400) {
-        setIsSubmitting(false);
         setUserError(result.message);
       } else {
-        setIsSubmitting(false);
         router.push("/login");
       }
     } else {
-      setIsSubmitting(false);
       setUserError("Lỗi đăng ký vui lòng thử lại");
     }
   };
 
   return (
-    <motion.section
-      className="glassmorphism transition-all duration-150 max-sm:w-full md:max-w-xl w-[500px] p-4 sm:px-6 md:px-8"
-      initial={{ y: 0, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 0 }}
-    >
-      <motion.div
-        className="text-center mb-5"
-        initial={{ y: 0, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1 }}
-      >
-        <h1 className="font-semibold text-lg">SeaMarketHub</h1>
-      </motion.div>
+    <Card className="w-[90%] md:w-1/3 min-w-[400px] max-w-[500px] p-4">
+      <CardHeader className="flex flex-col">
+        <div className="text-center mb-2">
+          <h1 className="font-semibold text-lg">SeaMarketHub</h1>
+        </div>
 
-      <motion.div
-        className="w-full flex flex-col justify-center items-center mb-5"
-        initial={{ y: 0, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Button onClick={() => signIn("google", { callbackUrl: "/" })}>
-          <AiOutlineGoogle className="text-xl" />
+        <div className="w-full flex flex-col justify-center items-center">
+          <Button onClick={() => signIn("google", { callbackUrl: "/" })}>
+            <AiOutlineGoogle className="text-xl" />
+            <span className="ml-2 font-medium">Đăng ký với Google</span>
+          </Button>
+        </div>
+      </CardHeader>
+      <CardBody>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Input
+            isClearable
+            type="text"
+            label="Tên đăng nhập"
+            variant="bordered"
+            placeholder="Nhập tên đăng nhập của bạn"
+            className="max-w-full mt-4"
+            {...register("username")}
+          />
+          {errors.username && (
+            <motion.p
+              className="text-red-500 mb-3"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0 }}
+            >
+              {`${errors.username.message}`}
+            </motion.p>
+          )}
 
-          <span className="ml-2">Đăng ký với Google</span>
-        </Button>
-      </motion.div>
+          <Input
+            isClearable
+            type="email"
+            label="Email"
+            variant="bordered"
+            placeholder="Nhập email của bạn"
+            className="max-w-full mt-4"
+            {...register("email")}
+          />
+          {errors.email && (
+            <motion.p
+              className="text-red-500 mb-3"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0 }}
+            >
+              {`${errors.email.message}`}
+            </motion.p>
+          )}
 
-      <Form {...form}>
-        <motion.form onSubmit={form.handleSubmit(onSubmit)}>
-          <motion.div
-            initial={{ y: 0, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tên đăng nhập: </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Tên đăng nhập" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
+          <Input
+            label="Mật khẩu"
+            variant="bordered"
+            placeholder="Nhập mật khẩu của bạn"
+            endContent={
+              <button
+                className="focus:outline-none"
+                type="button"
+                onClick={toggleVisibilityPass}
+              >
+                {isVisiblePass ? (
+                  <AiOutlineEye className="text-xl" />
+                ) : (
+                  <AiOutlineEyeInvisible className="text-xl" />
+                )}
+              </button>
+            }
+            type={isVisiblePass ? "text" : "password"}
+            className="max-w-full mt-4"
+            {...register("password")}
+          />
+          {errors.password && (
+            <motion.p
+              className="text-red-500 mb-3"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0 }}
+            >
+              {`${errors.password.message}`}
+            </motion.p>
+          )}
 
-          <motion.div
-            initial={{ y: 0, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem className="mt-3">
-                  <FormLabel>Email: </FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="Email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
+          <Input
+            label="Nhập lại mật khẩu"
+            variant="bordered"
+            placeholder="Nhập lại mật khẩu của bạn"
+            endContent={
+              <button
+                className="focus:outline-none"
+                type="button"
+                onClick={toggleVisibilityRePass}
+              >
+                {isVisibleRePass ? (
+                  <AiOutlineEye className="text-xl" />
+                ) : (
+                  <AiOutlineEyeInvisible className="text-xl" />
+                )}
+              </button>
+            }
+            type={isVisibleRePass ? "text" : "password"}
+            className="max-w-full mt-4"
+            {...register("confirmPassword")}
+          />
+          {errors.confirmPassword && (
+            <motion.p
+              className="text-red-500 mb-3"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0 }}
+            >
+              {`${errors.confirmPassword.message}`}
+            </motion.p>
+          )}
 
-          <motion.div
-            initial={{ y: 0, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem className="mt-3">
-                  <FormLabel>Mật khẩu: </FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Mật khẩu" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ y: 0, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem className="mt-3">
-                  <FormLabel>Nhập lại mật khẩu: </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Nhập lại mật khẩu"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
-
-          <motion.div
-            className="mt-4 flex flex-col items-center justify-center"
-            initial={{ y: 0, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.7 }}
-          >
+          <div className="mt-4 flex flex-col items-center justify-center">
             {userError && (
               <motion.p
                 className="text-red-500 mb-3"
@@ -198,28 +196,28 @@ export default function RegisterPage() {
               </motion.p>
             )}
 
-            <Button disabled={isSubmitting} type="submit">
+            <Button
+              disabled={isSubmitting}
+              type="submit"
+              className="font-medium bg-primary"
+            >
               {isSubmitting && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               Đăng ký
             </Button>
-          </motion.div>
-        </motion.form>
-      </Form>
-      <motion.div
-        className="w-full flex flex-col justify-center items-center"
-        initial={{ y: 0, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.8 }}
-      >
-        <p className="mt-3 font-normal text-sm">
+          </div>
+        </form>
+      </CardBody>
+
+      <CardFooter className="w-full flex flex-col justify-center items-center">
+        <p className="font-medium text-sm">
           Đã có tài khoản?{" "}
           <Link className="font-semibold" href={"/login"}>
             Đăng nhập
           </Link>
         </p>
-      </motion.div>
-    </motion.section>
+      </CardFooter>
+    </Card>
   );
 }

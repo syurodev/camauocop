@@ -7,40 +7,43 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { AiOutlineGoogle } from "react-icons/ai";
+import {
+  AiOutlineGoogle,
+  AiOutlineEye,
+  AiOutlineEyeInvisible,
+} from "react-icons/ai";
 
 import {
   UserLoginZodSchema,
   type IUserLoginZodSchema,
 } from "@/lib/zodSchema/auth";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
-import { Input } from "@/components/ui/input";
+import {
+  Input,
+  Button,
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+} from "@nextui-org/react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [isVisible, setIsVisible] = useState(false);
   const [userError, setUserError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<IUserLoginZodSchema>({
+  const toggleVisibility = () => setIsVisible(!isVisible);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<IUserLoginZodSchema>({
     resolver: zodResolver(UserLoginZodSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
   });
 
   async function onSubmit(values: IUserLoginZodSchema) {
-    setIsSubmitting(true);
     const result = await signIn("credentials", {
       username: values.username,
       password: values.password,
@@ -50,92 +53,85 @@ export default function LoginPage() {
 
     if (result) {
       if (result.url) {
-        setIsSubmitting(false);
         router.push("/");
       } else {
         setUserError("Tài khoản hoặc mật khẩu không đúng");
-        setIsSubmitting(false);
       }
     } else {
       setUserError("Lỗi đăng nhập vui lòng thử lại");
-      setIsSubmitting(false);
     }
   }
 
   return (
-    <motion.section
-      className="glassmorphism max-sm:w-full md:max-w-xl w-[500px] p-4 sm:px-6 md:px-8"
-      initial={{ y: 0, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-    >
-      <motion.div
-        className="text-center mb-5"
-        initial={{ y: 0, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1 }}
-      >
-        <h1 className="font-semibold text-lg">SeaMarketHub</h1>
-      </motion.div>
+    <Card className="w-[90%] md:w-1/3 min-w-[400px] max-w-[500px] p-4">
+      <CardHeader className="flex flex-col">
+        <div className="text-center mb-5">
+          <h1 className="font-semibold text-lg">SeaMarketHub</h1>
+        </div>
 
-      <motion.div
-        className="w-full flex flex-col justify-center items-center mb-5"
-        initial={{ y: 0, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Button onClick={() => signIn("google", { callbackUrl: "/" })}>
-          <AiOutlineGoogle className="text-xl" />
-          <span className="ml-2">Đăng nhập với Google</span>
-        </Button>
-      </motion.div>
+        <div className="w-full flex flex-col justify-center items-center">
+          <Button onClick={() => signIn("google", { callbackUrl: "/" })}>
+            <AiOutlineGoogle className="text-xl" />
+            <span className="ml-2 font-medium">Đăng nhập với Google</span>
+          </Button>
+        </div>
+      </CardHeader>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <motion.div
-            initial={{ y: 0, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tên đăng nhập hoặc Email: </FormLabel>
-                  <FormControl>
-                    <Input placeholder="username hoặc email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
+      <CardBody>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Input
+            isClearable
+            type="text"
+            label="Tên đăng nhập/ Email"
+            variant="bordered"
+            placeholder="Nhập email hoặc tên đăng nhập"
+            className="max-w-full"
+            {...register("username")}
+          />
+          {errors.username && (
+            <motion.p
+              className="text-red-500 mb-3"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0 }}
+            >
+              {`${errors.username.message}`}
+            </motion.p>
+          )}
 
-          <motion.div
-            initial={{ y: 0, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem className="mt-3">
-                  <FormLabel>Mật khẩu: </FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Mật khẩu" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
-          <motion.div
-            className="mt-3 flex flex-col items-center justify-center"
-            initial={{ y: 0, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
+          <Input
+            label="Mật khẩu"
+            variant="bordered"
+            placeholder="Nhập mật khẩu của bạn"
+            endContent={
+              <button
+                className="focus:outline-none"
+                type="button"
+                onClick={toggleVisibility}
+              >
+                {isVisible ? (
+                  <AiOutlineEye className="text-xl" />
+                ) : (
+                  <AiOutlineEyeInvisible className="text-xl" />
+                )}
+              </button>
+            }
+            type={isVisible ? "text" : "password"}
+            className="max-w-full mt-4"
+            {...register("password")}
+          />
+          {errors.password && (
+            <motion.p
+              className="text-red-500 mb-3"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0 }}
+            >
+              {`${errors.password.message}`}
+            </motion.p>
+          )}
+
+          <div className="mt-3 flex flex-col items-center justify-center">
             {userError && (
               <motion.p
                 className="text-red-500 mb-3"
@@ -147,29 +143,28 @@ export default function LoginPage() {
               </motion.p>
             )}
 
-            <Button disabled={isSubmitting} type="submit">
+            <Button
+              disabled={isSubmitting}
+              type="submit"
+              className="font-medium bg-primary"
+            >
               {isSubmitting && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               Đăng nhập
             </Button>
-          </motion.div>
+          </div>
         </form>
-      </Form>
+      </CardBody>
 
-      <motion.div
-        className="w-full flex flex-col justify-center items-center"
-        initial={{ y: 0, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.6 }}
-      >
-        <p className="mt-3 font-normal text-sm">
+      <CardFooter className="w-full flex flex-col justify-center items-center">
+        <p className="font-normal text-sm">
           Chưa có tài khoản?{" "}
           <Link className="font-semibold" href={"/register"}>
             Đăng ký
           </Link>
         </p>
-      </motion.div>
-    </motion.section>
+      </CardFooter>
+    </Card>
   );
 }
