@@ -24,7 +24,7 @@ const ProductsPage: FC<IProps> = ({ params }) => {
   }, [params.slug]);
 
   return (
-    <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+    <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4 xl:gap-5">
       {data &&
         data.products.map((product) => (
           <CardItem key={product?._id} data={product} />

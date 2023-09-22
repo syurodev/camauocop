@@ -65,10 +65,10 @@ const SlideShow: React.FC<IProps> = ({ images }) => {
             isZoomed
             shadow="sm"
             radius="lg"
-            width={"full"}
-            height={256}
+            width={"auto"}
+            height={"full"}
             alt="product image"
-            className="max-w-screen min-h-[500px] h-full w-full object-cover aspect-[1/1]"
+            className="object-cover"
           />
         )}
         {/* {images &&

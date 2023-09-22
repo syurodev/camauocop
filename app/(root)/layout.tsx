@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import "@/app/globals.css";
 import Providers from "@/components/providers/session-provider";
 import { Toaster } from "react-hot-toast";
-import NavbarComponent from "@/components/Navbar";
+import NavbarComponent from "@/components/layout/NavbarComponent";
 
 const noto = Noto_Sans({
   subsets: ["vietnamese"],

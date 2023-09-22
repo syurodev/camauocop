@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
-import { Button, Skeleton } from "@nextui-org/react";
+import { Button, Skeleton, Card } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 
 import { getTopProductType } from "@/actions/productType";
@@ -31,18 +30,18 @@ const Categories: React.FC<ICategories> = ({ className }) => {
     serverAction();
   }, []);
   return (
-    <motion.section
-      className={`glassmorphism w-full mt-5`}
-      initial={{ y: 0, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 0.4 }}
+    <Card
+      shadow="sm"
+      className={`w-[100%] overflow-scroll flex justify-start md:justify-around flex-row ${
+        className || ""
+      }`}
     >
       {isLoading ? (
         <>
           <Skeleton className="w-full h-[40px] rounded-lg" />
         </>
       ) : (
-        <div className="flex justify-around">
+        <>
           {/* TODO: MAP ITEM */}
           {productTypes.length > 0 &&
             productTypes.map((type) => (
@@ -57,9 +56,9 @@ const Categories: React.FC<ICategories> = ({ className }) => {
                 {type.typeName}
               </Button>
             ))}
-        </div>
+        </>
       )}
-    </motion.section>
+    </Card>
   );
 };
 

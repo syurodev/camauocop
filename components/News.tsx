@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import CardItem from "./elements/CardItem";
 import { getProducts } from "@/actions/products";
-import { Card, CardBody, CardFooter, Image, Skeleton } from "@nextui-org/react";
+import { Card, CardBody, CardFooter, Skeleton } from "@nextui-org/react";
 
 type INews = {
   className?: string;

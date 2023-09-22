@@ -12,7 +12,7 @@ import {
   Button,
 } from "@nextui-org/react";
 
-export function ModeToggle({ className = "" }: { className: string }) {
+export function ModeToggle({ className = "" }: { className?: string }) {
   const { setTheme } = useTheme();
 
   return (
