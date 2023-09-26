@@ -188,7 +188,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                 </Card>
 
                 <div className="flex-1 flex gap-3 flex-col">
-                  <DeliveryCard openCurrentLocation={onOpen} />
+                  <DeliveryCard />
                   <Card shadow="sm">
                     <CardHeader>
                       Tổng tiền

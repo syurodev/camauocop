@@ -4,7 +4,11 @@ export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
-  address?: string;
+  address?: [{
+    province: string;
+    district: string;
+    ward: string;
+  }];
   role?: "individual" | "shop" | "business";
   name?: string;
   phone?: number;
@@ -22,7 +26,17 @@ const UserSchema: Schema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     email_verified: { type: Boolean, required: true, default: false },
-    address: { type: String, default: "" },
+    address: [{
+      province: {
+        type: String,
+      },
+      district: {
+        type: String,
+      },
+      ward: {
+        type: String,
+      }
+    }],
     image: { type: String, default: "" },
     role: {
       type: String,
