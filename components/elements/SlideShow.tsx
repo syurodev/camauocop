@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Image } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
-import { RxDotFilled } from "react-icons/rx";
+import { LuDot } from "react-icons/lu";
 import { GrFormPrevious, GrFormNext } from "react-icons/gr";
 
 type IProps = {
@@ -99,12 +99,11 @@ const SlideShow: React.FC<IProps> = ({ images }) => {
           images.map((image, index) => (
             <div
               key={index}
-              className={`${
-                index === currentIndex && "text-primary"
-              } text-xl cursor-pointer transition-all duration-150`}
+              className={`${index === currentIndex && "text-primary"
+                } text-xl cursor-pointer transition-all duration-150`}
               onClick={() => goToSlide(index)}
             >
-              <RxDotFilled />
+              <LuDot />
             </div>
           ))}
       </div>

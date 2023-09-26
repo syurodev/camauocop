@@ -50,33 +50,11 @@ type IProductDetail = {
 
 type IGeolocation = {
   display_name: string;
-  province: string;
-  district: string;
-  ward: string;
-};
-
-type ProvinceGHNData = {
-  ProvinceID: number;
-  ProvinceName: string;
-  CountryID: number;
-  Code: string;
-  NameExtension: NameExtension;
-  IsEnable: number;
-  RegionID: number;
-  RegionCPN: number;
-  UpdatedBy: number;
-  CreatedAt: string;
-  UpdatedAt: string;
-  CanUpdateCOD: boolean;
-  Status: number;
-  UpdatedIP: string;
-  UpdatedEmployee: number;
-  UpdatedSource: string;
-  UpdatedDate: string;
-};
-
-type GHNApiProvinceResponse = {
-  code: number;
-  message: string;
-  data: ProvinceGHNData[];
+  province: ProvinceGHNData | null;
+  district: DistrictGHNData | null;
+  ward: WardGHNData | null;
+  provinces?: GHNApiProvinceResponse
+  districts?: GHNApiDistrictResponse
+  wards?: GHNApiWardResponse
+  serviceName?: string | null;
 };

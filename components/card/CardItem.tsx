@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Card, CardBody, CardFooter, Image } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
 
 interface CardItemProps {
   data: IProducts;
@@ -10,16 +11,6 @@ interface CardItemProps {
 
 const CardItem: React.FC<CardItemProps> = ({ data }) => {
   const router = useRouter();
-
-  let formattedPriceWithUnit = "";
-  if (data.productPrice && !isNaN(data.productPrice)) {
-    const formattedPrice = new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(data.productPrice);
-
-    formattedPriceWithUnit = `${formattedPrice}/Kg`;
-  }
 
   return (
     <Card
@@ -41,7 +32,7 @@ const CardItem: React.FC<CardItemProps> = ({ data }) => {
       </CardBody>
       <CardFooter className="flex flex-col text-small justify-between">
         <b className="line-clamp-1">{data.productName}</b>
-        <p className="text-default-500">{formattedPriceWithUnit}</p>
+        <p className="text-default-500">{formattedPriceWithUnit(data.productPrice)}</p>
       </CardFooter>
     </Card>
   );

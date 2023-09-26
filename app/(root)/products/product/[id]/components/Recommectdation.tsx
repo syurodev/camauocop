@@ -4,6 +4,7 @@ import { Card, CardBody, CardFooter, Image, Skeleton } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 
 import { getRecommentdation } from "@/actions/recommendation";
+import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
 
 type Props = {
   id: string;
@@ -49,15 +50,6 @@ const Recommectdation: React.FC<Props> = ({ id }) => {
         ))
       ) : recommendation && recommendation?.products.length > 0 ? (
         recommendation.products.map((product) => {
-          let formattedPriceWithUnit = "";
-          if (product.productPrice && !isNaN(product.productPrice)) {
-            const formattedPrice = new Intl.NumberFormat("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            }).format(product.productPrice);
-
-            formattedPriceWithUnit = `${formattedPrice}/Kg`;
-          }
           return (
             <Card
               shadow="sm"
@@ -78,7 +70,7 @@ const Recommectdation: React.FC<Props> = ({ id }) => {
               </CardBody>
               <CardFooter className="flex flex-col text-small justify-between">
                 <b className="line-clamp-1">{product.productName}</b>
-                <p className="text-default-500">{formattedPriceWithUnit}</p>
+                <p className="text-default-500">{formattedPriceWithUnit(product.productPrice)}</p>
               </CardFooter>
             </Card>
           );
@@ -89,4 +81,4 @@ const Recommectdation: React.FC<Props> = ({ id }) => {
     </div>
   );
 };
-export default Recommectdation;
+export default React.memo(Recommectdation);

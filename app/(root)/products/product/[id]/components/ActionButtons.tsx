@@ -1,34 +1,61 @@
 "use client";
 import React from "react";
-import { Button, Tooltip } from "@nextui-org/react";
+import { Button, Tooltip, useDisclosure } from "@nextui-org/react";
 import {
   AiOutlineShoppingCart,
   AiOutlineHeart,
   AiFillHeart,
   AiOutlineDollarCircle,
 } from "react-icons/ai";
+import { Session } from "next-auth";
+import { useRouter } from "next/navigation";
 
-const ActionButtons: React.FC = () => {
+import BuyModal from "@/components/modal/BuyModal";
+
+type IProps = {
+  session: Session | null
+  data: (IProductDetail | null)[]
+}
+
+const ActionButtons: React.FC<IProps> = ({ session, data }) => {
   const [favorited, setFavorited] = React.useState<boolean>(false);
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const router = useRouter()
 
   const handleFavorited = () => {
+    if (!session) {
+      router.push("/login")
+    }
+
     setFavorited(!favorited);
   };
 
+  const handleBuyButtomClick = () => {
+    if (!session) {
+      router.push("/login")
+      return
+    }
+    onOpen()
+  }
+
+  const handleAddToCart = () => {
+    if (!session) {
+      router.push("/login")
+    }
+  }
+
   return (
     <div className="flex justify-around items-center mt-3">
-      <Tooltip content="Thêm vào giỏ hàng">
-        <Button isIconOnly variant="ghost" radius="full">
+      <Tooltip content={`${!session ? "Đăng nhập" : "Thêm vào giỏ hàng"}`}>
+        <Button isIconOnly variant="ghost" radius="full" onPress={handleAddToCart}>
           <AiOutlineShoppingCart className="text-xl" />
         </Button>
       </Tooltip>
 
       <Tooltip
-        content={
-          favorited
-            ? "Xoá khỏi danh sách yêu thích"
-            : "Thêm vào danh sách yêu thích"
-        }
+        content={`${!session ? "Đăng nhập" : favorited
+          ? "Xoá khỏi danh sách yêu thích"
+          : "Thêm vào danh sách yêu thích"}`}
       >
         <Button
           isIconOnly
@@ -44,16 +71,26 @@ const ActionButtons: React.FC = () => {
         </Button>
       </Tooltip>
 
-      <Tooltip content="Mua ngay">
+      <Tooltip content={`${!session ? "Đăng nhập" : "Mua ngay"}`}>
         <Button
           variant="flat"
           radius="full"
           className="bg-emerald-500"
           startContent={<AiOutlineDollarCircle className="text-xl" />}
+          onPress={handleBuyButtomClick}
         >
-          Mua ngay
+          {
+            !session ? "Đăng nhập để mua" : "Mua ngay"
+          }
         </Button>
       </Tooltip>
+
+      <BuyModal
+        isOpenBuyModal={isOpen}
+        onOpenChangeBuyModal={onOpenChange}
+        onCloseBuyModal={onClose}
+        data={data}
+      />
     </div>
   );
 };

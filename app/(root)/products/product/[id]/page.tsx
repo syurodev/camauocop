@@ -3,11 +3,15 @@ import { getProductDetail } from "@/actions/products";
 import { Metadata } from "next";
 import Link from "next/link";
 import { AiOutlineStar, AiFillStar } from "react-icons/ai";
+import { getServerSession } from "next-auth/next"
 
 import SlideShow from "@/components/elements/SlideShow";
 import ActionButtons from "./components/ActionButtons";
 import RenderDescription from "./components/RenderDescription";
 import Recommectdation from "./components/Recommectdation";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { Session } from "next-auth";
+import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
 
 type Props = {
   params: { id: string };
@@ -21,18 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: `Chi tiết sản phẩm ${data?.productName || ""}`,
   };
 }
+
 const ProductDetailPage: React.FC<Props> = async ({ params }) => {
   const data: IProductDetail | null = await getProductDetail(params.id);
 
-  let formattedPriceWithUnit = "";
-  if (data && data.productPrice && !isNaN(data.productPrice)) {
-    const formattedPrice = new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(data.productPrice);
+  const session: Session | null = await getServerSession(authOptions)
 
-    formattedPriceWithUnit = `${formattedPrice}/Kg`;
-  }
   return (
     <article className="mt-2">
       <div className="flex flex-col lg:flex-row">
@@ -56,13 +54,13 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
           </div>
 
           <h2 className="text-center my-2 font-bold">
-            {formattedPriceWithUnit}
+            {formattedPriceWithUnit(data?.productPrice)}
           </h2>
 
           <p className="text-center">
             Số lượng còn lại: {data?.productQuantity}Kg
           </p>
-          <ActionButtons />
+          <ActionButtons session={session} data={Array(data)} />
         </div>
       </div>
 

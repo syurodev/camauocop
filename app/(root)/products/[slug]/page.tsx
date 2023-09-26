@@ -2,7 +2,7 @@
 import { searchProducts } from "@/actions/products";
 import { FC, useEffect, useState } from "react";
 
-import CardItem from "@/components/elements/CardItem";
+import CardItem from "@/components/card/CardItem";
 
 type IProps = {
   params: {

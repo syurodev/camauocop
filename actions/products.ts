@@ -152,7 +152,7 @@ export async function getProducts(
           return {
             _id: product._id?.toString(),
             productName: product.name,
-            productTypeName: product.productType?.name,
+            productTypeName: product.productType?.name.toString(),
             sellerName: product.sellerId?.username,
             sellerAvatar: product.sellerId?.image,
             productImages: product.images,
@@ -209,10 +209,10 @@ export async function getProductDetail(_id: string): Promise<IProductDetail | nu
       productDeletedAt: product.deleteAt,
       productAuction: product.auction,
       sellerName: product.sellerId.username,
-      sellerId: product.sellerId._id,
+      sellerId: product.sellerId._id.toString(),
       sellerAvatar: product.sellerId.image,
-      productTypeName: product.productType.name,
-      productTypeId: product.productType._id,
+      productTypeName: product.productType.name.toString(),
+      productTypeId: product.productType._id.toString(),
     };
 
     return formattedProduct;
