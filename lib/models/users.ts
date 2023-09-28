@@ -8,24 +8,25 @@ export interface IUser extends Document {
     province: string;
     district: string;
     ward: string;
+    apartment: string;
   }];
   role?: "individual" | "shop" | "business";
-  name?: string;
-  phone?: number;
+  phone?: string;
   provider: string;
   image: string;
   email_verified?: boolean;
+  phone_verified?: boolean;
   productTypes?: string[];
 }
 
 const UserSchema: Schema = new Schema(
   {
-    name: { type: String },
-    phone: { type: Number },
+    phone: { type: String, default: "" },
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     email_verified: { type: Boolean, required: true, default: false },
+    phone_verified: { type: Boolean, required: true, default: false },
     address: [{
       province: {
         type: String,
@@ -34,6 +35,9 @@ const UserSchema: Schema = new Schema(
         type: String,
       },
       ward: {
+        type: String,
+      },
+      apartment: {
         type: String,
       }
     }],
@@ -49,5 +53,4 @@ const UserSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.User ||
-  mongoose.model<IUser>("User", UserSchema);
+export default mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

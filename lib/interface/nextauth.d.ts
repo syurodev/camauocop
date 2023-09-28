@@ -4,7 +4,6 @@ declare module "next/app" {
   interface Session {
     user: {
       _id: string,
-      name: string,
       email: string,
       username: string,
       role: string
@@ -18,7 +17,6 @@ declare module "next-auth" {
 
   interface Profile {
     sub?: string
-    name?: string
     email?: string
     image?: string
     email_verified?: boolean
@@ -27,14 +25,16 @@ declare module "next-auth" {
   interface Session {
     user: {
       address: string,
+      shop_id: [any],
       email: string,
+      phone: string,
       email_verified: boolean,
+      phone_verified: boolean,
       image: string,
       provider: string,
       role: string,
       username: string,
       accessToken: string,
-      name: string,
       _id: string,
     }
   }

@@ -32,9 +32,8 @@ const Categories: React.FC<ICategories> = ({ className }) => {
   return (
     <Card
       shadow="sm"
-      className={`w-[100%] overflow-scroll flex justify-start md:justify-around flex-row ${
-        className || ""
-      }`}
+      className={`w-[100%] overflow-scroll flex justify-start md:justify-around flex-row ${className || ""
+        }`}
     >
       {isLoading ? (
         <>
@@ -43,7 +42,7 @@ const Categories: React.FC<ICategories> = ({ className }) => {
       ) : (
         <>
           {/* TODO: MAP ITEM */}
-          {productTypes.length > 0 &&
+          {productTypes && productTypes.length > 0 &&
             productTypes.map((type) => (
               <Button
                 key={type.typeName}

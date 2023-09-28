@@ -16,11 +16,15 @@ export const getCurrentLocation = async ({
     );
 
     if (!response.ok) {
-      return null;
+      return {
+        code: 500,
+        message: "Có lỗi trong quá trình tự động định vị. Vui lòng chọn thủ công"
+      }
     }
 
     const data = await response.json();
     const res: IGeolocation = {
+      code: 200,
       display_name: data.display_name,
       province: null,
       district: null,
@@ -47,7 +51,10 @@ export const getCurrentLocation = async ({
     return res;
   } catch (error) {
     console.error("Lỗi khi lấy thông tin địa chỉ:", error);
-    return null;
+    return {
+      code: 500,
+      message: "Có lỗi trong quá trình tự động định vị. Vui lòng chọn thủ công"
+    };
   }
 };
 
@@ -69,7 +76,7 @@ export const getGHNProvince = async (): Promise<GHNApiProvinceResponse> => {
     console.log(error)
     return {
       code: 500,
-      message: "Lỗi truy vấn",
+      message: "Lỗi khi lấy thông tin địa chỉ. Vui lòng tải lại trang",
       data: []
     }
   }
@@ -124,7 +131,7 @@ export const getGHNWard = async (id: number): Promise<GHNApiWardResponse> => {
     console.log(error)
     return {
       code: 500,
-      message: "Lỗi truy vấn",
+      message: "Lỗi khi lấy thông tin địa chỉ. Vui lòng tải lại trang",
       data: []
     }
   }

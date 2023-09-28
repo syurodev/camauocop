@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody, Select, SelectItem, Card, CardHeader, CardBody, Image, Input, Button, Divider, useDisclosure } from "@nextui-org/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, Select, SelectItem, Card, CardHeader, CardBody, Image, Input, Button, Divider, useDisclosure, ModalFooter } from "@nextui-org/react";
 import { LuMinus, LuPlus } from "react-icons/lu"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,7 +8,6 @@ import { IOrderZodSchema, OrderZodSchema } from "@/lib/zodSchema/order";
 
 import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
 import DeliveryCard from "../card/DeliveryCard";
-import CurrentLocation from "./CurrentLocation";
 
 type IProps = {
   isOpenBuyModal: boolean;
@@ -89,6 +88,8 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
     setProductQuantities(newQuantities);
   }
 
+  const onSubmit = async () => { }
+
   return (
     <div className="flex flex-col gap-2">
       <Modal
@@ -124,10 +125,11 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
       >
         <ModalContent>
           {(onClose) => (
-            <form>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <ModalHeader>
                 Mua hàng
               </ModalHeader>
+
               <ModalBody className="flex gap-3 flex-col md:flex-row w-full">
                 <Card shadow="sm" className="flex-1">
                   <CardHeader>
@@ -188,7 +190,9 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                 </Card>
 
                 <div className="flex-1 flex gap-3 flex-col">
-                  <DeliveryCard />
+
+                  <DeliveryCard label="Giao hàng" showList={true} />
+
                   <Card shadow="sm">
                     <CardHeader>
                       Tổng tiền
@@ -213,16 +217,15 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                   </Card>
                 </div>
               </ModalBody>
+
+              <ModalFooter>
+                <Button variant="bordered" onPress={onClose}>Huỷ</Button>
+                <Button color="success" type="submit">Mua</Button>
+              </ModalFooter>
             </form>
           )}
         </ModalContent>
       </Modal>
-
-      <CurrentLocation
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        onClose={onClose}
-      />
     </div>
   );
 }

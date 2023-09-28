@@ -17,6 +17,7 @@ import {
 import { IoAnalyticsOutline } from "react-icons/io5";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 
 type IProps = {
   session: Session;
@@ -25,6 +26,7 @@ type IProps = {
 const UserMenu: React.FC<IProps> = ({ session }) => {
   const [themeIcon, setThemeIcon] = React.useState<string>("light")
   const { setTheme } = useTheme();
+  const router = useRouter()
 
   React.useEffect(() => {
     const currentTheme = localStorage.getItem("seamarkethub-theme") || "dark"
@@ -65,26 +67,40 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
             className={`${session?.user.role !== "individual" ? "block" : "hidden"}`}
           >
             <DropdownItem
-              key="settings"
+              key="my-shop"
               startContent={<AiOutlineShop className="text-lg" />}
             >
-              Cửa hàng của tôi
+              <span>Cửa hàng của tôi</span>
             </DropdownItem>
 
             <DropdownItem
-              key="team_settings"
+              key="analytics"
               startContent={<IoAnalyticsOutline className="text-lg" />}
             >
-              Thống kê
+              <span>Thống kê</span>
+            </DropdownItem>
+          </DropdownSection>
+
+          <DropdownSection showDivider
+            className={`${session?.user.role === "individual" ? "block" : "hidden"}`}
+          >
+            <DropdownItem
+              key="register-shop"
+              startContent={<AiOutlineShop className="text-lg" />}
+              onPress={() =>
+                router.push(`/users/shop/register`)
+              }
+            >
+              <span>Đăng ký bán hàng</span>
             </DropdownItem>
           </DropdownSection>
 
           <DropdownSection showDivider>
             <DropdownItem
-              key="help_and_feedback"
+              key="settings"
               startContent={<AiOutlineSetting className="text-lg" />}
             >
-              Cài đặt tài khoản
+              <span>Cài đặt tài khoản</span>
             </DropdownItem>
           </DropdownSection>
 
@@ -116,7 +132,7 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
               onClick={() => signOut()}
               startContent={<AiOutlineLogout className="text-lg" />}
             >
-              Đăng xuất
+              <span>Đăng xuất</span>
             </DropdownItem>
           </DropdownSection>
         </DropdownMenu>

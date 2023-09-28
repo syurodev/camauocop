@@ -49,12 +49,14 @@ type IProductDetail = {
 };
 
 type IGeolocation = {
-  display_name: string;
-  province: ProvinceGHNData | null;
-  district: DistrictGHNData | null;
-  ward: WardGHNData | null;
+  code: number;
+  display_name?: string;
+  province?: ProvinceGHNData | null;
+  district?: DistrictGHNData | null;
+  ward?: WardGHNData | null;
   provinces?: GHNApiProvinceResponse
   districts?: GHNApiDistrictResponse
   wards?: GHNApiWardResponse
   serviceName?: string | null;
+  message?: string;
 };
