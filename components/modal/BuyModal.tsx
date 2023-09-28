@@ -17,6 +17,10 @@ type IProps = {
 }
 
 const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenChangeBuyModal, data }) => {
+  const [provinceId, setProvinceId] = React.useState<number>(0)
+  const [districtId, setDistrictId] = React.useState<number>(0)
+  const [wardId, setWardId] = React.useState<string>("0")
+
   const {
     register,
     handleSubmit,
@@ -191,7 +195,13 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
 
                 <div className="flex-1 flex gap-3 flex-col">
 
-                  <DeliveryCard label="Giao hàng" showList={true} />
+                  <DeliveryCard
+                    label="Giao hàng"
+                    selectionMode={"single"}
+                    setProvinceId={setProvinceId}
+                    setDistrictId={setDistrictId}
+                    setWardId={setWardId}
+                  />
 
                   <Card shadow="sm">
                     <CardHeader>
