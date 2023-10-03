@@ -24,7 +24,7 @@ const NavbarComponent: React.FC = () => {
   const [notification, setNotification] = useState([]);
   const { data: session } = useSession();
   const router = useRouter();
-
+  console.log(session)
   return (
     <Navbar maxWidth="2xl">
       <NavbarBrand className="flex items-center h-full gap-2">

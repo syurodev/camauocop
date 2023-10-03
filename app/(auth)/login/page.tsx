@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+
 import {
   AiOutlineGoogle,
   AiOutlineEye,
@@ -26,6 +26,7 @@ import {
   CardHeader,
   CardBody,
   CardFooter,
+  Spinner,
 } from "@nextui-org/react";
 
 export default function LoginPage() {
@@ -149,7 +150,7 @@ export default function LoginPage() {
               className="font-medium bg-primary"
             >
               {isSubmitting && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Spinner size="sm" color="default" />
               )}
               Đăng nhập
             </Button>

@@ -1,9 +1,6 @@
 type IProducts = {
   _id: string;
   productName: string;
-  productTypeName: string;
-  sellerName: string;
-  sellerAvatar: string;
   productImages: string[];
   productPrice: number;
 };

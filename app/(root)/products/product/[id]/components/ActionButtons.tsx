@@ -13,14 +13,17 @@ import { useRouter } from "next/navigation";
 import BuyModal from "@/components/modal/BuyModal";
 
 type IProps = {
-  session: Session | null
-  data: (IProductDetail | null)[]
+  data: string
+  user: string
 }
 
-const ActionButtons: React.FC<IProps> = ({ session, data }) => {
+const ActionButtons: React.FC<IProps> = ({ user, data }) => {
   const [favorited, setFavorited] = React.useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const router = useRouter()
+
+  const session: Session = JSON.parse(user)
+  const products: (IProductDetail | null)[] = JSON.parse(data)
 
   const handleFavorited = () => {
     if (!session) {
@@ -89,7 +92,7 @@ const ActionButtons: React.FC<IProps> = ({ session, data }) => {
         isOpenBuyModal={isOpen}
         onOpenChangeBuyModal={onOpenChange}
         onCloseBuyModal={onClose}
-        data={data}
+        data={products}
       />
     </div>
   );

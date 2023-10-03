@@ -198,6 +198,15 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                   <DeliveryCard
                     label="Giao hàng"
                     selectionMode={"single"}
+                    showList={true}
+                    registerApartment={{ ...register("apartment") }}
+                    registerDelivery={{ ...register("delivery") }}
+                    registerProvince={{ ...register("province") }}
+                    registerDistrict={{ ...register("district") }}
+                    registerWard={{ ...register("ward") }}
+                    getValues={getValues}
+                    setValue={setValue}
+                    errors={errors}
                     setProvinceId={setProvinceId}
                     setDistrictId={setDistrictId}
                     setWardId={setWardId}

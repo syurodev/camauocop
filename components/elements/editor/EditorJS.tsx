@@ -3,28 +3,24 @@ import React, { useEffect, useRef } from "react";
 import EditorJS, { EditorConfig, OutputData } from "@editorjs/editorjs";
 import { EDITOR_JS_TOOLS } from "./tools";
 import { UseFormGetValues, UseFormSetValue } from "react-hook-form";
+import { IAddProductZodSchema } from "@/lib/zodSchema/products";
 
 interface EditorProps {
-  setValue: UseFormSetValue<{
-    productType: string;
-    name: string;
-    description: { time: number; blocks: unknown[]; version: string };
-    price: number;
-    quantity: number;
-    images: [string, ...string[]];
-    sellerId?: string | undefined;
-    auction?: boolean | undefined;
-  }>;
-  getValues: UseFormGetValues<{
-    productType: string;
-    name: string;
-    description: { time: number; blocks: unknown[]; version: string };
-    price: number;
-    quantity: number;
-    images: [string, ...string[]];
-    sellerId?: string | undefined;
-    auction?: boolean | undefined;
-  }>;
+  setValue: (
+    name:
+      | "sellerId"
+      | "productType"
+      | "name"
+      | "description"
+      | "quantity"
+      | "images"
+      | "retailPrice"
+      | "retail"
+      | "packageOptions",
+    value: any,
+    options?: any
+  ) => void;
+  getValues: UseFormGetValues<IAddProductZodSchema>
 }
 
 const Editor: React.FC<EditorProps> = ({ getValues, setValue }) => {
@@ -70,7 +66,8 @@ const Editor: React.FC<EditorProps> = ({ getValues, setValue }) => {
     <div>
       <div
         id="editor-container"
-        className="border rounded-md sm:max-h-[304px] max-h-[500px] overflow-auto"
+        className="border-none rounded-[12px] sm:max-h-[304px]
+         max-h-[500px] overflow-auto bg-[#f4f4f5] dark:bg-[#27272a] p-2"
       ></div>
     </div>
   );

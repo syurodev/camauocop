@@ -4,6 +4,11 @@ import User from './users';
 
 interface IProductInOrder {
   productId: string;
+  productSnapshot: {
+    name: string;
+    price: number;
+    // Các trường khác của sản phẩm cần lưu trữ tại thời điểm đặt hàng
+  };
   quantity: number;
 }
 
@@ -19,6 +24,7 @@ const OrderSchema: Schema = new Schema({
   buyerId: { type: Schema.Types.ObjectId, ref: User, required: true },
   products: [{
     productId: { type: Schema.Types.ObjectId, ref: Product, required: true },
+    productSnapshot: { type: Object, required: true },
     quantity: { type: Number, required: true },
   }],
   totalAmount: { type: Number, required: true },

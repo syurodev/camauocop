@@ -60,7 +60,7 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
           <p className="text-center">
             Số lượng còn lại: {data?.productQuantity}Kg
           </p>
-          <ActionButtons session={session} data={Array(data)} />
+          <ActionButtons user={JSON.stringify(session)} data={JSON.stringify(Array(data))} />
         </div>
       </div>
 

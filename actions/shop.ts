@@ -17,7 +17,6 @@ type IProps = {
 export const shopRegister = async ({ data, district_id, ward_code, next = false }: IProps) => {
   try {
     await connectToDB();
-    console.log(next)
     const shopExisting = await Shop.findOne({ auth: data.auth })
 
     if (shopExisting) {

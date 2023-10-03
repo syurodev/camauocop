@@ -23,6 +23,7 @@ export const getCurrentLocation = async ({
     }
 
     const data = await response.json();
+
     const res: IGeolocation = {
       code: 200,
       display_name: data.display_name,
@@ -34,18 +35,18 @@ export const getCurrentLocation = async ({
 
     const provinces: GHNApiProvinceResponse = await getGHNProvince()
     res.provinces = provinces
-    res.province = findProvince(data.address.city, provinces)
+    res.province = findProvince(data.address.city || data.address.state, provinces)
 
     if (res.province) {
       const districts: GHNApiDistrictResponse = await getGHNDistrict(res.province?.ProvinceID)
       res.districts = districts
-      res.district = findDistrict(data.address.district, districts)
+      res.district = findDistrict(data.address.district || data.address.county, districts)
     }
 
     if (res.district) {
       const wards: GHNApiWardResponse = await getGHNWard(res.district?.DistrictID)
       res.wards = wards
-      res.ward = findWard(data.address.suburb, wards)
+      res.ward = findWard(data.address.suburb || data.address.village, wards)
     }
 
     return res;

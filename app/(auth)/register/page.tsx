@@ -7,7 +7,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+
 import {
   AiOutlineGoogle,
   AiOutlineEye,
@@ -20,6 +20,7 @@ import {
   CardHeader,
   CardBody,
   CardFooter,
+  Spinner,
 } from "@nextui-org/react";
 import {
   UserRegisterZodSchema,
@@ -202,7 +203,7 @@ export default function RegisterPage() {
               className="font-medium bg-primary"
             >
               {isSubmitting && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Spinner size="sm" color="default" />
               )}
               Đăng ký
             </Button>

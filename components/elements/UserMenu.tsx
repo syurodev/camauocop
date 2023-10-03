@@ -15,7 +15,7 @@ import {
   AiOutlineLogout,
 } from "react-icons/ai";
 import { IoAnalyticsOutline } from "react-icons/io5";
-import { Moon, Sun } from "lucide-react";
+import { LuMoon, LuSunMedium } from "react-icons/lu"
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 
@@ -112,11 +112,11 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
               startContent={
                 themeIcon === "light" ? (
                   <div className="h-[1.2rem] w-[1.2rem]">
-                    <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                    <LuSunMedium className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                   </div>
                 ) : (
                   <div className="h-[1.2rem] w-[1.2rem]">
-                    <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                    <LuMoon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                   </div>
                 )
               }

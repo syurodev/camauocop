@@ -42,7 +42,6 @@
     "isomorphic-dompurify": "^1.8.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.272.0",
     "mongodb": "^6.0.0",
     "mongoose": "^7.5.0",
     "natural": "^6.7.1",

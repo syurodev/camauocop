@@ -1,8 +1,9 @@
 import type { NextAuthOptions, Profile, Session, Account } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
-import { connectToDB } from "@/lib/utils";
+import { connectToDB, signJwtAccessToken } from "@/lib/utils";
 import User from "@/lib/models/users";
+import Shop from "@/lib/models/shop";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
@@ -65,9 +66,15 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user }) {
-      const tokenData = await getUserByEmail({ email: token.email });
-      token = tokenData;
-      return token;
+      if (token.email) {
+        const tokenData = await getUserByEmail({ email: token.email });
+        console.log("tokenData", tokenData)
+        token = tokenData;
+        return token;
+      } else {
+        token = user as any
+        return token
+      }
     },
 
     async session({ session, token }): Promise<Session> {
@@ -93,7 +100,7 @@ async function signInWithOAuth({
 
   //user not found -> register -> login
   try {
-    const res = await fetch(`${BASE_URL}/api/users/register`, {
+    await fetch(`${BASE_URL}/api/users/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -117,9 +124,27 @@ async function signInWithOAuth({
 
 async function getUserByEmail({ email }: { email: string | null | undefined }) {
   await connectToDB();
-  const user = await User.findOne({ email: email }).select("-password");
+  const user = await User.findOne({ email: email })
+
+  const { password, ...userWithoutPassword } = (user as any)._doc;
 
   if (!user) throw new Error("User not found");
 
-  return { ...user._doc };
+  const accessToken = signJwtAccessToken(userWithoutPassword);
+
+  let result = {
+    ...userWithoutPassword,
+    accessToken
+  }
+
+  if (user.role !== "individual") {
+    const shop = await Shop.findOne({ auth: user._id })
+
+    if (shop) {
+      const shopId = shop._id
+      result = { ...result, shopId }
+    }
+  }
+
+  return { ...result };
 }

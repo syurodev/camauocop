@@ -1,6 +1,7 @@
 import * as byrypt from "bcrypt"
 
-import User from "@/lib/models/users";
+import User, { IUser } from "@/lib/models/users";
+import Shop from "@/lib/models/shop";
 import { connectToDB } from "@/lib/utils";
 import { signJwtAccessToken } from "@/lib/utils";
 
@@ -15,15 +16,25 @@ export async function POST(req: Request) {
   await connectToDB()
 
   const user = await User.findOne({ $or: [{ username: body.username }, { email: body.username }] })
+  const { password, ...userWithoutPassword } = (user as any)._doc;
 
   if (user && (await byrypt.compare(body.password, user.password))) {
-    const { password, ...userWithoutPassword } = (user as any)._doc;
     const accessToken = signJwtAccessToken(userWithoutPassword);
 
-    const result = {
+    let result = {
       ...userWithoutPassword,
       accessToken
     }
+
+    if (user.role !== "individual") {
+      const shop = await Shop.findOne({ auth: userWithoutPassword._id })
+
+      if (shop) {
+        const shopId = shop._id
+        result = { ...result, shopId }
+      }
+    }
+
     return new Response(JSON.stringify(result))
   } else return new Response(JSON.stringify(null))
 }

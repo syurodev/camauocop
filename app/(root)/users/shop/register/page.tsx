@@ -1,13 +1,12 @@
 "use client"
 
 import React from 'react'
-import { Button, Card, CardBody, CardHeader, Divider, Input, Tooltip } from "@nextui-org/react";
+import { Button, Card, CardBody, CardHeader, Divider, Input, Spinner, Tooltip } from "@nextui-org/react";
 import { useSession } from "next-auth/react";
 // import { LuBadgeAlert, LuBadgeCheck } from "react-icons/lu"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from 'react-hot-toast';
-import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import DeliveryCard from '@/components/card/DeliveryCard';
@@ -133,9 +132,9 @@ const ShopRegisterPage: React.FC = () => {
           registerProvince={{ ...register("province") }}
           registerDistrict={{ ...register("district") }}
           registerWard={{ ...register("ward") }}
-          errors={errors}
           getValues={getValues}
           setValue={setValue}
+          errors={errors}
           setProvinceId={setProvinceId}
           setDistrictId={setDistrictId}
           setWardId={setWardId}
@@ -147,7 +146,7 @@ const ShopRegisterPage: React.FC = () => {
           </Button>
           <Button color='success' type='submit' isDisabled={isSubmitting}>
             {isSubmitting && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Spinner size="sm" color="default" />
             )}
             Đăng ký
           </Button>

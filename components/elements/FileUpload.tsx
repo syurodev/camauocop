@@ -4,21 +4,13 @@ import React from "react";
 import { UploadDropzone, UploadButton } from "@/lib/uploadthing";
 import "@uploadthing/react/styles.css";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { LuX } from "react-icons/lu"
 import { UseFormGetValues } from "react-hook-form";
 import { Tooltip, Button } from "@nextui-org/react";
+import { IAddProductZodSchema } from "@/lib/zodSchema/products";
 
 interface FileUploadProps {
-  getValue: UseFormGetValues<{
-    productType: string;
-    name: string;
-    description: { time: number; blocks: unknown[]; version: string };
-    price: number;
-    quantity: number;
-    images: [string, ...string[]];
-    sellerId?: string | undefined;
-    auction?: boolean | undefined;
-  }>;
+  getValue: UseFormGetValues<IAddProductZodSchema>;
   endpoint: "productImages" | "avatarImage";
   setValue: (
     name:
@@ -26,10 +18,11 @@ interface FileUploadProps {
       | "productType"
       | "name"
       | "description"
-      | "price"
       | "quantity"
       | "images"
-      | "auction",
+      | "retailPrice"
+      | "retail"
+      | "packageOptions",
     value: any,
     options?: any
   ) => void;
@@ -62,7 +55,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               }}
               className="bg-rose-500 border-none text-white rounded-full p-1 absolute top-[-7px] right-[-7px] shadow-sm z-30"
             >
-              <X className="h-4 w-4" />
+              <LuX />
             </Button>
           </Tooltip>
           <div className="flex space-x-4 py-4 justify-start ">

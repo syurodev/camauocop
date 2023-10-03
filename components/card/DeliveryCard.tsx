@@ -1,9 +1,8 @@
 "use client"
 import React from 'react'
-import { Button, Card, CardBody, Tooltip, Input, CardHeader, Avatar, Divider, Select, SelectItem, CardFooter } from '@nextui-org/react'
+import { Button, Card, CardBody, Tooltip, Input, CardHeader, Avatar, Divider, Select, SelectItem, CardFooter, Spinner } from '@nextui-org/react'
 import { MdOutlineLocationOn } from "react-icons/md"
 import { BsListNested } from "react-icons/bs"
-import { Loader2 } from 'lucide-react';
 import toast from "react-hot-toast";
 
 import { getCurrentLocation, getGHNDistrict, getGHNProvince, getGHNWard } from '@/actions/address'
@@ -166,7 +165,7 @@ const DeliveryCard: React.FC<IProps> = ({
             >
               {
                 isGeolocationLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Spinner size="sm" color="default" />
                 ) : (
                   <MdOutlineLocationOn className="text-xl" />
                 )

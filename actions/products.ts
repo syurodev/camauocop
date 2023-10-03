@@ -1,28 +1,21 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { getServerSession } from "next-auth/next";
+import { ObjectId } from "mongodb";
+
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { connectToDB } from "@/lib/utils";
 import Product from "@/lib/models/products";
 import ProductType from "@/lib/models/productTypes";
 import { type IAddProductZodSchema } from "@/lib/zodSchema/products";
 import { type IAddProductTypeZodSchema } from "@/lib/zodSchema/products";
-import { revalidatePath } from "next/cache";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { getServerSession } from "next-auth/next";
-import { connectToDB } from "@/lib/utils";
-import { ObjectId } from "mongodb";
+import { convertToKg } from "@/lib/convertToKg";
 
 type Product = {
   _id: ObjectId;
-  sellerId: {
-    _id: ObjectId;
-    username: string;
-    image: string;
-  };
-  productType: {
-    _id: ObjectId;
-    name: string;
-  };
   name: string;
-  price: number;
+  retailPrice: number;
   images: string[];
 };
 
@@ -31,11 +24,20 @@ export async function addProduct(data: IAddProductZodSchema) {
     await connectToDB();
 
     const product = new Product(data);
+    const quantity = convertToKg(product.quantity, data.unit)
+    product.quantity = quantity
+
     await product.save();
-    return true;
+    return {
+      code: 200,
+      message: `Thêm sản phẩm ${product.name} thành công`
+    }
   } catch (error) {
     console.log(error);
-    return false;
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại"
+    }
   }
 }
 
@@ -120,43 +122,17 @@ export async function getProducts(
       .sort({ createdAt: -1 }) // sort by newest
       .skip(skip) // skip products for pagination
       .limit(limit) // limit to 20 products per page
-      .populate({
-        path: "sellerId",
-        select: "username image", // select username and image of the seller
-      })
-      .populate({
-        path: "productType",
-        select: "name", // select name of the product type
-      })
-      .select("name images price"); // select name, images, and price of the product
+      .select("name images retailPrice"); // select name, images, and price of the product
 
     if (products && products.length > 0) {
       // Format the data
       const formattedProducts = products.map(
-        (product: {
-          _id: { toString: () => string };
-          name: string;
-          productType: { name: string };
-          sellerId: { username: string; image: string };
-          images: string[];
-          price: number;
-        }): {
-          _id: string;
-          productName: string;
-          productTypeName: string;
-          sellerName: string;
-          sellerAvatar: string;
-          productImages: string[];
-          productPrice: number;
-        } => {
+        (product: Product): IProducts => {
           return {
             _id: product._id?.toString(),
             productName: product.name,
-            productTypeName: product.productType?.name.toString(),
-            sellerName: product.sellerId?.username,
-            sellerAvatar: product.sellerId?.image,
             productImages: product.images,
-            productPrice: product.price,
+            productPrice: product.retailPrice,
           };
         }
       );
@@ -202,15 +178,15 @@ export async function getProductDetail(_id: string): Promise<IProductDetail | nu
       productName: product.name,
       productDescription: product.description,
       productPrice: product.price,
-      productSold: product.sold,
+      productSold: product.sold || 0,
       productQuantity: product.quantity,
       productImages: product.images,
       productCreatedAt: product.createdAt,
       productDeletedAt: product.deleteAt,
       productAuction: product.auction,
-      sellerName: product.sellerId.username,
-      sellerId: product.sellerId._id.toString(),
-      sellerAvatar: product.sellerId.image,
+      sellerName: product.sellerId.username || "block user",
+      sellerId: product.sellerId._id.toString() || "",
+      sellerAvatar: product.sellerId.image || "",
       productTypeName: product.productType.name.toString(),
       productTypeId: product.productType._id.toString(),
     };
@@ -251,43 +227,17 @@ export async function searchProducts(
       .sort({ sold: -1 })
       .skip(skip)
       .limit(limit)
-      .populate({
-        path: "sellerId",
-        select: "username image",
-      })
-      .populate({
-        path: "productType",
-        select: "name",
-      })
       .select("name images price");
 
     if (products && products.length > 0) {
       // Format the data
       const formattedProducts = products.map(
-        (product: {
-          _id: { toString: () => string };
-          name: string;
-          productType: { name: string };
-          sellerId: { username: string; image: string };
-          images: string[];
-          price: number;
-        }): {
-          _id: string;
-          productName: string;
-          productTypeName: string;
-          sellerName: string;
-          sellerAvatar: string;
-          productImages: string[];
-          productPrice: number;
-        } => {
+        (product: Product): IProducts => {
           return {
             _id: product._id?.toString(),
             productName: product.name,
-            productTypeName: product.productType?.name,
-            sellerName: product.sellerId?.username,
-            sellerAvatar: product.sellerId?.image,
             productImages: product.images,
-            productPrice: product.price,
+            productPrice: product.retailPrice,
           };
         }
       );
