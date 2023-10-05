@@ -6,7 +6,7 @@ import { ObjectId } from "mongodb";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { connectToDB } from "@/lib/utils";
-import Product from "@/lib/models/products";
+import Product, { IProduct } from "@/lib/models/products";
 import ProductType from "@/lib/models/productTypes";
 import { type IAddProductZodSchema } from "@/lib/zodSchema/products";
 import { type IAddProductTypeZodSchema } from "@/lib/zodSchema/products";
@@ -49,7 +49,7 @@ export async function getProductTypes() {
 
     if (session) {
       const productTypes: IAddProductTypes[] = await ProductType.find({
-        userId: session?.user._id,
+        shopId: session?.user.shopId,
       });
 
       if (productTypes.length > 0) {
@@ -76,7 +76,7 @@ export async function addProductType(data: IAddProductTypeZodSchema) {
     await connectToDB();
 
     const exittedProductType = await ProductType.findOne({
-      userId: data.userId,
+      shopId: data.shopId,
       name: { $regex: new RegExp(data.name, "i") },
     });
 
@@ -160,12 +160,16 @@ export async function getProductDetail(_id: string): Promise<IProductDetail | nu
     await connectToDB();
     const product = await Product.findById(_id)
       .populate({
-        path: "sellerId",
-        select: "username _id image", // select username, _id and image of the seller
+        path: "shopId",
+        select: "name _id delivery shop_id address",
+        populate: {
+          path: "auth",
+          select: "username image _id",
+        },
       })
       .populate({
         path: "productType",
-        select: "name _id", // select name and _id of the product type
+        select: "name _id",
       });
 
     if (!product) {
@@ -177,18 +181,26 @@ export async function getProductDetail(_id: string): Promise<IProductDetail | nu
       _id: product._id.toString(),
       productName: product.name,
       productDescription: product.description,
-      productPrice: product.price,
+      retail: product.retail,
+      packageOptions: product.packageOptions,
+      productPrice: product.retailPrice,
       productSold: product.sold || 0,
       productQuantity: product.quantity,
       productImages: product.images,
       productCreatedAt: product.createdAt,
       productDeletedAt: product.deleteAt,
-      productAuction: product.auction,
-      sellerName: product.sellerId.username || "block user",
-      sellerId: product.sellerId._id.toString() || "",
-      sellerAvatar: product.sellerId.image || "",
+      shopName: product.shopId.username || "block user",
+      shopId: product.shopId._id.toString() || "",
+      sellerId: product.shopId.auth._id.toString() || "",
+      sellerName: product.shopId.auth.username || "block user",
+      sellerAvatar: product.shopId.auth.image || "",
       productTypeName: product.productType.name.toString(),
       productTypeId: product.productType._id.toString(),
+      shopInfo: {
+        delivery: product.shopId.delivery,
+        address: product.shopId.address,
+        shop_id: product.shopId.shop_id,
+      }
     };
 
     return formattedProduct;

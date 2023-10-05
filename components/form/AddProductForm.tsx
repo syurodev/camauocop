@@ -44,7 +44,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
       productType: "",
       name: "",
       packageOptions: [{
-        unit: "Kg",
+        unit: "kg",
         weight: 0,
         price: 0,
       }],
@@ -73,19 +73,24 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
   }, []);
 
   const onSubmit = async (data: IAddProductZodSchema) => {
-    data = {
-      ...data,
-      sellerId: session?.user._id || "",
-    };
-    const res = await addProduct(data);
-    if (res.code === 200) {
-      toast.success(res.message);
-      reset
-      return
-    }
+    if (session?.user.shopId) {
+      data = {
+        ...data,
+        shopId: session?.user.shopId,
+      };
+      const res = await addProduct(data);
+      if (res.code === 200) {
+        toast.success(res.message);
+        reset
+        return
+      }
 
-    if (res.code === 500) {
-      toast.error(res.message);
+      if (res.code === 500) {
+        toast.error(res.message);
+        return
+      }
+    } else {
+      toast.error("Lỗi lấy id shop vui lòng thử lại");
       return
     }
   };
@@ -108,7 +113,6 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
   };
 
   const handleRetail = (isSelected: boolean) => {
-    console.log(isSelected)
     setValue("retail", isSelected)
     setRetail(isSelected)
   }
@@ -142,7 +146,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
             </Select>
 
             <ProductTypes
-              id={session?.user._id}
+              id={session?.user.shopId}
               productTypes={productTypes}
               setProductTypes={setProductTypes}
             />
@@ -229,7 +233,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
                 variant="flat"
                 color="success"
                 onClick={() => append({
-                  unit: "Kg",
+                  unit: "kg",
                   weight: 0,
                   price: 0,
                 })}
@@ -311,7 +315,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
         </p>
       )}
 
-      <div className="flex justify-end">
+      <div className="flex justify-end py-3">
         <Button type="submit" color="success">
           {
             isSubmitting && <Spinner size="sm" color="default" />

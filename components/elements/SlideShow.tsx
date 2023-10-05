@@ -38,7 +38,7 @@ const SlideShow: React.FC<IProps> = ({ images }) => {
   };
 
   return (
-    <motion.section className="group w-full lg:w-1/2 !overflow-hidden flex items-center flex-col relative rounded-lg">
+    <motion.section className="group w-full lg:w-1/2 !overflow-hidden flex items-center flex-col relative">
       {/* Next */}
       <Button
         isIconOnly
@@ -52,49 +52,31 @@ const SlideShow: React.FC<IProps> = ({ images }) => {
       <Button
         isIconOnly
         radius="full"
-        className="opacity-0 group-hover:opacity-100 transition-all !text-white duration-200 absolute top-[50%] -translate-x-0 translate-y-[-50%] right-4 z-20"
+        className="opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-[50%] -translate-x-0 translate-y-[-50%] right-4 z-20"
         onClick={nextSlide}
       >
         <GrFormNext className="text-xl" />
       </Button>
       {/* Images */}
-      <motion.div className="min-w-[500px] w-full h-[500px] flex items-center justify-center relative object-cover overflow-hidden">
+      <motion.div
+        className="min-w-[500px] w-full h-[600px]
+      flex items-center justify-center relative object-cover overflow-hidden"
+      >
         {images && (
           <Image
             src={images[currentIndex]}
             isZoomed
-            shadow="sm"
             radius="lg"
-            width={"auto"}
-            height={"full"}
+            width={"full"}
+            height={"auto"}
             alt="product image"
-            className="object-cover"
+            className="object-cover h-auto max-h-[600px]"
           />
         )}
-        {/* {images &&
-          images.map((image, index) => {
-            return (
-              <motion.div
-                key={index}
-                className="min-w-[500px] w-1/2 h-[500px] pointer-events-none rounded-xl relative object-cover overflow-hidden"
-              >
-                <Image
-                  src={image}
-                  alt="product image"
-                  priority
-                  fill
-                  sizes="100%"
-                  style={{
-                    objectFit: "cover",
-                  }}
-                />
-              </motion.div>
-            );
-          })} */}
       </motion.div>
 
       {/* Dot */}
-      <div className="flex items-center gap-4 my-3">
+      <div className="flex items-center gap-2 my-3">
         {images &&
           images.map((image, index) => (
             <div

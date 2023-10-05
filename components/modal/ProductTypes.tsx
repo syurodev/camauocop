@@ -38,7 +38,7 @@ const ProductTypes: React.FC<IProductTypeModel> = ({
     }
     const res = await addProductType({
       name: newProductTypes,
-      userId: id,
+      shopId: id,
     });
 
     if (res.satus && res.newProductType) {

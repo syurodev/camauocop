@@ -3,12 +3,12 @@ import { sanitize } from "isomorphic-dompurify";
 
 type IDescription = {
   description:
-    | {
-        time: number;
-        blocks: any[];
-        version: string;
-      }
-    | undefined;
+  | {
+    time: number;
+    blocks: any[];
+    version: string;
+  }
+  | undefined;
 };
 
 const RenderDescription: React.FC<IDescription> = ({ description }) => {
@@ -62,6 +62,22 @@ const RenderDescription: React.FC<IDescription> = ({ description }) => {
             )}
           </ul>
         );
+      case "table":
+        const tableData = block.data.content;
+        return (
+          <table key={index}>
+            <tbody>
+              {tableData.map((row: string[], rowIndex: number) => (
+                <tr key={rowIndex}>
+                  {row.map((cell: string, cellIndex: number) => (
+                    <td key={cellIndex} dangerouslySetInnerHTML={{ __html: sanitize(cell) }} />
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+
       default:
         console.log("Unknown block type", block.type);
         console.log(block);

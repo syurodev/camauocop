@@ -4,7 +4,7 @@ import Vector from "vector-object";
 // import Cart, { ICartSchema } from "@/lib/models/carts";
 // import Favorite, { IFavoriteSchema } from "@/lib/models/favorites";
 // import Order, { IOrderSchema } from "@/lib/models/orders";
-import Product, { IProductSchema } from "@/lib/models/products";
+import Product, { IProduct } from "@/lib/models/products";
 import { ObjectId } from "mongodb";
 
 type Product = {
@@ -34,10 +34,10 @@ const processedDocs: ProductData = [];
 
 export const getProductData = async () => {
   // const productData: ProductData = [];
-  const products: IProductSchema[] = await Product.find();
+  const products: IProduct[] = await Product.find();
 
   if (products.length > 0) {
-    products.map((product) => {
+    products.map((product: IProduct) => {
       const data: ProductDataItem = {
         _id: "",
         content: "",
@@ -45,7 +45,7 @@ export const getProductData = async () => {
       data._id = product._id;
       data.content =
         extractProductDescription(product) +
-        ` Giá sản phẩm: ${product.price} Số lượng đã bán: ${product.sold}`;
+        ` Giá sản phẩm: ${product?.retailPrice} Số lượng đã bán: ${product?.sold}`;
       processedDocs.push(data);
     });
     return processedDocs;
@@ -53,7 +53,7 @@ export const getProductData = async () => {
   return processedDocs;
 };
 
-const extractProductDescription = (product: IProductSchema): string => {
+const extractProductDescription = (product: IProduct): string => {
   const description = product.description || {};
   const blocks = description.blocks || [];
   const contentArray: string[] = [];

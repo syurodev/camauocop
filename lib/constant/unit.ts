@@ -1,14 +1,14 @@
 export const unit = [
   {
     id: 1,
-    name: "Kg"
+    name: "kg"
   },
   {
     id: 2,
-    name: "Tấn"
+    name: "tấn"
   },
   {
     id: 3,
-    name: "Gam"
+    name: "gram"
   },
 ]

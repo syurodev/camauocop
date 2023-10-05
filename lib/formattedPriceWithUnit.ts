@@ -1,14 +1,25 @@
-export const formattedPriceWithUnit = (data: number | undefined, unit?: string | undefined): string => {
-  let result = "";
-  if (data) {
-    const formattedPrice = new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(data);
+export const formattedPriceWithUnit = (defaultPrice: number | undefined, unit: WeightUnit = "kg", quantities: number = 1): string => {
+  if (defaultPrice) {
+    let totalPrice: number;
 
-    result = `${formattedPrice}/${unit || "Kg"}`;
-    return result;
+    switch (unit) {
+      case 'kg':
+        totalPrice = defaultPrice * quantities;
+        break;
+      case 'gram':
+        totalPrice = (defaultPrice / 1000) * quantities;
+        break;
+      case 'tấn':
+        totalPrice = (defaultPrice * 1000) * quantities;
+        break;
+      default:
+        throw new Error('Đơn vị tính không hợp lệ');
+    }
+
+    const formattedTotalPrice = totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
+    return `${formattedTotalPrice}`;
   } else {
-    return `0/${unit || "Kg"}`
+    return `0`
   }
 }

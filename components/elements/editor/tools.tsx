@@ -5,8 +5,6 @@ import Table from "@editorjs/table";
 import List from "@editorjs/list";
 // @ts-ignore
 import Header from "@editorjs/header";
-// @ts-ignore
-import Quote from "@editorjs/quote";
 
 export const EDITOR_JS_TOOLS = {
   // NOTE: Paragraph is default tool. Declare only when you want to change paragraph option.
@@ -14,5 +12,4 @@ export const EDITOR_JS_TOOLS = {
   table: Table,
   list: List,
   header: Header,
-  quote: Quote,
 };

@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import User from './users';
+import Shop from './shop';
 
 export interface IProductTypes extends Document {
   userId: string
@@ -7,7 +7,7 @@ export interface IProductTypes extends Document {
 }
 
 const ProductTypesSchema: Schema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: User, required: true },
+  shopId: { type: Schema.Types.ObjectId, ref: Shop, required: true },
   name: { type: String, required: true },
 });
 

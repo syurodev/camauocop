@@ -1,10 +1,10 @@
 export const convertToKg = (value: number, unit: string): number => {
   switch (unit) {
-    case "Kg":
+    case "kg":
       return value;
-    case "Tấn":
+    case "tấn":
       return value * 1000;
-    case "Gam":
+    case "gram":
       return value / 1000;
     default:
       return value;

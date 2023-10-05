@@ -263,7 +263,7 @@ const DeliveryCard: React.FC<IProps> = ({
             setWardSelected(new Set([]))
             setProvinceSelected(new Set([e.target.value]))
             setProvinceId(+e.target.value || 0)
-            const selectedProvinceName = provinces.data.find(province => province.ProvinceID === +e.target.value)
+            const selectedProvinceName: ProvinceGHNData | undefined = provinces.data.find(province => province.ProvinceID === +e.target.value)
             const provinceName = selectedProvinceName ? selectedProvinceName.ProvinceName : "";
             setValue("province", provinceName)
           }

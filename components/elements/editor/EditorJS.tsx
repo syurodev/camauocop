@@ -8,7 +8,7 @@ import { IAddProductZodSchema } from "@/lib/zodSchema/products";
 interface EditorProps {
   setValue: (
     name:
-      | "sellerId"
+      | "shopId"
       | "productType"
       | "name"
       | "description"

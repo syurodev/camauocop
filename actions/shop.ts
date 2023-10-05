@@ -98,16 +98,19 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
     if (shopCreatedGHN.code === 200) {
       const newShop = new Shop({
         auth: data.auth,
-        shop_id: [{
+        shop_id: {
           GHN: shopCreatedGHN.data.shop_id,
-        }],
+        },
         address: [{
           province: data.province,
           district: data.district,
           ward: data.ward,
           apartment: data.apartment,
+          GHN_district_id: district_id,
+          GHN_ward_code: ward_code
         }],
         name: data.name,
+        delivery: data.delivery
       })
 
       await newShop.save()

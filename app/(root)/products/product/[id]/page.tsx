@@ -37,7 +37,7 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
         <SlideShow images={data?.productImages || []} />
         <div className="ml-3 lg:flex-1">
           <h1 className="font-bold text-4xl uppercase">{data?.productName}</h1>
-          <Link href={`/products/${data?.productTypeName}`}>
+          <Link href={`/products/${data?.productTypeName}`} className="text-lg uppercase font-semibold opacity-70">
             {data?.productTypeName}
           </Link>
 
@@ -54,7 +54,9 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
           </div>
 
           <h2 className="text-center my-2 font-bold">
-            {formattedPriceWithUnit(data?.productPrice)}
+            {data?.productPrice ?
+              `Giá bán lẻ: ${formattedPriceWithUnit(data?.productPrice)}`
+              : "Không có giá bán lẻ"}
           </h2>
 
           <p className="text-center">

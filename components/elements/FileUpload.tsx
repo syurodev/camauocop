@@ -14,7 +14,7 @@ interface FileUploadProps {
   endpoint: "productImages" | "avatarImage";
   setValue: (
     name:
-      | "sellerId"
+      | "shopId"
       | "productType"
       | "name"
       | "description"

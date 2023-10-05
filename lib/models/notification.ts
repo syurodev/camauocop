@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import User from './users';
-import Auction from './auctions';
 import Order from './orders';
 
 // Interface for the Notification for TypeScript
@@ -37,11 +36,6 @@ const NotificationSchema: Schema = new Schema({
   timestamp: {
     type: Date,
     default: Date.now
-  },
-  auctionId: {
-    type: mongoose.Types.ObjectId,
-    ref: Auction,
-    default: null
   },
   orderId: {
     type: mongoose.Types.ObjectId,

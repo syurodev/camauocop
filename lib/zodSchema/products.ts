@@ -9,7 +9,7 @@ const DescriptionDataSchema = z.object({
 });
 
 export const AddProductZodSchema = z.object({
-  sellerId: z.string().optional(),
+  shopId: z.string().optional(),
   productType: z.string().nonempty("Vui lòng chọn loại sản phẩm"),
   name: z.string().nonempty("Tên sản phẩm không thể bỏ trống"),
   description: DescriptionDataSchema.optional(),
@@ -32,7 +32,7 @@ export const AddProductZodSchema = z.object({
 export type IAddProductZodSchema = z.infer<typeof AddProductZodSchema>;
 
 export const AddProductTypeZodSchema = z.object({
-  userId: z.string().optional(),
+  shopId: z.string().optional(),
   name: z.string().trim().nonempty("Tên loại sản phẩm không thể bỏ trống"),
 });
 export type IAddProductTypeZodSchema = z.infer<typeof AddProductTypeZodSchema>;
