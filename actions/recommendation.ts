@@ -54,26 +54,24 @@ export const getProductData = async () => {
 };
 
 const extractProductDescription = (product: IProduct): string => {
-  const description = product.description || {};
-  const blocks = description.blocks || [];
-  const contentArray: string[] = [];
+  let result = '';
 
-  // Duyệt qua từng khối văn bản và trích xuất nội dung text
-  blocks.forEach((block) => {
-    if (block.type === "header") {
-      // Nếu là khối tiêu đề, chúng ta có thể thêm nó vào nội dung
-      contentArray.push(block.data.text);
-    } else if (block.type === "paragraph") {
-      // Nếu là khối đoạn văn bản, cũng thêm nó vào nội dung
-      contentArray.push(block.data.text);
+  product.description.content.map((item) => {
+    if (item.type === "text" && item.text) {
+      result += `${item.text} `;
+    } else {
+      if (item.content && item.content.length > 0) {
+        item.content.map((i: any) => {
+          if (i.type === "text" && i.text) {
+            result += `${i.text} `;
+          }
+        })
+      }
+
     }
-    // Các loại khối văn bản khác có thể được xử lý tương tự
-  });
+  })
 
-  // Kết hợp tất cả nội dung thành một chuỗi duy nhất
-  const content = contentArray.join("\n");
-
-  return content;
+  return result;
 };
 
 export const createVectorsFromDocs = async () => {
@@ -176,28 +174,38 @@ export const getSimilarProducts = async (
 
   const productIds = productSimilarList.map((item) => item.id);
   try {
-    const products: Product[] = await Product.find({ _id: { $in: productIds } })
+    const products = await Product.find({ _id: { $in: productIds } })
       .populate({
-        path: "sellerId",
-        select: "username image", // select username and image of the seller
+        path: 'shopId',
+        select: 'name ',
+        populate: {
+          path: "auth",
+          select: "username email image",
+        }
       })
       .populate({
         path: "productType",
-        select: "name", // select name of the product type
+        select: "name",
       })
       .select("name images price");
 
     if (products && products.length > 0) {
       // Format the data
+      // _id: { toString: () => string };
+      //     name: string;
+      //     productType: { name: string };
+      //     shopId: { 
+      //       name: string;
+      //       auth: {
+      //         username:string
+      //         email:string
+      //         image:string
+      //       }
+      //     };
+      //     images: string[];
+      //     price: number;
       const formattedProducts = products.map(
-        (product: {
-          _id: { toString: () => string };
-          name: string;
-          productType: { name: string };
-          sellerId: { username: string; image: string };
-          images: string[];
-          price: number;
-        }): {
+        (product): {
           _id: string;
           productName: string;
           productTypeName: string;
@@ -210,8 +218,8 @@ export const getSimilarProducts = async (
             _id: product._id?.toString(),
             productName: product.name,
             productTypeName: product.productType?.name,
-            sellerName: product.sellerId?.username,
-            sellerAvatar: product.sellerId?.image,
+            sellerName: product.shopId?.name,
+            sellerAvatar: product.shopId?.auth.image,
             productImages: product.images,
             productPrice: product.price,
           };

@@ -65,6 +65,7 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
 
+
     async jwt({ token, user }) {
       if (token.email) {
         const tokenData = await getUserByEmail({ email: token.email });
@@ -93,19 +94,19 @@ async function signInWithOAuth({
   await connectToDB();
   //user account adready -> login
   const userExistting = await User.findOne({ email: profile?.email });
+
   if (userExistting) {
     return true;
   }
 
   //user not found -> register -> login
   try {
-    await fetch(`${BASE_URL}/api/users/register`, {
+    const res = await fetch(`${BASE_URL}/api/users/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: profile?.name?.toLocaleLowerCase().replace(/\s/g, ""),
         email: profile?.email,
         email_verified: profile?.email_verified,
         password: "null",
@@ -113,8 +114,13 @@ async function signInWithOAuth({
         image: profile?.picture,
       }),
     });
+    const data = await res.json()
 
-    return true;
+    if (data.code === 200) {
+      return true;
+    } else {
+      return false
+    }
   } catch (error) {
     console.error("Error calling /api/users/register", error);
     return false;
@@ -125,9 +131,10 @@ async function getUserByEmail({ email }: { email: string | null | undefined }) {
   await connectToDB();
   const user = await User.findOne({ email: email })
 
+  if (!user) throw new Error("User not found");
+
   const { password, ...userWithoutPassword } = (user as any)._doc;
 
-  if (!user) throw new Error("User not found");
 
   const accessToken = signJwtAccessToken(userWithoutPassword);
 

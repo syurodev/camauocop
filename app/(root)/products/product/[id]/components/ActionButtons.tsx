@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Button, Tooltip, useDisclosure } from "@nextui-org/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Tooltip, useDisclosure } from "@nextui-org/react";
 import {
   AiOutlineShoppingCart,
   AiOutlineHeart,
@@ -8,9 +8,15 @@ import {
   AiOutlineDollarCircle,
 } from "react-icons/ai";
 import { Session } from "next-auth";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useRouter } from "next/navigation";
 
 import BuyModal from "@/components/modal/BuyModal";
+import { updatePhone } from "@/actions/user";
+import toast from "react-hot-toast";
+
 
 type IProps = {
   data: string
@@ -20,6 +26,7 @@ type IProps = {
 const ActionButtons: React.FC<IProps> = ({ user, data }) => {
   const [favorited, setFavorited] = React.useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { isOpen: isOpenPhoneChange, onOpen: onOpenPhoneChange, onOpenChange: onOpenChangePhone, onClose: onClosePhoneChange } = useDisclosure();
   const router = useRouter()
 
   const session: Session = JSON.parse(user)
@@ -38,6 +45,10 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
       router.push("/login")
       return
     }
+    if (!session.user.phone) {
+      onOpenPhoneChange()
+      return
+    }
     onOpen()
   }
 
@@ -47,54 +58,132 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
     }
   }
 
+  const PhoneSchema = z.object({
+    phone: z
+      .string()
+      .refine((value) => /^0\d{9}$/.test(value), {
+        message: "Số điện thoại không hợp lệ. Phải có 10 số và bắt đầu bằng số 0",
+      })
+      .refine((value) => value.trim() !== "", {
+        message: "Số điện thoại là bắt buộc",
+      }),
+  })
+
+  type IPhoneSchema = z.infer<typeof PhoneSchema>
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IPhoneSchema>({
+    resolver: zodResolver(PhoneSchema),
+  })
+
+  const onSubmit = async (data: IPhoneSchema) => {
+    console.log(data)
+    const res = await updatePhone(data.phone, session.user._id, session.user.accessToken)
+
+    if (res.code === 200) {
+      toast.success(`${res.message}. "Trang web sẽ tự động tải lại"`)
+      setTimeout(() => {
+        window.location.reload()
+      }, 2000)
+      return
+    } else {
+      toast.error(res.message)
+    }
+  }
+
   return (
-    <div className="flex justify-around items-center mt-3">
-      <Tooltip content={`${!session ? "Đăng nhập" : "Thêm vào giỏ hàng"}`}>
-        <Button isIconOnly variant="ghost" radius="full" onPress={handleAddToCart}>
-          <AiOutlineShoppingCart className="text-xl" />
-        </Button>
-      </Tooltip>
+    <>
+      <div className="flex justify-around items-center mt-3">
+        <Tooltip content={`${!session ? "Đăng nhập" : "Thêm vào giỏ hàng"}`}>
+          <Button isIconOnly variant="ghost" radius="full" onPress={handleAddToCart}>
+            <AiOutlineShoppingCart className="text-xl" />
+          </Button>
+        </Tooltip>
 
-      <Tooltip
-        content={`${!session ? "Đăng nhập" : favorited
-          ? "Xoá khỏi danh sách yêu thích"
-          : "Thêm vào danh sách yêu thích"}`}
+        <Tooltip
+          content={`${!session ? "Đăng nhập" : favorited
+            ? "Xoá khỏi danh sách yêu thích"
+            : "Thêm vào danh sách yêu thích"}`}
+        >
+          <Button
+            isIconOnly
+            variant="ghost"
+            radius="full"
+            onClick={handleFavorited}
+          >
+            {favorited ? (
+              <AiFillHeart className="text-xl text-rose-600" />
+            ) : (
+              <AiOutlineHeart className="text-xl" />
+            )}
+          </Button>
+        </Tooltip>
+
+        <Tooltip content={`${!session ? "Đăng nhập" : "Mua ngay"}`}>
+          <Button
+            variant="flat"
+            radius="full"
+            className="bg-emerald-500"
+            startContent={<AiOutlineDollarCircle className="text-xl" />}
+            onPress={handleBuyButtomClick}
+          >
+            {
+              !session ? "Đăng nhập để mua" : "Mua ngay"
+            }
+          </Button>
+        </Tooltip>
+
+        <BuyModal
+          isOpenBuyModal={isOpen}
+          onOpenChangeBuyModal={onOpenChange}
+          onCloseBuyModal={onClose}
+          data={products}
+          session={session}
+        />
+      </div>
+
+      <Modal
+        isOpen={isOpenPhoneChange}
+        onOpenChange={onOpenChangePhone}
+        isDismissable={false}
+        placement="center"
       >
-        <Button
-          isIconOnly
-          variant="ghost"
-          radius="full"
-          onClick={handleFavorited}
-        >
-          {favorited ? (
-            <AiFillHeart className="text-xl text-rose-600" />
-          ) : (
-            <AiOutlineHeart className="text-xl" />
+        <ModalContent>
+          {(onClosePhoneChange) => (
+            <>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <ModalHeader className="flex flex-col gap-1">
+                  Thêm số điện thoại
+                </ModalHeader>
+                <ModalBody>
+                  <Input
+                    isRequired
+                    label="Số điện thoại"
+                    description="Bạn phải thêm số điện thoại để có thể đặt hàng"
+                    placeholder="0xxxxxxxxxx"
+                    type="text"
+                    {...register("phone")}
+                    isInvalid={!!errors.phone}
+                    errorMessage={errors.phone?.message}
+                  />
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="bordered" onPress={onClosePhoneChange}>
+                    Huỷ
+                  </Button>
+                  <Button color="primary" type="submit">
+                    Thêm
+                  </Button>
+                </ModalFooter>
+              </form>
+            </>
           )}
-        </Button>
-      </Tooltip>
-
-      <Tooltip content={`${!session ? "Đăng nhập" : "Mua ngay"}`}>
-        <Button
-          variant="flat"
-          radius="full"
-          className="bg-emerald-500"
-          startContent={<AiOutlineDollarCircle className="text-xl" />}
-          onPress={handleBuyButtomClick}
-        >
-          {
-            !session ? "Đăng nhập để mua" : "Mua ngay"
-          }
-        </Button>
-      </Tooltip>
-
-      <BuyModal
-        isOpenBuyModal={isOpen}
-        onOpenChangeBuyModal={onOpenChange}
-        onCloseBuyModal={onClose}
-        data={products}
-      />
-    </div>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 

@@ -1,11 +1,10 @@
 import { z } from "zod";
 
 const DescriptionDataSchema = z.object({
-  time: z.number().min(0, { message: "Mô tả sản phẩm không được để trống" }),
-  blocks: z.array(z.unknown()).refine((data) => data.length > 0, {
+  type: z.string(),
+  content: z.array(z.unknown()).refine((data) => data.length > 0, {
     message: "Mô tả sản phẩm không được để trống",
   }),
-  version: z.string().nonempty("Mô tả sản phẩm không được để trống"),
 });
 
 export const AddProductZodSchema = z.object({
@@ -23,6 +22,9 @@ export const AddProductZodSchema = z.object({
       unit: z.string(),
       weight: z.coerce.number(),
       price: z.coerce.number(),
+      length: z.coerce.number(),
+      width: z.coerce.number(),
+      height: z.coerce.number(),
     })
   ),
   retailPrice: z.optional(z.coerce.number()),

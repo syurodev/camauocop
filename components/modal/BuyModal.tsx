@@ -1,7 +1,7 @@
 "use client"
 import React from "react";
 import { Modal, ModalContent, ModalHeader, ModalBody, Select, SelectItem, Card, CardHeader, CardBody, Image, Input, Button, Divider, useDisclosure, ModalFooter } from "@nextui-org/react";
-import { LuArrowRight, LuMinus, LuPlus } from "react-icons/lu"
+import { LuArrowRight } from "react-icons/lu"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IOrderZodSchema, OrderZodSchema } from "@/lib/zodSchema/order";
@@ -11,28 +11,35 @@ import DeliveryCard from "../card/DeliveryCard";
 import { unit } from "@/lib/constant/unit";
 import { convertWeight } from "@/lib/convertWeight";
 import { getGHNServiceFee } from "@/actions/delivery";
+import { createOrder } from "@/actions/order";
+import { Session } from "next-auth";
+import toast from "react-hot-toast";
 
 type IProps = {
   isOpenBuyModal: boolean;
-  onCloseBuyModal?: () => void;
+  onCloseBuyModal: () => void;
   onOpenChangeBuyModal: () => void;
-  data: (IProductDetail | null)[]
+  data: (IProductDetail | null)[],
+  session: Session
 }
 
-const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenChangeBuyModal, data }) => {
+const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenChangeBuyModal, data, session }) => {
   const [provinceId, setProvinceId] = React.useState<number>(0)
   const [districtId, setDistrictId] = React.useState<number>(0)
   const [wardId, setWardId] = React.useState<string>("0")
   const [retail, setRetail] = React.useState<{ [key: string]: boolean }>({})
   const [selectedUnits, setSelectedUnits] = React.useState<{ [key: string]: WeightUnit }>({});
   const [packSeleced, setPackSeleced] = React.useState<{ [key: string]: ProductPack }>({});
-  const [productQuantitiesState, setProductQuantitiesState] = React.useState<{ [key: string]: number }>({});
-  const [productQuantities, setProductQuantities] = React.useState<{ [key: string]: number }>({});
+  const [productWeightState, setProductWeightState] = React.useState<{ [key: string]: number }>({});
+  const [productWeight, setProductWeight] = React.useState<{ [key: string]: number }>({});
+  const [productQuantity, setProductQuantity] = React.useState<{ [key: string]: number }>({});
   const [deliveryServiceFee, setDeliveryServiceFee] = React.useState<number>(0)
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
+  // React Hook Form
   const {
     register,
     handleSubmit,
@@ -44,12 +51,14 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
     resolver: zodResolver(OrderZodSchema),
   });
 
+  // Initial Value
   React.useEffect(() => {
     // initial state
     if (data && data.length > 0) {
       const defaultUnits: { [productId: string]: WeightUnit } = {};
       const defaultQuantitiesState: { [productId: string]: number } = {};
       const defaultQuantities: { [productId: string]: number } = {};
+      const defaultWeight: { [productId: string]: number } = {};
       const defaultRetails: { [productId: string]: boolean } = {};
       const defaultPacks: { [productId: string]: ProductPack } = {};
       data.forEach((product, index) => {
@@ -57,27 +66,32 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
           defaultUnits[product._id] = "kg";
           defaultQuantitiesState[product._id] = product.productQuantity;
           defaultRetails[product._id] = false;
-          defaultQuantities[product._id] = 0;
+          defaultQuantities[product._id] = 1;
+          defaultWeight[product._id] = 0;
           defaultPacks[product._id] = {
             unit: "kg",
             price: 0,
-            weight: 0
+            weight: 0,
+            width: 0,
+            length: 0,
+            height: 0,
           };
           setValue(`products.${index}.productId`, product?._id!)
           setValue(`products.${index}.retail`, false)
         }
       });
+      setProductQuantity(defaultQuantities)
       setSelectedUnits(defaultUnits);
-      setProductQuantitiesState(defaultQuantitiesState)
+      setProductWeightState(defaultQuantitiesState)
       setRetail(defaultRetails)
       setPackSeleced(defaultPacks)
-      setProductQuantities(defaultQuantities)
+      setProductWeight(defaultWeight)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   const handleUnitChange = (productId: string, unit: WeightUnit, index: number) => {
-    const weight = convertWeight(productQuantitiesState[productId], selectedUnits[productId], unit)
+    const weight = convertWeight(productWeightState[productId], selectedUnits[productId], unit)
 
     setValue(`products.${index}.unit`, unit)
 
@@ -86,43 +100,122 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
       [productId]: unit,
     }));
 
-    setProductQuantitiesState((prevProductQuantitiesState) => ({
-      ...prevProductQuantitiesState,
+    setProductWeightState((prevProductWeightState) => ({
+      ...prevProductWeightState,
       [productId]: weight,
     }));
   };
 
-  const handleQuantityChange = (
+  // const calculateProductPrice = (product: IProductDetail, retail: boolean, quantity: number, unit: WeightUnit) => {
+  //   if (product) {
+  //     if (retail) {
+  //       let currentQuantity = quantity
+  //       let quantityPack = 0
+  //       let totalPrice = 0;
+
+  //       const sortedPacks = [...product.packageOptions].sort((a, b) => b.weight - a.weight);
+
+  //       for (const packOption of sortedPacks) {
+  //         let quantityInPackUnit = 0
+  //         if (unit === packOption.unit) {
+  //           quantityInPackUnit = quantity
+  //         } else {
+  //           quantityInPackUnit = convertWeight(quantity, unit, packOption.unit)
+  //           currentQuantity = quantityInPackUnit
+  //         }
+
+  //         if (quantityInPackUnit >= packOption.weight) {
+  //           // Số lượng pack có thể mua
+  //           const numPacks = Math.floor(quantityInPackUnit / packOption.weight);
+
+  //           quantityPack = packOption.weight * numPacks
+
+  //           // Cộng totalPrice bằng giá của pack
+  //           totalPrice += numPacks * packOption.price;
+
+  //           // Trừ quantity theo số lượng mua được
+  //           quantity -= numPacks * packOption.weight;
+  //         }
+  //       }
+
+  //       // Kiểm tra quantity còn lớn hơn 0 không
+  //       if (currentQuantity - quantityPack > 0) {
+  //         // Kiểm tra unit của quantity có phải là kg không
+  //         if (unit === "kg") {
+  //           // Nhân quantity còn lại với giá bán lẻ của 1kg
+  //           totalPrice += (currentQuantity - quantityPack) * product.productPrice;
+  //         } else {
+  //           // Chuyển quantity về kg
+  //           const quantityInKg = convertWeight((currentQuantity - quantityPack), unit, "kg");
+  //           // Nhân quantity còn lại với giá bán lẻ của 1kg
+  //           totalPrice += quantityInKg * product.productPrice;
+  //         }
+  //       }
+
+  //       return totalPrice;
+  //     }
+  //   } else {
+  //     return 0
+  //   }
+  // };
+
+  const handleWeightChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    productId: string,
-    quantity: number,
-    index: number
+    product: IProductDetail,
+    weight: number,
+    index: number,
+    productPrice: number,
   ) => {
-    const inputQuantities = e.target.value
+    const inputWeight = e.target.value
 
-    if (+inputQuantities >= quantity) {
-      setValue(`products.${index}.quantity`, quantity)
-      setProductQuantities((prevQuantities) => ({
-        ...prevQuantities,
-        [productId]: quantity,
+    if (+inputWeight >= weight) {
+      setValue(`products.${index}.weight`, weight)
+      setValue(`products.${index}.price`, +formattedPriceWithUnit(
+        productPrice,
+        selectedUnits[product?._id!],
+        weight,
+        true
+      ))
+      // setValue(`products.${index}.price`, calculateProductPrice(product, true, weight, selectedUnits[product?._id!]) || 0)
+
+      setProductWeight((prewWeight) => ({
+        ...prewWeight,
+        [product?._id!]: weight,
       }))
       return
     }
 
-    if (+inputQuantities <= 0) {
-      setValue(`products.${index}.quantity`, 0)
-      setProductQuantities((prevQuantities) => ({
-        ...prevQuantities,
-        [productId]: 0,
+    if (+inputWeight <= 0) {
+      setValue(`products.${index}.weight`, 0)
+      setProductWeight((prewWeight) => ({
+        ...prewWeight,
+        [product?._id!]: 0,
       }))
+      setValue(`products.${index}.price`, +formattedPriceWithUnit(
+        productPrice,
+        selectedUnits[product?._id!],
+        0,
+        true
+      ))
+
+      // setValue(`products.${index}.price`, calculateProductPrice(product, true, 0, selectedUnits[product?._id!]) || 0)
       return
     }
 
-    setValue(`products.${index}.quantity`, +inputQuantities)
-    setProductQuantities((prevQuantities) => ({
-      ...prevQuantities,
-      [productId]: +inputQuantities,
+    setValue(`products.${index}.weight`, +inputWeight)
+    setProductWeight((prewWeight) => ({
+      ...prewWeight,
+      [product?._id!]: +inputWeight,
     }))
+
+    setValue(`products.${index}.price`, +formattedPriceWithUnit(
+      productPrice,
+      selectedUnits[product?._id!],
+      +inputWeight,
+      true
+    ))
+
+    // setValue(`products.${index}.price`, calculateProductPrice(product, true, +inputWeight, selectedUnits[product?._id!]) || 0)
   }
 
   const swarpMode = (productId: string, retail: boolean, index: number) => {
@@ -130,17 +223,11 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
     setValue(`products.${index}.retail`, !retail)
 
     if (retail) {
-      setProductQuantities((prevQuantities) => ({
-        ...prevQuantities,
+      setProductWeight((prevWeight) => ({
+        ...prevWeight,
         [productId]: 0,
       }))
-      setValue(`products.${index}.quantity`, 0)
-    } else {
-      setValue(`products.${index}.package`, {
-        unit: "kg",
-        price: 0,
-        weight: 0
-      })
+      setValue(`products.${index}.weight`, 0)
     }
 
     setRetail((prevRetail) => ({
@@ -160,20 +247,30 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
             [productId]: {
               unit: packOption.unit,
               weight: packOption.weight,
-              price: packOption.price
+              price: packOption.price,
+              length: packOption.length,
+              height: packOption.height,
+              width: packOption.width
             } as ProductPack
           }))
 
-          setValue(`products.${index}.package`, {
-            unit: packOption.unit,
-            weight: packOption.weight,
-            price: packOption.price
-          })
+          setValue(`products.${index}.weight`, packOption.weight)
+          setValue(`products.${index}.unit`, packOption.unit)
+          setValue(`products.${index}.price`, packOption.price)
+          setValue(`products.${index}.length`, packOption.length)
+          setValue(`products.${index}.width`, packOption.width)
+          setValue(`products.${index}.height`, packOption.height)
+          // setValue(`products.${index}.package`, {
+          //   unit: packOption.unit,
+          //   weight: packOption.weight,
+          //   price: packOption.price
+          // })
         }
       });
     }
   }
 
+  // Lấy phí vận chuyển
   React.useEffect(() => {
     const handleGetDeliveryFee = async () => {
       let totalWeight = 0
@@ -181,22 +278,31 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
         let name = product?.productName!;
         let quantity = 1;
         let weight = 0;
+        let length = 0;
+        let width = 0;
+        let height = 0;
 
         if (retail[product?._id!]) {
           if (selectedUnits[product?._id!] === "gram") {
-            weight = productQuantities[product?._id!]
-            totalWeight += productQuantities[product?._id!]
+            weight = productWeight[product?._id!]
+            totalWeight += productWeight[product?._id!] * productQuantity[product?._id!]
           } else {
-            weight = convertWeight(productQuantities[product?._id!], selectedUnits[product?._id!], "gram")
-            totalWeight += convertWeight(productQuantities[product?._id!], selectedUnits[product?._id!], "gram")
+            weight = convertWeight(productWeight[product?._id!], selectedUnits[product?._id!], "gram")
+            totalWeight += convertWeight(productWeight[product?._id!], selectedUnits[product?._id!], "gram") * productQuantity[product?._id!]
           }
         } else {
+          length = +packSeleced[product?._id!].length
+          width = +packSeleced[product?._id!].width
+          height = +packSeleced[product?._id!].height
+          quantity = productQuantity[product?._id!]
+
           if (packSeleced[product?._id!].unit === "gram") {
             weight = packSeleced[product?._id!].weight
-            totalWeight += packSeleced[product?._id!].weight
+            totalWeight += packSeleced[product?._id!].weight * productQuantity[product?._id!]
           } else {
             weight = convertWeight(packSeleced[product?._id!].weight, packSeleced[product?._id!].unit, "gram")
-            totalWeight += convertWeight(packSeleced[product?._id!].weight, packSeleced[product?._id!].unit, "gram")
+
+            totalWeight += convertWeight(packSeleced[product?._id!].weight, packSeleced[product?._id!].unit, "gram") * productQuantity[product?._id!]
           }
         }
 
@@ -204,6 +310,9 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
           name,
           quantity,
           weight,
+          length,
+          width,
+          height,
         }
       })
 
@@ -215,6 +324,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
           items: transformedArray,
           weight: totalWeight
         })
+
         if (res && res.code === 200) {
           setDeliveryServiceFee(res.data?.total!)
         }
@@ -231,14 +341,44 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
     retail,
     selectedUnits,
     packSeleced,
-    productQuantities,
+    productWeight,
     data,
-    isOpenBuyModal
+    isOpenBuyModal,
+    productQuantity
   ])
 
-  const onSubmit = async (data: IOrderZodSchema) => {
+  const onSubmit = async (formData: IOrderZodSchema) => {
+    setIsLoading(true)
+    let total = 0
+    let shopId = ""
+    data.map((product) => {
+      shopId = product?.shopId!
+      if (retail[product?._id!]) {
+        total += +formattedPriceWithUnit(
+          product?.productPrice!,
+          selectedUnits[product?._id!],
+          productWeight[product?._id!],
+          true
+        )
+      } else {
+        total += packSeleced[product?._id!].price * productQuantity[product?._id!]
+      }
+    })
 
-    console.log("data", data)
+    formData.totalAmount = total + deliveryServiceFee
+    formData.shopId = shopId
+    formData.buyerId = session.user._id
+
+    const res = await createOrder(formData)
+    setIsLoading(false)
+    if (res.code === 200) {
+      toast.success(res.message)
+      onCloseBuyModal()
+    }
+
+    if (res.code === 500) {
+      toast.error(res.message)
+    }
   }
 
   return (
@@ -335,11 +475,12 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                                     isRequired
                                     type="number"
                                     label="Số lượng"
-                                    isInvalid={!!errors.products?.[index]?.quantity}
-                                    errorMessage={errors.products?.[index]?.quantity?.message}
-                                    {...register(`products.${index}.quantity`)}
-                                    value={productQuantities[product?._id!].toString()}
-                                    onChange={(e) => handleQuantityChange(e, product?._id!, productQuantitiesState[product?._id!], index)}
+                                    isInvalid={!!errors.products?.[index]?.weight}
+                                    errorMessage={errors.products?.[index]?.weight?.message}
+                                    {...register(`products.${index}.weight`)}
+                                    value={productWeight[product?._id!].toString()}
+                                    onChange={(e) => handleWeightChange(e, product!,
+                                      productWeightState[product?._id!], index, product?.productPrice!)}
                                   />
                                 </div>
                               ) : (
@@ -400,6 +541,23 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                                       </SelectItem>
                                     )}
                                   </Select>
+
+                                  <Input
+                                    isRequired
+                                    type="number"
+                                    label="Số lượng gói"
+                                    isInvalid={!!errors.products?.[index]?.quantity}
+                                    errorMessage={errors.products?.[index]?.quantity?.message}
+                                    {...register(`products.${index}.quantity`)}
+                                    value={productQuantity[product?._id!].toString()}
+                                    onChange={(e) => {
+                                      setProductQuantity((prevProductQuantity) => ({
+                                        ...prevProductQuantity,
+                                        [product?._id!]: +e.target.value
+                                      }))
+                                      setValue(`products.${index}.quantity`, +e.target.value)
+                                    }}
+                                  />
                                 </>
                               )
                             }
@@ -446,20 +604,20 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                                   <div className="flex flex-row items-center justify-between">
                                     <span className="font-semibold text-primary">
                                       {
-                                        formattedPriceWithUnit(product?.productPrice!, selectedUnits[product?._id!], productQuantities[product?._id!])
+                                        formattedPriceWithUnit(product?.productPrice!, selectedUnits[product?._id!], productWeight[product?._id!])
                                       }
                                     </span>
-                                    <span className="font-medium text-xs opacity-70">{productQuantities[index || 0]}{selectedUnits[product?._id!]}</span>
+                                    <span className="font-medium text-xs opacity-70">{productWeight[index || 0]}{selectedUnits[product?._id!]}</span>
                                   </div>
 
                                 ) : (
                                   <div className="flex flex-row items-center justify-between">
                                     <span className="font-semibold text-primary">
                                       {
-                                        formattedPriceWithUnit(packSeleced[product?._id!].price)
+                                        formattedPriceWithUnit(packSeleced[product?._id!].price * productQuantity[product?._id!])
                                       }
                                     </span>
-                                    <span className="font-medium text-xs opacity-70">{packSeleced[product?._id!].weight}{packSeleced[product?._id!].unit}</span>
+                                    <span className="font-medium text-xs opacity-70">{packSeleced[product?._id!].weight * productQuantity[product?._id!]}{packSeleced[product?._id!].unit}</span>
                                   </div>
                                 )
                               }

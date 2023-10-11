@@ -23,6 +23,13 @@ const ShopRegisterPage: React.FC = () => {
   const [next, setNext] = React.useState<boolean>(false)
   const [code, setCode] = React.useState<number>(0)
 
+  React.useEffect(() => {
+    if (!!session) {
+      router.push("/login")
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session])
+
   const {
     register,
     handleSubmit,

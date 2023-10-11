@@ -16,8 +16,8 @@ import {
 import { Session } from "next-auth";
 import { useRouter } from "next/navigation";
 import ProductTypes from "../modal/ProductTypes";
-import Editor from "../elements/editor/EditorJS";
 import { unit } from "@/lib/constant/unit";
+import Tiptap from "../Editor";
 
 type AddProductFormProps = {
   session: Session | null;
@@ -25,7 +25,6 @@ type AddProductFormProps = {
 
 const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
   const router = useRouter();
-
   const [productTypes, setProductTypes] = useState<IAddProductTypes[]>([]);
   //const [description, setDescription] = useState<OutputData | null>(null);
   const [retail, setRetail] = useState<boolean>(true);
@@ -47,6 +46,9 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
         unit: "kg",
         weight: 0,
         price: 0,
+        length: 0,
+        width: 0,
+        height: 0,
       }],
       retailPrice: 0,
       retail: true,
@@ -78,6 +80,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
         ...data,
         shopId: session?.user.shopId,
       };
+
       const res = await addProduct(data);
       if (res.code === 200) {
         toast.success(res.message);
@@ -159,6 +162,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
             <CardBody className="flex flex-col gap-3">
               <Select
                 items={unit}
+                isRequired
                 label="Chọn đơn vị tính"
                 placeholder="Chọn đơn vị tính"
                 className="max-w-full"
@@ -196,6 +200,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
 
                       <Select
                         items={unit}
+                        isRequired
                         label="Chọn đơn vị tính"
                         placeholder="Chọn đơn vị tính"
                         className="max-w-full"
@@ -205,7 +210,8 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
                       </Select>
 
                       <Input
-                        label="Số lượng"
+                        label="Cân nặng"
+                        isRequired
                         type="number"
                         placeholder="0"
                         {...register(`packageOptions.${i}.weight`, { valueAsNumber: true })}
@@ -213,9 +219,37 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
 
                       <Input
                         label="Giá"
+                        isRequired
                         type="number"
                         placeholder="0"
                         {...register(`packageOptions.${i}.price`, { valueAsNumber: true })}
+                      />
+
+                      <Input
+                        label="Chiều dài sau khi đóng gói (cm)"
+                        isRequired
+                        type="number"
+                        max={150}
+                        placeholder="Tối đa 150cm"
+                        {...register(`packageOptions.${i}.length`, { valueAsNumber: true })}
+                      />
+
+                      <Input
+                        label="Chiều rộng sau khi đóng gói (cm)"
+                        isRequired
+                        type="number"
+                        max={150}
+                        placeholder="Tối đa 150cm"
+                        {...register(`packageOptions.${i}.width`, { valueAsNumber: true })}
+                      />
+
+                      <Input
+                        label="Chiều cao sau khi đóng gói (cm)"
+                        isRequired
+                        type="number"
+                        max={150}
+                        placeholder="Tối đa 150cm"
+                        {...register(`packageOptions.${i}.height`, { valueAsNumber: true })}
                       />
 
                       <Button
@@ -236,6 +270,9 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
                   unit: "kg",
                   weight: 0,
                   price: 0,
+                  height: 0,
+                  length: 0,
+                  width: 0
                 })}
               >
                 Thêm gói
@@ -296,7 +333,8 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
             />
           }
 
-          <Editor getValues={getValues} setValue={setValue} />
+          <Tiptap getValues={getValues} setValue={setValue} />
+
           {errors.description && (
             <p className="text-rose-500 font-bold">Phải có mô tả sản phẩm</p>
           )}

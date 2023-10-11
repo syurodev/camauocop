@@ -108,17 +108,24 @@ export async function addProductType(data: IAddProductTypeZodSchema) {
 }
 
 export async function getProducts(
-  page: number = 1
+  page: number = 1,
+  shopId?: string
 ): Promise<IProductsResponse> {
-  const limit = 20;
-  const skip = (page - 1) * limit;
-
   try {
     await connectToDB();
-    const totalProducts = await Product.countDocuments({});
+    const limit = 20;
+    const skip = (page - 1) * limit;
+
+    let query = {};
+
+    if (shopId) {
+      query = { shopId };
+    }
+
+    const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    const products: Product[] = await Product.find({})
+    const products: Product[] = await Product.find(query)
       .sort({ createdAt: -1 }) // sort by newest
       .skip(skip) // skip products for pagination
       .limit(limit) // limit to 20 products per page

@@ -10,7 +10,7 @@ import NavbarComponent from "@/components/layout/NavbarComponent";
 
 const noto = Noto_Sans({
   subsets: ["vietnamese"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "900"],
   style: ["normal", "italic"],
 });
 

@@ -114,3 +114,42 @@ type GHNApiServiceFee = {
     cod_failed_fee: number;
   } | null;
 };
+
+
+type GHNCode = {
+  provinceId: number
+  districtId: number
+  wardCode: string
+}
+type GHNCodeResponse = {
+  code: number
+  message: string
+  data: GHNCode | null
+}
+
+interface GHNOrderData {
+  order_code: string;
+  sort_code: string;
+  trans_type: string;
+  ward_encode: string;
+  district_encode: string;
+  fee: {
+    main_service: number;
+    insurance: number;
+    station_do: number;
+    station_pu: number;
+    return: number;
+    r2s: number;
+    coupon: number;
+    cod_failed_fee: number;
+  };
+  total_fee: string;
+  expected_delivery_time: string;
+}
+
+interface GHNOrderDataResponse {
+  code: number;
+  message: string;
+  data: GHNOrderData | null;
+  code_message_value?: string;
+}

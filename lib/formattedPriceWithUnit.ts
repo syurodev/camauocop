@@ -1,4 +1,9 @@
-export const formattedPriceWithUnit = (defaultPrice: number | undefined, unit: WeightUnit = "kg", quantities: number = 1): string => {
+export const formattedPriceWithUnit = (
+  defaultPrice: number | undefined,
+  unit: WeightUnit = "kg",
+  quantities: number = 1,
+  onlyNumber: boolean = false
+): string | number => {
   if (defaultPrice) {
     let totalPrice: number;
 
@@ -17,8 +22,11 @@ export const formattedPriceWithUnit = (defaultPrice: number | undefined, unit: W
     }
 
     const formattedTotalPrice = totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-
-    return `${formattedTotalPrice}`;
+    if (onlyNumber) {
+      return totalPrice
+    } else {
+      return `${formattedTotalPrice}`;
+    }
   } else {
     return `0`
   }

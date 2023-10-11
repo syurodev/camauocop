@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 import Shop from './shop';
 
 export interface IProductTypes extends Document {
-  userId: string
+  shopId: string
   name: string;
 }
 

@@ -8,9 +8,8 @@ export interface IProduct extends Document {
   productType: string;
   name: string;
   description: {
-    time: number;
-    blocks: any[];
-    version: string;
+    type: string;
+    content: any[];
   };
   retailPrice?: number;
   retail: boolean;
@@ -19,6 +18,9 @@ export interface IProduct extends Document {
     unit: string;
     weight: number;
     price: number;
+    length: number;
+    width: number;
+    height: number;
   }[];
   images: string[];
   sold: number;
@@ -36,9 +38,8 @@ const ProductSchema: Schema = new Schema(
     },
     name: { type: String, required: true },
     description: {
-      time: { type: Number },
-      blocks: { type: Array },
-      version: { type: String },
+      type: { type: String },
+      content: { type: Array },
     },
     retailPrice: { type: Number, default: 0, required: true },
     retail: { type: Boolean, default: false, required: true },
@@ -49,10 +50,13 @@ const ProductSchema: Schema = new Schema(
         unit: { type: String, required: true },
         weight: { type: Number, required: true },
         price: { type: Number, required: true },
+        length: { type: String, required: true },
+        width: { type: String, required: true },
+        height: { type: String, required: true },
       },
     ],
     images: [{ type: String }],
-    deleteAt: [{ type: Date }],
+    deleteAt: { type: Date },
   },
   {
     timestamps: true,

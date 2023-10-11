@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import { Image } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import { LuDot } from "react-icons/lu";
@@ -9,8 +8,10 @@ import { GrFormPrevious, GrFormNext } from "react-icons/gr";
 
 type IProps = {
   images: string[];
+  w?: string,
+  h?: string
 };
-const SlideShow: React.FC<IProps> = ({ images }) => {
+const SlideShow: React.FC<IProps> = ({ images, w = "w-full lg:w-1/2", h = "h-[600px]" }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const prevSlide = () => {
@@ -38,7 +39,7 @@ const SlideShow: React.FC<IProps> = ({ images }) => {
   };
 
   return (
-    <motion.section className="group w-full lg:w-1/2 !overflow-hidden flex items-center flex-col relative">
+    <section className={`group ${w} !overflow-hidden flex items-center flex-col relative`}>
       {/* Next */}
       <Button
         isIconOnly
@@ -58,9 +59,9 @@ const SlideShow: React.FC<IProps> = ({ images }) => {
         <GrFormNext className="text-xl" />
       </Button>
       {/* Images */}
-      <motion.div
-        className="min-w-[500px] w-full h-[600px]
-      flex items-center justify-center relative object-cover overflow-hidden"
+      <div
+        className={`w-full ${h} rounded-xl
+        flex items-center justify-center relative object-cover overflow-hidden`}
       >
         {images && (
           <Image
@@ -73,7 +74,7 @@ const SlideShow: React.FC<IProps> = ({ images }) => {
             className="object-cover h-auto max-h-[600px]"
           />
         )}
-      </motion.div>
+      </div>
 
       {/* Dot */}
       <div className="flex items-center gap-2 my-3">
@@ -89,7 +90,7 @@ const SlideShow: React.FC<IProps> = ({ images }) => {
             </div>
           ))}
       </div>
-    </motion.section>
+    </section>
   );
 };
 

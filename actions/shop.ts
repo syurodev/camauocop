@@ -2,10 +2,14 @@
 
 import _ from 'lodash';
 
-import { connectToDB } from "@/lib/utils";
+import { connectToDB, verifyJwtToken } from "@/lib/utils";
 import { IUserRegisterShopZodSchema } from "@/lib/zodSchema/shop";
 import User, { IUser } from "@/lib/models/users";
 import Shop from "@/lib/models/shop";
+import Order from '@/lib/models/orders';
+import { IDeliveryOrderSchema } from '@/lib/zodSchema/order';
+import { GHNCreateOrder } from './delivery';
+import { revalidatePath } from 'next/cache';
 
 type IProps = {
   data: IUserRegisterShopZodSchema,
@@ -125,6 +129,108 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
       return {
         code: 500,
         message: "Lỗi đăng ký cửa hàng với giao hàng nhanh"
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống, vui lòng thử lại"
+    }
+  }
+}
+
+export const getShopInfo = async (id: string): Promise<ShopInfoResponse> => {
+  try {
+    const shop = await Shop.findById(id)
+      .populate({
+        path: 'auth',
+        select: '_id username email phone image'
+      })
+      .exec();
+
+    if (!shop) {
+      return {
+        code: 404,
+        message: 'Shop not found',
+      };
+    }
+
+    const orders = await Order.find({ shopId: id })
+      .select('totalAmount orderStatus orderDate')
+      .exec();
+
+    // Tính tổng doanh thu từ các đơn hàng
+    const totalRevenue = orders.reduce((acc, order) => acc + order.totalAmount, 0);
+
+    // Extract relevant information from the shop
+    const shopInfo: IShopInfo = {
+      _id: shop._id.toString(),
+      name: shop.name,
+      address: shop.address,
+      delivery: shop.delivery,
+      auth: {
+        username: shop.auth.username,
+        email: shop.auth.email,
+        phone: shop.auth.phone,
+        avatar: shop.auth.image,
+        _id: shop.auth._id.toString()
+      },
+      totalRevenue,
+      totalOrders: orders.length,
+    };
+    return {
+      code: 200,
+      message: "successfully",
+      data: shopInfo
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi lấy thông tin shop",
+    }
+  }
+}
+
+export const approveOrder = async (token: string, id: string, data: IDeliveryOrderSchema, shop_id: number) => {
+  try {
+    await connectToDB()
+    const verifyToken = verifyJwtToken(token)
+
+    if (!!verifyToken) {
+      const order = await Order.findById({ _id: id })
+
+      if (order) {
+        const GHNRes: GHNOrderDataResponse = await GHNCreateOrder(data, shop_id)
+
+        console.log(GHNRes)
+        if (GHNRes.code === 200) {
+          console.log(GHNRes)
+          order.shippingCode = GHNRes.data?.order_code
+          order.orderStatus = "processed"
+
+          await order.save();
+          return {
+            code: 200,
+            message: "Đơn hàng đã được xử lý và cập nhật thành công.",
+          };
+        } else {
+          return {
+            code: 400,
+            message: GHNRes.code_message_value || "Lỗi tạo đơn hàng với Giao Hàng Nhanh"
+          }
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không tìm thấy đơn hàng"
+        }
+      }
+    } else {
+      return {
+        code: 400,
+        message: "Không được phép thực hiện chức năng này, vui lòng đăng nhập và thử lại"
       }
     }
   } catch (error) {

@@ -64,7 +64,7 @@ const ProductTypes: React.FC<IProductTypeModel> = ({
         <AiOutlinePlus className="text-xl" />
       </Button>
       {/* </div> */}
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center">
         <ModalContent>
           {(onClose) => (
             <>

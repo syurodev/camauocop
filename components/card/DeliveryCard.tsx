@@ -60,7 +60,7 @@ const DeliveryCard: React.FC<IProps> = ({
   const [provinceSelected, setProvinceSelected] = React.useState<Set<any>>(new Set([]))
   const [districtSelected, setDistrictSelected] = React.useState<Set<any>>(new Set([]))
   const [wardSelected, setWardSelected] = React.useState<Set<any>>(new Set([]))
-  const [isGeolocationAvailable, setIsGeolocationAvailable] = React.useState<boolean>(false);
+  const [isGeolocationAvailable, setIsGeolocationAvailable] = React.useState<boolean>(true);
   const [isGeolocationLoading, setIsGeolocationLoading] = React.useState<boolean>(false);
 
   React.useEffect(() => {
@@ -143,10 +143,12 @@ const DeliveryCard: React.FC<IProps> = ({
         },
         (error) => {
           console.error("Lỗi khi lấy vị trí hiện tại: ", error);
+          setIsGeolocationLoading(false)
         }
       );
     } else {
       setIsGeolocationAvailable(false);
+      setIsGeolocationLoading(false)
     }
   }
 
@@ -155,12 +157,13 @@ const DeliveryCard: React.FC<IProps> = ({
       <CardHeader className='flex justify-between items-center'>
         {label}
         <div className='flex flex-row items-center'>
-          <Tooltip content="Lấy vị trí tự động">
+          <Tooltip content={isGeolocationAvailable ? "Lấy vị trí tự động" : "Dịch vụ vị trí không khả dụng"}>
             <Button
               variant='ghost'
               isIconOnly
               radius='full'
               className='border-none'
+              isDisabled={!isGeolocationAvailable}
               onPress={handleAutoLocation}
             >
               {

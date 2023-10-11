@@ -1,91 +1,118 @@
 import React from "react";
-import { sanitize } from "isomorphic-dompurify";
 
 type IDescription = {
   description:
   | {
-    time: number;
-    blocks: any[];
-    version: string;
+    type: string;
+    content: any[];
   }
   | undefined;
 };
 
-const RenderDescription: React.FC<IDescription> = ({ description }) => {
-  const elements = description?.blocks.map((block, index) => {
-    switch (block.type) {
-      case "header":
-        const sanitizedText = sanitize(block.data.text);
-        const HeadingTag =
-          `h${block.data.level}` as keyof JSX.IntrinsicElements;
-        return (
-          <HeadingTag
-            key={index}
-            dangerouslySetInnerHTML={{ __html: sanitizedText }}
-          />
-        );
-      case "paragraph":
-        const sanitizedParagraph = sanitize(block.data.text);
-        return (
-          <p
-            key={index}
-            dangerouslySetInnerHTML={{ __html: sanitizedParagraph }}
-          />
-        );
-      case "delimiter":
-        return <hr key={index} />;
-      case "list":
-        return (
-          <ul key={index}>
-            {block.data.items.map((li: string, liIndex: number) => (
-              <li
-                key={liIndex}
-                dangerouslySetInnerHTML={{ __html: sanitize(li) }}
-              />
-            ))}
-          </ul>
-        );
-      case "checklist":
-        return (
-          <ul key={index}>
-            {block.data.items.map(
-              (item: { text: string; checked: boolean }, itemIndex: number) => (
-                <li key={itemIndex}>
-                  <input
-                    type="checkbox"
-                    defaultChecked={item.checked}
-                    disabled={true}
-                  />
-                  {sanitize(item.text)}
-                </li>
-              )
-            )}
-          </ul>
-        );
-      case "table":
-        const tableData = block.data.content;
-        return (
-          <table key={index}>
-            <tbody>
-              {tableData.map((row: string[], rowIndex: number) => (
-                <tr key={rowIndex}>
-                  {row.map((cell: string, cellIndex: number) => (
-                    <td key={cellIndex} dangerouslySetInnerHTML={{ __html: sanitize(cell) }} />
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        );
+interface TextContent {
+  type: 'text' | "paragraph";
+  text: string;
+  marks?: {
+    type: string;
+  }[];
+}
 
-      default:
-        console.log("Unknown block type", block.type);
-        console.log(block);
-        return null;
+interface ParagraphContent {
+  content: {
+    type: 'paragraph';
+    text: string;
+    marks?: {
+      type: string;
     }
-  });
+  }[]
+}
 
-  return <div>{elements}</div>;
+interface HeadingContent {
+  type: 'heading';
+  attrs: {
+    textAlign: string;
+    level: number;
+  };
+  content: TextContent[];
+  marks?: {
+    type: string;
+  }[];
+}
+
+// Component để biểu diễn một đoạn văn bản
+const TextComponent: React.FC<{ content: TextContent }> = ({ content }) => {
+  const classNames = [
+    content.marks?.some(mark => mark.type === 'bold') ? 'font-bold' : 'font-normal',
+    content.marks?.some(mark => mark.type === 'italic') ? 'italic' : 'not-italic',
+  ].join(' ');
+
+  return <span className={classNames}>{content.text}</span>;
+};
+
+// Component để biểu diễn một đoạn văn bản với thuộc tính textAlign
+const ParagraphComponent: React.FC<ParagraphContent> = ({ content }) => {
+  if (content && content.length > 0) {
+    return (
+      <p>
+        {
+          content.map((item, index: number) => {
+            return <TextComponent key={index} content={item as TextContent} />
+          })
+
+        }
+      </p>
+    )
+  } else {
+    return ""
+  }
+};
+
+// Component để biểu diễn một tiêu đề với thuộc tính textAlign và marks
+const HeadingComponent: React.FC<{ content: HeadingContent }> = ({ content }) => {
+  const textAlignClass = content.attrs?.textAlign === 'right' ? 'text-right' : content.attrs?.textAlign === 'center' ? 'text-center' : 'text-left';
+
+  let headingClass = '';
+
+  switch (content.attrs?.level) {
+    case 1:
+      headingClass = 'text-4xl'; // Tuỳ chỉnh kích thước tiêu đề
+      break;
+    case 2:
+      headingClass = 'text-3xl'; // Tuỳ chỉnh kích thước tiêu đề
+      break;
+    case 3:
+      headingClass = 'text-2xl'; // Tuỳ chỉnh kích thước tiêu đề
+      break;
+    default:
+      headingClass = 'text-xl'; // Tuỳ chỉnh kích thước tiêu đề mặc định
+  }
+
+  const fontWeightClass = content.content[0].marks?.some(mark => mark.type === 'bold') ? 'font-bold' : 'font-normal';
+  const fontStyleClass = content.content[0].marks?.some(mark => mark.type === 'italic') ? 'italic' : 'not-italic';
+
+  return (
+    <h1 className={`${textAlignClass} ${fontWeightClass} ${headingClass}`}>
+      <span className={fontStyleClass}>{content.content[0].text}</span>
+    </h1>
+  );
+};
+
+
+const RenderDescription: React.FC<IDescription> = ({ description }) => {
+  return (
+    <div>
+      {description && description?.content && description?.content.length > 0 && description?.content.map((item: any, index: number) => {
+        switch (item.type) {
+          case 'paragraph':
+            return <ParagraphComponent key={index} content={item.content} />;
+          case 'heading':
+            return <HeadingComponent key={index} content={item} />;
+          default:
+            return null;
+        }
+      })}
+    </div>
+  );
 };
 
 export default RenderDescription;

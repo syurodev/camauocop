@@ -14,10 +14,11 @@ import {
   AiOutlineSetting,
   AiOutlineLogout,
 } from "react-icons/ai";
-import { IoAnalyticsOutline } from "react-icons/io5";
+import { TbShoppingCartCopy } from "react-icons/tb";
 import { LuMoon, LuSunMedium } from "react-icons/lu"
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type IProps = {
   session: Session;
@@ -68,16 +69,18 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
           >
             <DropdownItem
               key="my-shop"
+              startContent={<TbShoppingCartCopy className="text-lg" />}
+            >
+              <span>Đơn hàng của tôi</span>
+            </DropdownItem>
+          </DropdownSection>
+
+          <DropdownSection showDivider>
+            <DropdownItem
+              key="my-shop"
               startContent={<AiOutlineShop className="text-lg" />}
             >
-              <span>Cửa hàng của tôi</span>
-            </DropdownItem>
-
-            <DropdownItem
-              key="analytics"
-              startContent={<IoAnalyticsOutline className="text-lg" />}
-            >
-              <span>Thống kê</span>
+              <Link href={`/shop/${session.user.shopId}`}>Cửa hàng của tôi</Link>
             </DropdownItem>
           </DropdownSection>
 

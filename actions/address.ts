@@ -171,3 +171,88 @@ const findWard = (a: string, b: GHNApiWardResponse) => {
     return null
   }
 }
+
+export const getGHNCode = async (province: string, district: string, ward: string): Promise<GHNCodeResponse> => {
+  try {
+    const provinceData = await getGHNProvince()
+
+    if (provinceData.code === 200) {
+      const foundProvince = findProvince(province, provinceData)
+
+      if (foundProvince) {
+        const districtData = await getGHNDistrict(foundProvince.ProvinceID)
+
+        if (districtData.code === 200) {
+          const foundDistrict = findDistrict(district, districtData)
+
+          if (foundDistrict) {
+            const wardData = await getGHNWard(foundDistrict.DistrictID)
+
+            if (wardData.code === 200) {
+              const foundWard = findWard(ward, wardData)
+
+              if (foundWard) {
+                const data = {
+                  provinceId: foundProvince.ProvinceID,
+                  districtId: foundDistrict.DistrictID,
+                  wardCode: foundWard.WardCode
+                }
+
+                console.log(data)
+
+                return {
+                  code: 200,
+                  message: "successfully",
+                  data: data
+                }
+              } else {
+                return {
+                  code: 400,
+                  message: "Không tìm thấy phường/xã",
+                  data: null
+                }
+              }
+            } else {
+              return {
+                code: 400,
+                message: "Lỗi lấy dữ liệu từ Giao Hàng Nhanh",
+                data: null
+              }
+            }
+          } else {
+            return {
+              code: 400,
+              message: "Không tìm thấy quận/huyện",
+              data: null
+            }
+          }
+        } else {
+          return {
+            code: 400,
+            message: "Lỗi lấy dữ liệu từ Giao Hàng Nhanh",
+            data: null
+          }
+        }
+      } else {
+        return {
+          code: 400,
+          message: "Không tìm thấy tỉnh/thành phố",
+          data: null
+        }
+      }
+    } else {
+      return {
+        code: 400,
+        message: "Lỗi lấy dữ liệu từ Giao Hàng Nhanh",
+        data: null
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống, vui lòng thử lại",
+      data: null
+    }
+  }
+}
