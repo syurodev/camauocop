@@ -1,9 +1,10 @@
 "use client"
-import React, { Key } from 'react'
-import { Tabs, Tab, Card, CardBody, CardHeader } from "@nextui-org/react";
+import React from 'react'
+import { Tabs, Tab } from "@nextui-org/react";
 import Products from './Products';
-import Orders from './Orders';
+import Orders from '../../../../../components/card/Orders';
 import Analysis from './Analysis';
+import { getOrders } from '@/actions/order';
 
 type IProps = {
   id: string,
@@ -14,7 +15,35 @@ type IProps = {
 
 const Content: React.FC<IProps> = ({ id, info, role, accessToken }) => {
   const [selected, setSelected] = React.useState<Set<any>>(new Set(["products"]));
+  const [orders, setOrders] = React.useState<IOrders[] | []>([])
+  const [isOrdersLoading, setIsOrdersLoading] = React.useState<boolean>(false)
   const data: IShopInfo = JSON.parse(info)
+
+  React.useEffect(() => {
+    const fetchApi = async () => {
+      switch (Array.from(selected)[0]) {
+        case "orders":
+          setIsOrdersLoading(true)
+          const res = await getOrders({
+            id: data._id,
+            accessToken: accessToken,
+            role: "shop"
+          })
+
+          if (res.code === 200) {
+            setOrders(res.data)
+            setIsOrdersLoading(false)
+          } else {
+            setIsOrdersLoading(false)
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    fetchApi()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected])
 
   return (
     <section>
@@ -31,14 +60,19 @@ const Content: React.FC<IProps> = ({ id, info, role, accessToken }) => {
         {
           role === "shop" && id === data.auth._id && (
             <Tab key="orders" title="Đơn hàng">
-              <Orders shopId={data._id} role={role} accessToken={accessToken} />
+              <Orders
+                role={role}
+                accessToken={accessToken}
+                isLoading={isOrdersLoading}
+                orders={orders}
+              />
             </Tab>
           )
         }
         {
           role === "shop" && id === data.auth._id && (
             <Tab key="analysis" title="Thống kê">
-              <Analysis />
+              <Analysis shopId={data._id} accessToken={accessToken} />
             </Tab>
           )
         }

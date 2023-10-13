@@ -19,3 +19,5 @@ type IGeolocation = {
 };
 
 type WeightUnit = 'tấn' | 'kg' | 'gram';
+
+type UserRole = "individual" | "shop" | "business"

@@ -1,5 +1,4 @@
 "use client"
-import { getOrders } from '@/actions/order'
 import OrderDetailModal from '@/components/modal/OrderDetailModal'
 import { formatDate } from '@/lib/formatDate'
 import { formattedPriceWithUnit } from '@/lib/formattedPriceWithUnit'
@@ -7,14 +6,14 @@ import { Avatar, Card, Skeleton, useDisclosure } from '@nextui-org/react'
 import React from 'react'
 
 type IProps = {
-  shopId: string
-  role: string
+  isLoading: boolean
+  orders: IOrders[] | [],
+  role: string,
   accessToken: string
 }
-const Orders: React.FC<IProps> = ({ shopId, role, accessToken }) => {
+const Orders: React.FC<IProps> = ({ isLoading, orders, role, accessToken }) => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [orders, setOrders] = React.useState<IOrders[] | []>([])
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+
   const [orderSelected, setOrderSelected] = React.useState<string>("")
 
   const getColorForOrderStatus = (orderStatus: string) => {
@@ -27,27 +26,9 @@ const Orders: React.FC<IProps> = ({ shopId, role, accessToken }) => {
     }
   };
 
-  React.useEffect(() => {
-    const fetchApi = async () => {
-      setIsLoading(true)
-      const res = await getOrders({
-        id: shopId,
-        role: "shop"
-      })
-
-      if (res.code === 200) {
-        setOrders(res.data)
-        setIsLoading(false)
-      } else {
-        setIsLoading(false)
-      }
-    }
-    fetchApi()
-  }, [shopId])
-
   return (
     <>
-      <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4 xl:gap-5">
+      <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4 xl:gap-5">
         {
           isLoading ? (
             Array.from({ length: 5 }).map((_, index) => {
@@ -119,4 +100,4 @@ const Orders: React.FC<IProps> = ({ shopId, role, accessToken }) => {
   )
 }
 
-export default React.memo(Orders)
+export default Orders

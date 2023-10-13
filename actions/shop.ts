@@ -6,10 +6,12 @@ import { connectToDB, verifyJwtToken } from "@/lib/utils";
 import { IUserRegisterShopZodSchema } from "@/lib/zodSchema/shop";
 import User, { IUser } from "@/lib/models/users";
 import Shop from "@/lib/models/shop";
-import Order from '@/lib/models/orders';
+import Order, { IOrderSchema } from '@/lib/models/orders';
 import { IDeliveryOrderSchema } from '@/lib/zodSchema/order';
 import { GHNCreateOrder } from './delivery';
 import { revalidatePath } from 'next/cache';
+import { convertWeight } from '@/lib/convertWeight';
+import ProductType from '@/lib/models/productTypes';
 
 type IProps = {
   data: IUserRegisterShopZodSchema,
@@ -206,7 +208,6 @@ export const approveOrder = async (token: string, id: string, data: IDeliveryOrd
 
         console.log(GHNRes)
         if (GHNRes.code === 200) {
-          console.log(GHNRes)
           order.shippingCode = GHNRes.data?.order_code
           order.orderStatus = "processed"
 
@@ -240,4 +241,229 @@ export const approveOrder = async (token: string, id: string, data: IDeliveryOrd
       message: "Lỗi hệ thống, vui lòng thử lại"
     }
   }
+}
+
+export const topProduct = async (shopId: string, accessToken: string): Promise<TopSellingProductResponse> => {
+  try {
+    await connectToDB()
+    const token = await verifyJwtToken(accessToken)
+
+    if (!!token) {
+      const today = new Date();
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      const orders: IOrderSchema[] = await Order.find({
+        shopId: shopId,
+        orderDate: {
+          $gte: firstDayOfMonth,
+          $lte: lastDayOfMonth,
+        },
+        orderStatus: {
+          $nin: ["pending", "canceled"],
+        },
+      }).exec();
+
+      // Tạo một mapping của _id sản phẩm đến trọng lượng đã bán
+      const productSales: { [productId: string]: { productName: string, weightSold: number } } = {};
+
+      // Lặp qua các đơn đặt hàng để tính trọng lượng sản phẩm đã bán và lấy _id sản phẩm
+      orders.forEach((order) => {
+        order.products.forEach((product) => {
+          const productId = product.productId
+          const productName = product.productSnapshot.name;
+          let productWeight = 0
+
+          if (product.unit === "kg") {
+            productWeight = product.weight * product.quantity
+          } else {
+            productWeight = convertWeight(product.weight, product.unit as WeightUnit, "kg") * product.quantity
+          }
+
+          if (productSales[productId]) {
+            productSales[productId].weightSold += productWeight
+          } else {
+            productSales[productId] = {
+              productName,
+              weightSold: productWeight,
+            };
+          }
+        });
+      });
+
+      // Chuyển đổi mapping thành mảng
+      const topSellingProducts = Object.keys(productSales).map((productId) => ({
+        productId,
+        ...productSales[productId],
+      }));
+
+      // Sắp xếp sản phẩm theo trọng lượng đã bán giảm dần
+      topSellingProducts.sort((a, b) => b.weightSold - a.weightSold);
+
+      // Giới hạn số lượng sản phẩm trả về thành 10
+      const top10SellingProducts = topSellingProducts.slice(0, 10);
+
+      return {
+        code: 200,
+        message: "successfully",
+        data: top10SellingProducts
+      }
+
+    } else {
+      return {
+        code: 400,
+        message: "Không được phép thực hiện chức năng này, vui lòng đăng nhập và thử lại",
+        data: null
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống, vui lòng thử lại",
+      data: null
+    }
+  }
+}
+
+export const getSalesForLast5Months = async (shopId: string, accessToken: string): Promise<MonthlySalesResponse> => {
+  try {
+    await connectToDB()
+    const token = await verifyJwtToken(accessToken)
+
+    if (!!token) {
+      const currentDate = new Date();
+      const fiveMonthsAgo = new Date(currentDate);
+      fiveMonthsAgo.setMonth(currentDate.getMonth() - 4);
+
+      const sales: IOrderSchema[] = await Order.find({
+        shopId: shopId,
+        orderDate: {
+          $gte: fiveMonthsAgo,
+          $lte: currentDate
+        },
+        orderStatus: {
+          $nin: ["pending", "canceled"],
+        },
+      }).exec();
+
+      const monthlySales: MonthlySale = {};
+      for (const order of sales) {
+        const month = order.orderDate.getMonth() + 1;
+        const totalAmount = order.totalAmount;
+
+        if (!monthlySales[month]) {
+          monthlySales[month] = 0;
+        }
+        monthlySales[month] += totalAmount;
+      }
+
+      const result = transformMonthlySales(monthlySales)
+
+      return {
+        code: 200,
+        message: "successfully",
+        data: result
+      }
+
+    } else {
+      return {
+        code: 400,
+        message: "Không được phép thực hiện chức năng này, vui lòng đăng nhập và thử lại",
+        data: null
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống, vui lòng thử lại",
+      data: null
+    }
+  }
+}
+
+function transformMonthlySales(monthlySales: MonthlySale) {
+  const transformedSales = Object.entries(monthlySales).map(([month, totalAmount]) => ({
+    month: parseInt(month, 10),
+    totalAmount,
+  }));
+
+  return transformedSales;
+}
+
+export const topSellingProductTypes = async (shopId: string, accessToken: string) => {
+  try {
+    await connectToDB()
+    const token = await verifyJwtToken(accessToken)
+
+    if (!!token) {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+
+      const startDate = new Date(currentDate.getFullYear(), currentMonth - 1, 1);
+      const endDate = new Date(currentDate.getFullYear(), currentMonth, 0);
+
+      const orders: IOrderSchema[] = await Order.find({
+        shopId: shopId,
+        orderDate: {
+          $gte: startDate,
+          $lte: endDate
+        },
+        orderStatus: {
+          $nin: ["pending", "canceled"],
+        },
+      }).exec();
+
+      const productTypeSales: Record<string, number> = {};
+
+      orders.forEach((order) => {
+        order.products.forEach((product) => {
+          const productType = product.productSnapshot.productType;
+          if (!productTypeSales[productType]) {
+            productTypeSales[productType] = 0;
+          }
+
+          if (product.unit === "kg") {
+            productTypeSales[productType] += product.weight * product.quantity;
+          } else {
+            productTypeSales[productType] += convertWeight(product.weight, product.unit as WeightUnit, "kg") * product.quantity;
+          }
+        });
+      });
+
+      const sortedProductTypes = Object.keys(productTypeSales).sort(
+        (a, b) => productTypeSales[b] - productTypeSales[a]
+      );
+
+      const result = await Promise.all(
+        sortedProductTypes.map(async (productTypeId) => {
+          const productType = await ProductType.findById(productTypeId).exec();
+          return {
+            name: productType ? productType.name : 'Unknown',
+            sold: productTypeSales[productTypeId],
+          };
+        })
+      );
+
+      return {
+        code: 200,
+        message: "successfully",
+        data: result
+      }
+    } else {
+      return {
+        code: 401,
+        message: "Không được phép thực hiện chức năng này, vui lòng đăng nhập và thử lại",
+        data: null
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống, vui lòng thử lại",
+      data: null
+    }
+  }
+
 }

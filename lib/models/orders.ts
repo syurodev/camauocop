@@ -9,7 +9,8 @@ interface IProductInOrder {
     name: string,
     images: string[],
     retail: boolean,
-    retailPrice: number
+    retailPrice: number,
+    productType: string,
     packageOptions: [
       unit: WeightUnit,
       weight: number,

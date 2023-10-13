@@ -24,13 +24,6 @@ export const getGHNServiceFee = async ({
   items,
   weight
 }: IGetGHNServiceFeeProps): Promise<GHNApiServiceFee> => {
-  console.log(
-    "shop_id", shop_id,
-    "to_ward_code", to_ward_code,
-    "to_district_id", to_district_id,
-    "items", items,
-    "weight", weight
-  )
   try {
     if (items.length > 0) {
       const res = await fetch("https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee", {
@@ -83,7 +76,6 @@ export const GHNCreateOrder = async (data: IDeliveryOrderSchema, shop_id: number
     })
 
     const dataGHN: GHNOrderDataResponse = await res.json()
-    console.log(dataGHN)
 
     if (dataGHN.code === 200) {
       return dataGHN

@@ -64,18 +64,18 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
             </DropdownItem>
           </DropdownSection>
 
-          <DropdownSection showDivider
-            className={`${session?.user.role !== "individual" ? "block" : "hidden"}`}
-          >
+          <DropdownSection showDivider>
             <DropdownItem
               key="my-shop"
               startContent={<TbShoppingCartCopy className="text-lg" />}
             >
-              <span>Đơn hàng của tôi</span>
+              <Link href={`/users/orders/${session.user._id}`}>Đơn hàng của tôi</Link>
             </DropdownItem>
           </DropdownSection>
 
-          <DropdownSection showDivider>
+          <DropdownSection showDivider
+            className={`${session?.user.role !== "individual" ? "block" : "hidden"}`}
+          >
             <DropdownItem
               key="my-shop"
               startContent={<AiOutlineShop className="text-lg" />}

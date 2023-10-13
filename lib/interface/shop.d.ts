@@ -26,3 +26,30 @@ type ShopInfoResponse = {
   message: string;
   data?: IShopInfo
 };
+
+type TopSellingProduct = {
+  productId: string;
+  productName: string;
+  weightSold: number;
+};
+
+type TopSellingProductResponse = {
+  code: number;
+  message: string;
+  data: TopSellingProduct[] | null
+}
+
+type MonthlySale = {
+  [month: number]: number;
+};
+
+type MonthlySales = {
+  month: number;
+  totalAmount: number
+};
+
+type MonthlySalesResponse = {
+  code: number;
+  message: string;
+  data: MonthlySales[] | null
+}

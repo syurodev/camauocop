@@ -29,6 +29,7 @@ type IOrderDetail = {
       images: string[],
       retail: boolean,
       retailPrice: number
+      productType: string
       packageOptions: [
         unit: WeightUnit,
         weight: number,
@@ -71,6 +72,7 @@ type IOrder = {
     productId: string,
     productSnapshot: {
       name: string,
+      productType: string,
       images: string[],
       retail: boolean,
       retailPrice: number

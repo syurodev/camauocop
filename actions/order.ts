@@ -2,12 +2,13 @@
 
 import Order from "@/lib/models/orders"
 import Product from "@/lib/models/products";
-import { connectToDB } from "@/lib/utils";
+import { connectToDB, verifyJwtToken } from "@/lib/utils";
 import { IOrderZodSchema } from "@/lib/zodSchema/order"
 
 type IGetOrdersProps = {
   id: string
-  role?: "individual" | "shop" | "business",
+  accessToken: string
+  role?: UserRole,
   page?: number;
   perPage?: number;
 }
@@ -51,7 +52,8 @@ export const createOrder = async (data: IOrderZodSchema) => {
           retail: product.retail,
           retailPrice: product.retailPrice,
           images: product.images,
-          packageOptions: product.packageOptions
+          packageOptions: product.packageOptions,
+          productType: product.productType
         };
       })
     );
@@ -79,80 +81,90 @@ export const createOrder = async (data: IOrderZodSchema) => {
 
 export const getOrders = async ({
   id,
+  accessToken,
   role = "individual",
   page = 1,
   perPage = 20
 }: IGetOrdersProps): Promise<IOrderResponse> => {
   try {
     await connectToDB();
+    const token = await verifyJwtToken(accessToken)
 
-    let query: any = {};
+    if (!!token) {
+      let query: any = {};
 
-    if (role === "individual") {
-      query = { buyerId: id };
-    } else if (role === "shop") {
-      query = { shopId: id };
-    }
+      if (role === "individual") {
+        query = { buyerId: id };
+      } else if (role === "shop") {
+        query = { shopId: id };
+      }
 
-    const skip = (page - 1) * perPage;
+      const skip = (page - 1) * perPage;
 
-    const totalItems = await Order.countDocuments(query);
+      const totalItems = await Order.countDocuments(query);
 
-    const totalPages = Math.ceil(totalItems / perPage);
+      const totalPages = Math.ceil(totalItems / perPage);
 
-    const orders: IOrder[] = await Order.find(query)
-      .skip(skip)
-      .limit(perPage)
-      .populate({
-        path: 'buyerId',
-        select: 'username email',
-      })
-      .populate({
-        path: 'shopId',
-        select: 'name',
-      })
-      .select("_id buyerId shopId totalAmount orderStatus orderDate delivery products");
+      const orders: IOrder[] = await Order.find(query)
+        .skip(skip)
+        .limit(perPage)
+        .populate({
+          path: 'buyerId',
+          select: 'username email',
+        })
+        .populate({
+          path: 'shopId',
+          select: 'name',
+        })
+        .select("_id buyerId shopId totalAmount orderStatus orderDate delivery products");
 
-    if (orders && orders.length > 0) {
-      const formattedOrders = orders.map((
-        order: IOrder
-      ): IOrders => {
-        const firstProduct = order.products[0];
-        const productSnapshot = firstProduct.productSnapshot;
-        const firstImage = productSnapshot.images[0];
+      if (orders && orders.length > 0) {
+        const formattedOrders = orders.map((
+          order: IOrder
+        ): IOrders => {
+          const firstProduct = order.products[0];
+          const productSnapshot = firstProduct.productSnapshot;
+          const firstImage = productSnapshot.images[0];
 
+          return {
+            _id: order._id.toString(),
+            buyerId: {
+              _id: order.buyerId._id.toString(),
+              username: order.buyerId.username || "",
+              email: order.buyerId.email || ""
+            },
+            shopId: {
+              _id: order.shopId._id.toString(),
+              name: order.shopId.name
+            },
+            orderDateConvert: order.orderDate!.toISOString(),
+            totalAmount: order.totalAmount,
+            orderStatus: order.orderStatus,
+            productImage: firstImage,
+          };
+        });
         return {
-          _id: order._id.toString(),
-          buyerId: {
-            _id: order.buyerId._id.toString(),
-            username: order.buyerId.username || "",
-            email: order.buyerId.email || ""
-          },
-          shopId: {
-            _id: order.shopId._id.toString(),
-            name: order.shopId.name
-          },
-          orderDateConvert: order.orderDate!.toISOString(),
-          totalAmount: order.totalAmount,
-          orderStatus: order.orderStatus,
-          productImage: firstImage,
+          code: 200,
+          data: formattedOrders,
+          totalItems,
+          totalPages,
         };
-      });
-      return {
-        code: 200,
-        data: formattedOrders,
-        totalItems,
-        totalPages,
-      };
+      } else {
+        return {
+          code: 400,
+          data: [],
+          totalItems: 0,
+          totalPages: 0,
+        }
+      }
     } else {
       return {
-        code: 400,
+        code: 401,
         data: [],
         totalItems: 0,
         totalPages: 0,
       }
     }
-
   } catch (error) {
     console.log(error)
     return {

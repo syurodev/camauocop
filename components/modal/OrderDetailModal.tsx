@@ -67,9 +67,15 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
             let length = product.length || 0;
             let width = product.width || 0;
             let height = product.height || 0;
-            setTotalWidth(totalWidth + product?.width || 0)
-            setTotalHeight(totalWidth + product?.height || 0)
-            setTotalLength(totalWidth + product?.length || 0)
+            let totalWidthTemp = 0;
+            let totalHeightTemp = 0;
+            let totalLengthTemp = 0;
+            totalWidthTemp += product?.width * product.quantity || 0
+            totalHeightTemp += product?.height * product.quantity || 0
+            totalLengthTemp += product?.length * product.quantity || 0
+            setTotalWidth(totalWidthTemp)
+            setTotalHeight(totalHeightTemp)
+            setTotalLength(totalLengthTemp)
 
             if (product.unit === "gram") {
               weight = product.weight;

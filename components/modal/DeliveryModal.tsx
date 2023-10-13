@@ -168,7 +168,7 @@ const DeliveryModal: React.FC<IProps> = ({
                     {...register("width")}
                     isInvalid={!!errors.width}
                     errorMessage={errors.width?.message}
-                    value={totalWidth.toString()}
+                    value={totalWidth.toString() || "0"}
                     onChange={e => {
                       setTotalWidth(+e.target.value)
                       setValue("width", +e.target.value)
@@ -185,7 +185,7 @@ const DeliveryModal: React.FC<IProps> = ({
                     {...register("height")}
                     isInvalid={!!errors.height}
                     errorMessage={errors.height?.message}
-                    value={totalHeight.toString()}
+                    value={totalHeight.toString() || "0"}
                     onChange={e => {
                       setTotalHeight(+e.target.value)
                       setValue("height", +e.target.value)
@@ -202,7 +202,7 @@ const DeliveryModal: React.FC<IProps> = ({
                     {...register("length")}
                     isInvalid={!!errors.length}
                     errorMessage={errors.length?.message}
-                    value={totalLength.toString()}
+                    value={totalLength.toString() || "0"}
                     onChange={e => {
                       setTotalLength(+e.target.value)
                       setValue("length", +e.target.value)
