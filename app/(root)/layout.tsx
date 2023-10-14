@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
-import { NextProviders } from "@/components/providers/NextUIProvider";
+import { Toaster } from "react-hot-toast";
 
+import { NextProviders } from "@/components/providers/NextUIProvider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import "@/app/globals.css";
 import Providers from "@/components/providers/session-provider";
-import { Toaster } from "react-hot-toast";
 import NavbarComponent from "@/components/layout/NavbarComponent";
+// import { SocketProvider } from "@/components/providers/socket-provider";
 
 const noto = Noto_Sans({
   subsets: ["vietnamese"],
@@ -35,6 +36,7 @@ export default function RootLayout({
               storageKey="seamarkethub-theme"
               enableSystem={false}
             >
+              {/* <SocketProvider> */}
               <NavbarComponent />
               <main className="max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8">
                 {children}
@@ -43,6 +45,7 @@ export default function RootLayout({
                 position="bottom-right"
                 reverseOrder={false}
               />
+              {/* </SocketProvider> */}
             </ThemeProvider>
           </NextProviders>
         </body>

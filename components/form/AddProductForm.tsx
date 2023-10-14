@@ -24,16 +24,15 @@ type AddProductFormProps = {
 };
 
 const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
-  const router = useRouter();
   const [productTypes, setProductTypes] = useState<IAddProductTypes[]>([]);
-  //const [description, setDescription] = useState<OutputData | null>(null);
   const [retail, setRetail] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [priceInputFormated, setPriceInputFormated] = useState<string>("");
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
     getValues,
     setValue,
@@ -80,8 +79,9 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
         ...data,
         shopId: session?.user.shopId,
       };
-
+      setIsLoading(true)
       const res = await addProduct(data);
+      setIsLoading(false)
       if (res.code === 200) {
         toast.success(res.message);
         reset
@@ -354,9 +354,9 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
       )}
 
       <div className="flex justify-end py-3">
-        <Button type="submit" color="success">
+        <Button type="submit" color="success" isDisabled={isLoading}>
           {
-            isSubmitting && <Spinner size="sm" color="default" />
+            isLoading && <Spinner size="sm" color="default" />
           }
           Thêm sản phẩm
         </Button>

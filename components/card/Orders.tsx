@@ -36,7 +36,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, accessToken }) => {
                 <Card key={index} shadow='sm' className='p-3'>
                   <div className="max-w-[300px] w-full flex items-center gap-3">
                     <div>
-                      <Skeleton className="flex rounded-full w-[4.5rem] h-[4.5rem]" />
+                      <Skeleton className="flex rounded-full w-[4rem] h-[4rem]" />
                     </div>
                     <div className="w-full flex flex-col gap-2">
                       <Skeleton className="h-3 w-3/5 rounded-lg" />
@@ -61,21 +61,18 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, accessToken }) => {
                     onOpen()
                   }}
                 >
-                  <span
-                    className={`absolute font-bold text-sm bottom-1 right-2 opacity-20 
-                  text-${getColorForOrderStatus(order.orderStatus)} uppercase pointer-events-none select-none`}>
-                    {order.orderStatus}
-                  </span>
                   <div className="max-w-[300px] w-full flex items-center gap-3">
                     <div>
                       <Avatar
                         src={order.productImage}
                         alt="product image"
-                        className="w-[4.5rem] h-[4.5rem]"
+                        className="w-[4rem] h-[4rem]"
+                        isBordered
+                        color={getColorForOrderStatus(order.orderStatus)}
                       />
                     </div>
                     <div className="w-[65%] flex flex-col justify-start items-start overflow-hidden line-clamp-1">
-                      <p className='font-medium w-full line-clamp-1'>{order.buyerId.username || order.buyerId.email}</p>
+                      <p className='text-start font-medium w-full line-clamp-1'>{order.buyerId.username || order.buyerId.email}</p>
                       <p className='text-primary'>{formattedPriceWithUnit(order.totalAmount)}</p>
                       <p className='text-sm'>{formatDate(order?.orderDateConvert!)}</p>
                     </div>

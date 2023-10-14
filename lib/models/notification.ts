@@ -4,12 +4,11 @@ import Order from './orders';
 
 // Interface for the Notification for TypeScript
 export interface INotification extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId: string;
+  orderId: string;
   content: string;
-  type: 'bid' | 'win' | 'event' | 'other';
+  type: 'bid' | 'win' | 'event' | 'order';
   status: 'read' | 'unread';
-  timestamp: Date;
-  link?: string;
 }
 
 // Schema definition for Notification
@@ -25,7 +24,7 @@ const NotificationSchema: Schema = new Schema({
   },
   type: {
     type: String,
-    enum: ['bid', 'win', 'event', 'other'],
+    enum: ['bid', 'win', 'event', 'order'],
     required: true
   },
   status: {
@@ -33,15 +32,14 @@ const NotificationSchema: Schema = new Schema({
     enum: ['read', 'unread'],
     default: 'unread'
   },
-  timestamp: {
-    type: Date,
-    default: Date.now
-  },
   orderId: {
     type: mongoose.Types.ObjectId,
     ref: Order,
     default: null
   }
-});
+}, {
+  timestamps: true,
+}
+);
 
 export default mongoose.models.Notification || mongoose.model<INotification>('Notification', NotificationSchema);

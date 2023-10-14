@@ -24,7 +24,7 @@ const Products: React.FC<IProps> = ({ shopId }) => {
     <>
       <div className="grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4 xl:gap-5">
         {isLoading
-          ? Array.from({ length: 20 }).map((_, index) => (
+          ? Array.from({ length: 24 }).map((_, index) => (
             <Card shadow="sm" key={index}>
               <Skeleton isLoaded={!isLoading} className="rounded-lg">
                 <CardBody className="overflow-visible p-0">

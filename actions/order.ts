@@ -1,7 +1,9 @@
 "use server"
 
+import Notification, { INotification } from "@/lib/models/notification";
 import Order from "@/lib/models/orders"
 import Product from "@/lib/models/products";
+import Shop, { IShop } from "@/lib/models/shop";
 import { connectToDB, verifyJwtToken } from "@/lib/utils";
 import { IOrderZodSchema } from "@/lib/zodSchema/order"
 
@@ -65,6 +67,24 @@ export const createOrder = async (data: IOrderZodSchema) => {
 
     const order = new Order(data)
     await order.save()
+
+    const shopAuth: IShop | null = await Shop.findById({ _id: data.shopId })
+
+    if (!shopAuth) {
+      throw new Error(`Shop with ID ${data.shopId} not found.`);
+    }
+
+    // Sau khi lưu đơn hàng thành công, bạn có thể tạo một thông báo
+    const notificationData = {
+      userId: shopAuth.auth,
+      content: `Bạn có đơn hàng mới: Đơn hàng #${order._id}`,
+      type: 'order',
+      status: 'unread',
+      orderId: order._id
+    };
+
+    const notification = new Notification(notificationData);
+    await notification.save();
 
     return {
       code: 200,

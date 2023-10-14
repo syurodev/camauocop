@@ -30,8 +30,8 @@ export function ModeToggle({ className = "" }: { className?: string }) {
         </Button>
       </DropdownTrigger>
       <DropdownMenu>
-        <DropdownItem onClick={() => setTheme("light")}>Light</DropdownItem>
-        <DropdownItem onClick={() => setTheme("dark")}>Dark</DropdownItem>
+        <DropdownItem onClick={() => setTheme("light")}>Chế độ sáng</DropdownItem>
+        <DropdownItem onClick={() => setTheme("dark")}>Chế độ tối</DropdownItem>
       </DropdownMenu>
     </Dropdown>
   );

@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { ModeToggle } from "@/components/ModeToggle";
+import { redirect, useRouter } from "next/navigation";
 import {
   Navbar,
   NavbarBrand,
@@ -11,6 +10,11 @@ import {
   Tooltip,
   Button,
   Badge,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Card,
+  CardBody
 } from "@nextui-org/react";
 import Link from "next/link";
 import {
@@ -18,12 +22,56 @@ import {
   AiOutlinePlus,
   AiOutlineBell,
 } from "react-icons/ai";
-import UserMenu from "../elements/UserMenu";
+
+import { ModeToggle } from "@/components/ModeToggle";
+import UserMenu from "@/components/elements/UserMenu";
+import { getNotifications, readNotifications } from "@/actions/notification";
+import { INotification } from "@/lib/models/notification";
 
 const NavbarComponent: React.FC = () => {
-  const [notification, setNotification] = useState([]);
+  const [notifications, setNotifications] = useState<INotification[] | []>([]);
+  const [notificationsNumber, setNotificationsNumber] = useState<number>(0);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const { data: session } = useSession();
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const res: INotificationResponse = await getNotifications(session?.user._id!, notifications.length)
+      console.log(res)
+      setNotifications(res.data)
+    }
+
+    if (session) {
+      fetchNotifications()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session])
+
+  const countUnreadNotifications = (notifications: INotification[]): number => {
+    const unreadNotifications = notifications.filter((notification) => notification.status === 'unread');
+    return unreadNotifications.length;
+  };
+
+  useEffect(() => {
+    setNotificationsNumber(countUnreadNotifications(notifications))
+  }, [
+    notifications
+  ])
+
   const router = useRouter();
+
+  const handleNotificationPress = async (id: string, type: string) => {
+    await readNotifications(id)
+    if (type === "order") {
+      if (session?.user.role === "shop") {
+        router.push(`shop/${session.user.shopId}`)
+      } else if (session?.user.role === "individual") {
+        router.push(`/users/orders/${session.user._id}`)
+      }
+    }
+    setIsNotificationsOpen(false)
+  }
+
   return (
     <Navbar maxWidth="2xl">
       <NavbarBrand className="flex items-center h-full gap-2">
@@ -36,18 +84,51 @@ const NavbarComponent: React.FC = () => {
         <ModeToggle className="!hidden lg:!flex" />
         {
           session?.user && (
-            <Tooltip content="Thông báo">
-              <Badge content="99+" shape="circle" color="danger">
+            <Popover
+              showArrow
+              offset={10}
+              placement="bottom"
+              backdrop={"blur"}
+              isOpen={isNotificationsOpen} onOpenChange={(open) => setIsNotificationsOpen(open)}
+            >
+              <PopoverTrigger>
                 <Button
                   radius="full"
                   isIconOnly
                   aria-label="more than 99 notifications"
                   variant="light"
                 >
-                  <AiOutlineBell className="text-xl" />
+                  <Badge
+                    as="span"
+                    content={notificationsNumber}
+                    shape="circle"
+                    color="danger"
+                    className={`${notificationsNumber > 0 ? "flex" : "hidden"}`}
+                  >
+                    <AiOutlineBell className="text-xl" />
+                  </Badge>
                 </Button>
-              </Badge>
-            </Tooltip>
+              </PopoverTrigger>
+              <PopoverContent className="flex flex-col gap-2 p-0 w-[95%] max-w-[500px]">
+                {
+                  notifications.map(notification => {
+                    return (
+                      <Card
+                        isPressable
+                        key={notification._id}
+                        className={`${notification.status === "unread" ? "dark:bg-[#18181b] bg-[#f4f4f5]" : "bg-white dark:bg-black"}`}
+                        onPress={() => handleNotificationPress(notification._id, notification.type)}
+                      >
+                        <CardBody>
+                          {notification.content}
+                        </CardBody>
+                      </Card>
+                    )
+                  })
+                }
+              </PopoverContent>
+            </Popover>
+
           )
         }
 

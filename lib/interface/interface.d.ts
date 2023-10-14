@@ -21,3 +21,8 @@ type IGeolocation = {
 type WeightUnit = 'tấn' | 'kg' | 'gram';
 
 type UserRole = "individual" | "shop" | "business"
+
+type INotificationResponse = {
+  code: number,
+  data: INotification[] | []
+}
