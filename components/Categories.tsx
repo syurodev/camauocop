@@ -17,7 +17,7 @@ type ProductType = {
 
 const Categories: React.FC<ICategories> = ({ className }) => {
   const [productTypes, setProductTypes] = React.useState<ProductType[]>([]);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const router = useRouter();
 
   React.useEffect(() => {
@@ -55,7 +55,9 @@ const Categories: React.FC<ICategories> = ({ className }) => {
                 {type.typeName}
               </Button>
             )) :
-            <span className="text-center opacity-70 font-semibold">Chưa có loại sản phẩm</span>
+            <div className="flex justify-center items-center w-full h-full">
+              <span className="opacity-70 font-semibold">Chưa có loại sản phẩm</span>
+            </div>
           }
         </>
       )}

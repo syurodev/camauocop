@@ -2,10 +2,10 @@ import mongoose, { Document, Schema } from 'mongoose';
 import User from './users';
 import Product from './products';
 
-export interface IFavoriteSchema extends Document {
-  userId: mongoose.Types.ObjectId;
+export interface IFavorite extends Document {
+  userId: string;
   products: {
-    productId: mongoose.Types.ObjectId,
+    productId: string,
     addedDate: Date
   }[]
 }
@@ -29,4 +29,4 @@ const FavoriteSchema: Schema = new Schema({
   }]
 });
 
-export default mongoose.models.Favorite || mongoose.model<IFavoriteSchema>('Favorite', FavoriteSchema);
+export default mongoose.models.Favorite || mongoose.model<IFavorite>('Favorite', FavoriteSchema);

@@ -5,8 +5,9 @@ import { getServerSession } from "next-auth/next";
 import { ObjectId } from "mongodb";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { connectToDB } from "@/lib/utils";
-import Product, { IProduct } from "@/lib/models/products";
+import { connectToDB, verifyJwtToken } from "@/lib/utils";
+import Product from "@/lib/models/products";
+import Favorite, { IFavorite } from "@/lib/models/favorites";
 import ProductType from "@/lib/models/productTypes";
 import { type IAddProductZodSchema } from "@/lib/zodSchema/products";
 import { type IAddProductTypeZodSchema } from "@/lib/zodSchema/products";
@@ -162,7 +163,7 @@ export async function getProducts(
   }
 }
 
-export async function getProductDetail(_id: string): Promise<IProductDetail | null> {
+export async function getProductDetail(_id: string, userId?: string): Promise<IProductDetail | null> {
   try {
     await connectToDB();
     const product = await Product.findById(_id)
@@ -181,6 +182,16 @@ export async function getProductDetail(_id: string): Promise<IProductDetail | nu
 
     if (!product) {
       return null;
+    }
+
+    // Kiểm tra xem sản phẩm có được yêu thích hay không
+    let isFavorite = false;
+    if (userId) {
+      // Nếu userId tồn tại, kiểm tra danh sách yêu thích của người dùng
+      const favorite: IFavorite | null = await Favorite.findOne({ userId });
+      if (favorite) {
+        isFavorite = favorite.products.some((favoriteProduct) => favoriteProduct.productId.toString() === _id);
+      }
     }
 
     // Format the data
@@ -207,7 +218,8 @@ export async function getProductDetail(_id: string): Promise<IProductDetail | nu
         delivery: product.shopId.delivery,
         address: product.shopId.address,
         shop_id: product.shopId.shop_id,
-      }
+      },
+      isFavorite
     };
 
     return formattedProduct;
@@ -282,5 +294,62 @@ export async function searchProducts(
       products: [],
       totalPages: 0,
     };
+  }
+}
+
+export async function setFavorite(
+  userId: string,
+  productId: string,
+  accessToken: string
+) {
+  try {
+    await connectToDB();
+
+    const token = verifyJwtToken(accessToken)
+    if (!!token) {
+      const existingFavorite: IFavorite | null = await Favorite.findOne({ userId: userId });
+
+      if (existingFavorite) {
+        // Danh sách yêu thích của người dùng đã tồn tại
+        const favoriteProducts = existingFavorite.products;
+        const index = favoriteProducts.findIndex((item) => item.productId.toString() === productId);
+
+        if (index === -1) {
+          // Nếu productId chưa tồn tại, thêm nó vào danh sách
+          favoriteProducts.push({ productId, addedDate: new Date() });
+        } else {
+          // Nếu productId đã tồn tại, xoá nó khỏi danh sách
+          favoriteProducts.splice(index, 1);
+        }
+
+        // Cập nhật danh sách yêu thích
+        existingFavorite.products = favoriteProducts;
+        await existingFavorite.save();
+      } else {
+        // Danh sách yêu thích của người dùng chưa tồn tại
+        const newFavorite = new Favorite({
+          userId: userId,
+          products: [{ productId, addedDate: new Date() }],
+        });
+        await newFavorite.save();
+      }
+
+      return {
+        code: 200,
+        message: 'Đã thực hiện thay đổi trong danh sách yêu thích',
+      };
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực chức năng này, vui lòng đăng nhập và thử lại"
+      }
+    }
+
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại"
+    }
   }
 }

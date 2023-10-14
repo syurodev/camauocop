@@ -53,6 +53,7 @@ type IProductDetail = {
   sellerAvatar: string;
   productTypeName: string;
   productTypeId: string;
+  isFavorite: boolean
 };
 
 type ProductPack = {

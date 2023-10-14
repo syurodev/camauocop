@@ -27,15 +27,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const ProductDetailPage: React.FC<Props> = async ({ params }) => {
-  const data: IProductDetail | null = await getProductDetail(params.id);
-
   const session: Session | null = await getServerSession(authOptions)
+
+  const data: IProductDetail | null = await getProductDetail(params.id, session?.user._id);
 
   return (
     <article className="mt-2">
-      <div className="flex flex-col lg:flex-row">
+      <div className="flex flex-col lg:flex-row gap-5">
         <SlideShow images={data?.productImages || []} />
-        <div className="ml-3 lg:flex-1">
+
+        <div className="lg:flex-1">
           <h1 className="font-bold text-4xl uppercase">{data?.productName}</h1>
           <Link href={`/products/${data?.productTypeName}`} className="text-lg uppercase font-semibold opacity-70">
             {data?.productTypeName}
@@ -62,7 +63,7 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
           <p className="text-center">
             Số lượng còn lại: {data?.productQuantity}Kg
           </p>
-          <ActionButtons user={JSON.stringify(session)} data={JSON.stringify(Array(data))} />
+          <ActionButtons user={JSON.stringify(session)} data={JSON.stringify(data)} />
         </div>
       </div>
 

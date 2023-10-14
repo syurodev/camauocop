@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import BuyModal from "@/components/modal/BuyModal";
 import { updatePhone } from "@/actions/user";
 import toast from "react-hot-toast";
+import { setFavorite } from "@/actions/products";
 
 
 type IProps = {
@@ -24,20 +25,37 @@ type IProps = {
 }
 
 const ActionButtons: React.FC<IProps> = ({ user, data }) => {
-  const [favorited, setFavorited] = React.useState<boolean>(false);
+  const session: Session = JSON.parse(user)
+  const [products, setProducts] = React.useState<IProductDetail | null>(JSON.parse(data) || null)
+  // let products: (IProductDetail | null)[] = JSON.parse(data)
+
+  const [favorited, setFavorited] = React.useState<boolean>(products?.isFavorite || false);
+  const [favoriteLoading, setFavoriteLoading] = React.useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { isOpen: isOpenPhoneChange, onOpen: onOpenPhoneChange, onOpenChange: onOpenChangePhone, onClose: onClosePhoneChange } = useDisclosure();
   const router = useRouter()
 
-  const session: Session = JSON.parse(user)
-  const products: (IProductDetail | null)[] = JSON.parse(data)
 
-  const handleFavorited = () => {
+
+  const handleFavorited = async () => {
     if (!session) {
       router.push("/login")
     }
+    setFavoriteLoading(true)
+    const res = await setFavorite(session.user._id, products?._id!, session.user.accessToken)
+    setFavoriteLoading(false)
 
-    setFavorited(!favorited);
+    if (res.code === 200) {
+      const updatedProducts = products;
+      if (updatedProducts) {
+        const updatedProduct = updatedProducts;
+        updatedProduct.isFavorite = !favorited;
+        setProducts(updatedProducts);
+        setFavorited(!favorited);
+      }
+    } else {
+      toast.error(res.message)
+    }
   };
 
   const handleBuyButtomClick = () => {
@@ -96,7 +114,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
 
   return (
     <>
-      <div className="flex justify-around items-center mt-3">
+      <div className="flex justify-center gap-7 items-center mt-3">
         <Tooltip content={`${!session ? "Đăng nhập" : "Thêm vào giỏ hàng"}`}>
           <Button isIconOnly variant="ghost" radius="full" onPress={handleAddToCart}>
             <AiOutlineShoppingCart className="text-xl" />
@@ -112,6 +130,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
             isIconOnly
             variant="ghost"
             radius="full"
+            isDisabled={favoriteLoading}
             onClick={handleFavorited}
           >
             {favorited ? (

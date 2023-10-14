@@ -19,11 +19,20 @@ type IProps = {
   isOpenBuyModal: boolean;
   onCloseBuyModal: () => void;
   onOpenChangeBuyModal: () => void;
-  data: (IProductDetail | null)[],
+  data: IProductDetail | IProductDetail[] | null,
   session: Session
 }
 
 const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenChangeBuyModal, data, session }) => {
+  const [productsData, setProductsData] = React.useState<IProductDetail[] | null>(() => {
+    if (data === null) {
+      return null;
+    } else if (Array.isArray(data)) {
+      return data;
+    } else {
+      return [data];
+    }
+  });
   const [provinceId, setProvinceId] = React.useState<number>(0)
   const [districtId, setDistrictId] = React.useState<number>(0)
   const [wardId, setWardId] = React.useState<string>("0")
@@ -54,14 +63,14 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
   // Initial Value
   React.useEffect(() => {
     // initial state
-    if (data && data.length > 0) {
+    if (productsData && productsData.length > 0) {
       const defaultUnits: { [productId: string]: WeightUnit } = {};
       const defaultQuantitiesState: { [productId: string]: number } = {};
       const defaultQuantities: { [productId: string]: number } = {};
       const defaultWeight: { [productId: string]: number } = {};
       const defaultRetails: { [productId: string]: boolean } = {};
       const defaultPacks: { [productId: string]: ProductPack } = {};
-      data.forEach((product, index) => {
+      productsData.forEach((product, index) => {
         if (product && product._id) {
           defaultUnits[product._id] = "kg";
           defaultQuantitiesState[product._id] = product.productQuantity;
@@ -237,7 +246,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
   }
 
   const handlePackChange = (productId: string, index: number, price: number) => {
-    const product = data.find((item) => item?._id! === productId);
+    const product = productsData!.find((item) => item?._id! === productId);
 
     if (product) {
       product.packageOptions.forEach((packOption, i) => {
@@ -274,7 +283,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
   React.useEffect(() => {
     const handleGetDeliveryFee = async () => {
       let totalWeight = 0
-      const transformedArray = data.map((product, index) => {
+      const transformedArray = productsData!.map((product, index) => {
         let name = product?.productName!;
         let quantity = 1;
         let weight = 0;
@@ -318,7 +327,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
 
       if (getValues("delivery")[0] === "Giao hàng nhanh") {
         const res = await getGHNServiceFee({
-          shop_id: data[0]?.shopInfo.shop_id.GHN!,
+          shop_id: productsData![0]?.shopInfo.shop_id.GHN!,
           to_district_id: districtId,
           to_ward_code: wardId,
           items: transformedArray,
@@ -331,7 +340,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
       }
     }
     if (isOpenBuyModal) {
-      if (data && data.length > 0) {
+      if (productsData && productsData.length > 0) {
         handleGetDeliveryFee()
       }
     }
@@ -343,6 +352,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
     packSeleced,
     productWeight,
     data,
+    productsData,
     isOpenBuyModal,
     productQuantity
   ])
@@ -351,7 +361,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
     setIsLoading(true)
     let total = 0
     let shopId = ""
-    data.map((product) => {
+    productsData && productsData.map((product) => {
       shopId = product?.shopId!
       if (retail[product?._id!]) {
         total += +formattedPriceWithUnit(
@@ -429,7 +439,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                   <Divider />
                   <CardBody>
                     {
-                      data && data.length > 0 && data.map((product, index) => {
+                      productsData && productsData.length > 0 && productsData.map((product, index) => {
                         return (
                           <div className="flex flex-col gap-2" key={product?._id}>
                             <div className="flex flex-row gap-2 mb-2">
@@ -595,7 +605,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
 
                     <CardBody className="flex flex-col gap-3">
                       {
-                        data && data.length > 0 && data.map((product, index) => {
+                        productsData && productsData.length > 0 && productsData.map((product, index) => {
                           return (
                             <div key={product?._id}>
                               <p>{product?.productName}</p>
@@ -631,7 +641,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                         <div className="flex flex-row items-center justify-between">
                           <span className="font-semibold text-primary">{formattedPriceWithUnit(deliveryServiceFee)}</span>
                           <div className="flex flex-row items-center w-fit">
-                            <span className="font-medium text-xs opacity-70">{data[0]?.shopInfo.address[0].province}</span>
+                            <span className="font-medium text-xs opacity-70">{productsData![0]?.shopInfo.address[0].province}</span>
                             <LuArrowRight />
                             <span className="font-medium text-xs opacity-70">{getValues("province")}</span>
                           </div>
