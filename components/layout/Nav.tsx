@@ -41,7 +41,6 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
   useEffect(() => {
     const fetchNotifications = async () => {
       const res: INotificationResponse = await getNotifications(session?.user._id!, notifications.length)
-      console.log(res)
       setNotifications(res.data)
     }
 

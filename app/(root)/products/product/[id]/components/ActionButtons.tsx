@@ -169,6 +169,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
         onOpenChange={onOpenChangePhone}
         isDismissable={false}
         placement="center"
+        backdrop="blur"
       >
         <ModalContent>
           {(onClosePhoneChange) => (

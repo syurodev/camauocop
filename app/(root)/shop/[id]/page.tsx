@@ -1,6 +1,6 @@
 import { getShopInfo } from '@/actions/shop';
 import React from 'react'
-import TopSide from '../../../../components/card/TopSide';
+import TopSide from '@/components/card/TopSide';
 import Content from './components/Content';
 import { Session, getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/options';

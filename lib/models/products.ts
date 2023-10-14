@@ -25,6 +25,7 @@ export interface IProduct extends Document {
   images: string[];
   sold: number;
   createAt: Date;
+  deleted: boolean;
   deleteAt?: Date;
 }
 
@@ -56,6 +57,7 @@ const ProductSchema: Schema = new Schema(
       },
     ],
     images: [{ type: String }],
+    deleted: { type: Boolean, default: false },
     deleteAt: { type: Date },
   },
   {

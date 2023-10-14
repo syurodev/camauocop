@@ -23,11 +23,11 @@ interface EditorProps {
     value: any,
     options?: any
   ) => void;
-  getValues: UseFormGetValues<IAddProductZodSchema>
+  getValues: UseFormGetValues<IAddProductZodSchema>,
+  initialValue?: any
 }
 
-const Tiptap: React.FC<EditorProps> = ({ getValues, setValue }) => {
-  const [isEditable, setIsEditable] = React.useState(true)
+const Tiptap: React.FC<EditorProps> = ({ getValues, setValue, initialValue }) => {
 
   const editor = useEditor({
     extensions: [
@@ -41,19 +41,13 @@ const Tiptap: React.FC<EditorProps> = ({ getValues, setValue }) => {
         class: 'prose bg-[#f4f4f5] dark:bg-[#27272b] w-full max-h-[500px] min-h-[300px] overflow-scroll rounded-lg dark:prose-invert prose-sm sm:prose-base lg:prose-lg xl:prose-2xl focus:outline-none p-2',
       },
     },
-    content: '<p>Mô tả sản phẩm</p>',
+    content: initialValue || "",
     onUpdate: () => {
       setValue(
         "description", editor?.getJSON()
       );
     }
   })
-
-  React.useEffect(() => {
-    if (editor) {
-      editor.setEditable(isEditable)
-    }
-  }, [isEditable, editor])
 
   return (
     <>

@@ -399,6 +399,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
         scrollBehavior="outside"
         size="5xl"
         placement="bottom"
+        backdrop="blur"
         isKeyboardDismissDisabled
         classNames={{
           base: "!max-w-[98%] !h-[95%] mx-2 !mb-0 !absolute !bottom-0 !rounded-b-none !overflow-auto"

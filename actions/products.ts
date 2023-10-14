@@ -6,7 +6,7 @@ import { ObjectId } from "mongodb";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { connectToDB, verifyJwtToken } from "@/lib/utils";
-import Product from "@/lib/models/products";
+import Product, { IProduct } from "@/lib/models/products";
 import Favorite, { IFavorite } from "@/lib/models/favorites";
 import ProductType from "@/lib/models/productTypes";
 import { type IAddProductZodSchema } from "@/lib/zodSchema/products";
@@ -117,10 +117,10 @@ export async function getProducts(
     const limit = 20;
     const skip = (page - 1) * limit;
 
-    let query = {};
+    let query = { deleted: false };
 
     if (shopId) {
-      query = { shopId };
+      query = { deleted: false };
     }
 
     const totalProducts = await Product.countDocuments(query);
@@ -347,6 +347,88 @@ export async function setFavorite(
 
   } catch (error) {
     console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại"
+    }
+  }
+}
+
+export async function editProduct(id: string, data: IAddProductZodSchema, accessToken: string) {
+  try {
+    const token = verifyJwtToken(accessToken);
+    if (!!token) {
+      await connectToDB();
+      const product: IProduct | null = await Product.findById(id);
+
+      if (product) {
+        product.productType = data?.productType || product?.productType
+        product.name = data?.name || product?.name!
+        product.description = data?.description || product?.description
+        product.retailPrice = data?.retailPrice || product?.retailPrice
+        product.retail = data?.retail || product?.retail
+        product.packageOptions = data?.packageOptions || product?.packageOptions
+        product.images = data?.images || product?.images
+        if (data.unit === "kg") {
+          product.quantity = data?.quantity || product?.quantity
+        } else {
+          product.quantity = convertToKg(data?.quantity, data?.unit) || product?.quantity
+        }
+
+        await product.save()
+
+        return {
+          code: 200,
+          message: "Sản phẩm đã được cập nhật"
+        }
+      } else {
+        return {
+          code: 400,
+          message: "Không tìm thấy sản phẩm"
+        }
+      }
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực chức năng này, vui lòng đăng nhập và thử lại"
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại"
+    }
+  }
+}
+
+export async function deleteProduct(id: string, accessToken: string) {
+  try {
+    const token = verifyJwtToken(accessToken);
+    if (!!token) {
+      await connectToDB();
+      const product: IProduct | null = await Product.findById(id);
+      if (product) {
+        product.deleted = true;
+        await product.save();
+        return {
+          code: 200,
+          message: "Sản phẩm đã được xóa"
+        }
+      } else {
+        return {
+          code: 400,
+          message: "Không tìm thấy sản phẩm"
+        }
+      }
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực chức năng này, vui lòng đăng nhập và thử lại"
+      }
+    }
+  } catch (e) {
+    console.log(e)
     return {
       code: 500,
       message: "Lỗi hệ thống vui lòng thử lại"

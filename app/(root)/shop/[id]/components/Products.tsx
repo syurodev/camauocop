@@ -46,7 +46,12 @@ const Products: React.FC<IProps> = ({ shopId, shopAuth }) => {
           ))
           : products.length > 0 &&
           products.map((item) => {
-            return <CardItem key={item?._id} data={item} editButton={shopAuth || false} />;
+            return <CardItem
+              key={item?._id}
+              data={item}
+              editButton={shopAuth || false}
+              deleteButton={shopAuth || false}
+            />;
           })}
       </div>
     </>

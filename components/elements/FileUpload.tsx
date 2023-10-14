@@ -43,12 +43,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <div className="flex justify-center items-center gap-1 ">
       {images && images.length > 0 ? (
-        <div className="h-fit min-h-[200px] w-fit max-w-full min-w-[200px] rounded-md border !overflow-visible">
+        <div className="h-fit min-h-[200px] w-fit max-w-full min-w-[200px] rounded-md border !overflow-visible relative">
           <Tooltip content="Xoá hình ảnh">
             <Button
               variant="ghost"
               isIconOnly
               radius="full"
+              size="sm"
               onClick={() => {
                 setValue("images", []);
                 setImages(getValue("images"));

@@ -6,24 +6,28 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button, Input, Select, SelectItem, Switch, cn, Spinner, Card, CardHeader, CardBody, Divider } from "@nextui-org/react";
 import toast from "react-hot-toast";
+import { Session } from "next-auth";
 
 import FileUpload from "@/components/elements/FileUpload";
-import { addProduct, getProductTypes } from "@/actions/products";
+import { addProduct, editProduct, getProductTypes } from "@/actions/products";
 import {
   AddProductZodSchema,
   type IAddProductZodSchema,
 } from "@/lib/zodSchema/products";
-import { Session } from "next-auth";
-import { useRouter } from "next/navigation";
 import ProductTypes from "../modal/ProductTypes";
 import { unit } from "@/lib/constant/unit";
 import Tiptap from "../Editor";
+import { IProduct } from "@/lib/models/products";
 
 type AddProductFormProps = {
   session: Session | null;
+  edit?: boolean;
+  productId?: string;
+  onClose?: () => void
+  productData?: IProduct | null
 };
 
-const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
+const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, productId, onClose, productData }) => {
   const [productTypes, setProductTypes] = useState<IAddProductTypes[]>([]);
   const [retail, setRetail] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -39,19 +43,22 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
     control
   } = useForm<IAddProductZodSchema>({
     defaultValues: {
-      productType: "",
-      name: "",
-      packageOptions: [{
-        unit: "kg",
-        weight: 0,
-        price: 0,
-        length: 0,
-        width: 0,
-        height: 0,
-      }],
-      retailPrice: 0,
-      retail: true,
-      unit: "",
+      productType: productData?.productType || "",
+      name: productData?.name || "",
+      packageOptions: productData?.packageOptions
+        ? productData?.packageOptions.map(packageOption => packageOption) : [{
+          unit: "kg",
+          weight: 0,
+          price: 0,
+          length: 0,
+          width: 0,
+          height: 0,
+        }],
+      retailPrice: productData?.retailPrice || 0,
+      retail: productData?.retail || true,
+      images: productData?.images || [],
+      quantity: productData?.quantity || 0,
+      unit: "kg",
     },
     resolver: zodResolver(AddProductZodSchema),
   });
@@ -63,6 +70,12 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
     control,
     name: "packageOptions",
   });
+
+  React.useEffect(() => {
+    if (productData) {
+      setRetail(productData?.retail)
+    }
+  }, [productData])
 
   // GET PRODUCT TYPE
   React.useEffect(() => {
@@ -79,18 +92,28 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
         ...data,
         shopId: session?.user.shopId,
       };
-      setIsLoading(true)
-      const res = await addProduct(data);
-      setIsLoading(false)
-      if (res.code === 200) {
-        toast.success(res.message);
-        reset
-        return
-      }
+      if (edit && productId) {
+        const res = await editProduct(productId, data, session.user.accessToken);
+        if (res.code === 200) {
+          toast.success(res.message);
+          onClose!();
+        } else {
+          toast.error(res.message);
+        }
+      } else {
+        setIsLoading(true)
+        const res = await addProduct(data);
+        setIsLoading(false)
+        if (res.code === 200) {
+          toast.success(res.message);
+          reset
+          return
+        }
 
-      if (res.code === 500) {
-        toast.error(res.message);
-        return
+        if (res.code === 500) {
+          toast.error(res.message);
+          return
+        }
       }
     } else {
       toast.error("Lỗi lấy id shop vui lòng thử lại");
@@ -128,6 +151,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
             isRequired
             type="text"
             label="Tên sản phẩm"
+            placeholder="Nhập tên sản phẩm"
             className="max-w-full"
             {...register("name")}
             isInvalid={!!errors.name}
@@ -144,6 +168,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
               {...register("productType")}
               isInvalid={!!errors.productType}
               errorMessage={errors.productType && errors.productType.message}
+              defaultSelectedKeys={[`${productData?.productType || ""}`]}
             >
               {(type) => <SelectItem key={type._id}>{type.name}</SelectItem>}
             </Select>
@@ -169,6 +194,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
                 {...register("unit")}
                 isInvalid={!!errors.unit}
                 errorMessage={errors.unit && errors.unit.message}
+                defaultSelectedKeys={["kg"]}
               >
                 {(unit) => <SelectItem key={unit.name}>{unit.name}</SelectItem>}
               </Select>
@@ -177,6 +203,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
                 isRequired
                 type="number"
                 label="Số lượng sản phẩm"
+                placeholder="0"
                 className="max-w-full"
                 {...register("quantity")}
                 isInvalid={!!errors.quantity}
@@ -205,6 +232,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
                         placeholder="Chọn đơn vị tính"
                         className="max-w-full"
                         {...register(`packageOptions.${i}.unit`)}
+                        defaultSelectedKeys={[`${productData?.packageOptions && productData?.packageOptions[i]?.unit || "kg"}`]}
                       >
                         {(unit) => <SelectItem key={unit.name}>{unit.name}</SelectItem>}
                       </Select>
@@ -300,7 +328,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
                 "group-data-[selected]:group-data-[pressed]:ml-4",
               ),
             }}
-            defaultSelected
+            defaultSelected={retail}
             onValueChange={handleRetail}
           >
             <div className="flex flex-col gap-1">
@@ -312,28 +340,27 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
           </Switch>
 
           {/* Giá bán lẻ */}
-          {
-            retail && <Input
-              isRequired
-              type="number"
-              label="Giá bán lẻ"
-              placeholder="0"
-              className="max-w-full"
-              endContent={
-                <div className="pointer-events-none flex items-center">
-                  <span className="text-default-400 text-small">
-                    {priceInputFormated}
-                  </span>
-                </div>
-              }
-              {...register("retailPrice")}
-              isInvalid={!!errors.retailPrice}
-              errorMessage={errors.retailPrice && errors.retailPrice.message}
-              onChange={handlePriceChange}
-            />
-          }
+          <Input
+            isRequired
+            type="number"
+            label="Giá bán lẻ"
+            placeholder="0"
+            className="max-w-full"
+            isDisabled={!retail}
+            endContent={
+              <div className="pointer-events-none flex items-center">
+                <span className="text-default-400 text-small">
+                  {priceInputFormated}
+                </span>
+              </div>
+            }
+            {...register("retailPrice")}
+            isInvalid={!!errors.retailPrice}
+            errorMessage={errors.retailPrice && errors.retailPrice.message}
+            onChange={handlePriceChange}
+          />
 
-          <Tiptap getValues={getValues} setValue={setValue} />
+          <Tiptap getValues={getValues} setValue={setValue} initialValue={productData?.description || ""} />
 
           {errors.description && (
             <p className="text-rose-500 font-bold">Phải có mô tả sản phẩm</p>
@@ -353,12 +380,22 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session }) => {
         </p>
       )}
 
-      <div className="flex justify-end py-3">
+      <div className="flex justify-end py-3 gap-3">
+        {
+          edit && onClose && (
+            <Button variant="bordered" onPress={() => onClose()}>
+              Huỷ
+            </Button>
+          )
+        }
+
         <Button type="submit" color="success" isDisabled={isLoading}>
           {
             isLoading && <Spinner size="sm" color="default" />
           }
-          Thêm sản phẩm
+          {
+            edit ? "Cập nhật sản phẩm" : "Thêm sản phẩm"
+          }
         </Button>
       </div>
     </form>

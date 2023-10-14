@@ -73,7 +73,7 @@ const Content: React.FC<IProps> = ({ id, info, role, accessToken }) => {
         {
           role === "shop" && id === data.auth._id && (
             <Tab key="analysis" title="Thống kê">
-              <Analysis shopId={data._id} accessToken={accessToken} />
+              <Analysis shopId={data._id.toString()} accessToken={accessToken} />
             </Tab>
           )
         }
