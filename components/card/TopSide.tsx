@@ -23,7 +23,7 @@ const TopSide: React.FC<IProps> = ({ info }) => {
           <div>
             <p className='text-xl font-semibold'>{data.name}</p>
             <Tooltip content="Chủ sở hữu">
-              <div className='flex flex-row gap-3 items-center'>
+              <div className='flex flex-col md:flex-row md:gap-3 md:items-center'>
                 <div className='flex flex-row items-center gap-1'>
                   <BiUserCircle />
                   <span>{data.auth.username || data.auth.email}</span>

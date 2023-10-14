@@ -5,9 +5,11 @@ import React from 'react'
 
 type IProps = {
   shopId: string
+  shopAuth: boolean
 }
 
-const Products: React.FC<IProps> = ({ shopId }) => {
+const Products: React.FC<IProps> = ({ shopId, shopAuth }) => {
+
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [products, setProducts] = React.useState<IProducts[]>([]);
 
@@ -44,7 +46,7 @@ const Products: React.FC<IProps> = ({ shopId }) => {
           ))
           : products.length > 0 &&
           products.map((item) => {
-            return <CardItem key={item?._id} data={item} />;
+            return <CardItem key={item?._id} data={item} editButton={shopAuth || false} />;
           })}
       </div>
     </>

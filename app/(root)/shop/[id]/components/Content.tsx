@@ -1,8 +1,9 @@
 "use client"
 import React from 'react'
 import { Tabs, Tab } from "@nextui-org/react";
+
 import Products from './Products';
-import Orders from '../../../../../components/card/Orders';
+import Orders from '@/components/card/Orders';
 import Analysis from './Analysis';
 import { getOrders } from '@/actions/order';
 
@@ -55,7 +56,7 @@ const Content: React.FC<IProps> = ({ id, info, role, accessToken }) => {
         onSelectionChange={(key) => setSelected(new Set([key]))}
       >
         <Tab key="products" title="Sản phẩm">
-          <Products shopId={data._id} />
+          <Products shopId={data._id} shopAuth={id === data.auth._id} />
         </Tab>
         {
           role === "shop" && id === data.auth._id && (
