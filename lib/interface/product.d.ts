@@ -47,6 +47,8 @@ type IProductDetail = {
       GHN_district_id?: number;
       GHN_ward_code?: string;
     }];
+    name: string
+    phone: string;
   }
   sellerName: string;
   sellerId: string;

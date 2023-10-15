@@ -12,6 +12,7 @@ import Recommectdation from "./components/Recommectdation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { Session } from "next-auth";
 import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
+import ShopInfo from "./components/ShopInfo";
 
 type Props = {
   params: { id: string };
@@ -32,11 +33,13 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
   const data: IProductDetail | null = await getProductDetail(params.id, session?.user._id);
 
   return (
-    <article className="mt-2">
-      <div className="flex flex-col lg:flex-row gap-5">
+    <article
+      className="flex flex-col gap-4"
+    >
+      <div className="flex flex-col lg:!flex-row gap-5">
         <SlideShow images={data?.productImages || []} />
 
-        <div className="lg:flex-1">
+        <div className="lg:w-1/2">
           <h1 className="font-bold text-4xl uppercase">{data?.productName}</h1>
           <Link href={`/products/${data?.productTypeName}`} className="text-lg uppercase font-semibold opacity-70">
             {data?.productTypeName}
@@ -66,6 +69,8 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
           <ActionButtons user={JSON.stringify(session)} data={JSON.stringify(data)} />
         </div>
       </div>
+
+      <ShopInfo data={JSON.stringify(data)} />
 
       <div className="flex flex-col">
         <div className="mt-5">

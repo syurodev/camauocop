@@ -12,6 +12,7 @@ import ProductType from "@/lib/models/productTypes";
 import { type IAddProductZodSchema } from "@/lib/zodSchema/products";
 import { type IAddProductTypeZodSchema } from "@/lib/zodSchema/products";
 import { convertToKg } from "@/lib/convertToKg";
+import Cart, { ICart } from "@/lib/models/carts"
 
 type Product = {
   _id: ObjectId;
@@ -169,10 +170,10 @@ export async function getProductDetail(_id: string, userId?: string): Promise<IP
     const product = await Product.findById(_id)
       .populate({
         path: "shopId",
-        select: "name _id delivery shop_id address",
+        select: "name _id phone delivery shop_id address",
         populate: {
           path: "auth",
-          select: "username image _id",
+          select: "username phone image _id",
         },
       })
       .populate({
@@ -218,6 +219,8 @@ export async function getProductDetail(_id: string, userId?: string): Promise<IP
         delivery: product.shopId.delivery,
         address: product.shopId.address,
         shop_id: product.shopId.shop_id,
+        name: product.shopId.name,
+        phone: product.shopId.auth.phone
       },
       isFavorite
     };
@@ -410,6 +413,7 @@ export async function deleteProduct(id: string, accessToken: string) {
       const product: IProduct | null = await Product.findById(id);
       if (product) {
         product.deleted = true;
+        product.deleteAt = new Date();
         await product.save();
         return {
           code: 200,
@@ -429,6 +433,66 @@ export async function deleteProduct(id: string, accessToken: string) {
     }
   } catch (e) {
     console.log(e)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại"
+    }
+  }
+}
+
+export async function addToCard(productId: string, userId: string, accessToken: string) {
+  try {
+    const token = verifyJwtToken(accessToken)
+
+    if (!!token) {
+      await connectToDB()
+
+      const existingCart: ICart | null = await Cart.findOne({ userId: userId });
+
+      if (existingCart) {
+        // Danh sách yêu thích của người dùng đã tồn tại
+        const cartProducts = existingCart.products;
+        const index = cartProducts.findIndex((item) => item.productId.toString() === productId);
+
+        if (index === -1) {
+          // Nếu productId chưa tồn tại, thêm nó vào danh sách
+          cartProducts.push({ productId, addedDate: new Date() });
+        } else {
+          return {
+            code: 202,
+            message: "Sản phẩm đã được thêm vào giỏ hàng"
+          }
+        }
+
+        // Cập nhật danh sách yêu thích
+        existingCart.products = cartProducts;
+        await existingCart.save();
+
+        return {
+          code: 200,
+          message: "Sản phẩm đã được thêm vào giỏ hàng"
+        }
+      } else {
+        // Danh sách yêu thích của người dùng chưa tồn tại
+        const newCart = new Cart({
+          userId: userId,
+          products: [{ productId, addedDate: new Date() }],
+        });
+        await newCart.save();
+
+        return {
+          code: 200,
+          message: "Sản phẩm đã được thêm vào giỏ hàng"
+        }
+      }
+    } else {
+      return {
+        code: 400,
+        message: "Bạn không có quyền thực chức năng này, vui lòng đăng nhập và thử lại"
+      }
+    }
+  } catch (error) {
+    console.log(error)
     return {
       code: 500,
       message: "Lỗi hệ thống vui lòng thử lại"

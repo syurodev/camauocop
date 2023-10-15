@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { Button, Card, CardBody, Tooltip, Input, CardHeader, Avatar, Divider, Select, SelectItem, CardFooter, Spinner } from '@nextui-org/react'
+import { Button, Card, CardBody, Tooltip, Input, CardHeader, Avatar, Divider, Select, SelectItem, Spinner } from '@nextui-org/react'
 import { MdOutlineLocationOn } from "react-icons/md"
 import { BsListNested } from "react-icons/bs"
 import toast from "react-hot-toast";

@@ -21,12 +21,16 @@ import {
   AiOutlinePlus,
   AiOutlineBell,
 } from "react-icons/ai";
+import { Session } from "next-auth";
+import { useDispatch } from "react-redux";
 
 import { ModeToggle } from "@/components/ModeToggle";
 import UserMenu from "@/components/elements/UserMenu";
 import { getNotifications, readNotifications } from "@/actions/notification";
 import { INotification } from "@/lib/models/notification";
-import { Session } from "next-auth";
+import { setCartItems } from "@/redux/features/cart-slice"
+import { AppDispatch, useAppSelector } from "@/redux/store";
+import { getCartItems } from "@/actions/cart"
 
 type IProps = {
   sessionData: string
@@ -38,17 +42,30 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const session: Session = JSON.parse(sessionData)
 
+  const dispatch = useDispatch<AppDispatch>()
+
   useEffect(() => {
     const fetchNotifications = async () => {
       const res: INotificationResponse = await getNotifications(session?.user._id!, notifications.length)
       setNotifications(res.data)
     }
 
+    const fetchCratItems = async () => {
+      const res = await getCartItems(session?.user._id, session?.user.accessToken)
+      if (res.code === 200 && res.data) {
+        const data = JSON.parse(res.data)
+        dispatch(setCartItems(data?.products!))
+      }
+    }
+
     if (sessionData) {
       fetchNotifications()
+      fetchCratItems()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionData])
+
+  const cartItems = useAppSelector((state) => state.cartReducer.value)
 
   const countUnreadNotifications = (notifications: INotification[]): number => {
     const unreadNotifications = notifications.filter((notification) => notification.status === 'unread');
@@ -112,7 +129,7 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
                   </Badge>
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="flex flex-col gap-2 p-0 w-[95%] max-w-[500px]">
+              <PopoverContent className="flex flex-col gap-2 p-0 w-[95%] min-w-[200px] max-w-[500px]">
                 {
                   notifications.length > 0 ? (
                     notifications.map(notification => {
@@ -130,7 +147,7 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
                       )
                     })
                   ) : (
-                    <span>Không có thông báo</span>
+                    <span className="line-clamp-1 p-2">Không có thông báo</span>
                   )
                 }
               </PopoverContent>
@@ -150,7 +167,15 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
                   radius="full"
                   className="border-none text-xl"
                 >
-                  <AiOutlineShoppingCart />
+                  <Badge
+                    as="span"
+                    content={cartItems?.length || 0}
+                    shape="circle"
+                    color="success"
+                    className={`${cartItems?.length || 0 > 0 ? "flex" : "hidden"}`}
+                  >
+                    <AiOutlineShoppingCart />
+                  </Badge>
                 </Button>
               </Tooltip>
               {/* Thêm hàng */}

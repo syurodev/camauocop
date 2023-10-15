@@ -7,16 +7,22 @@ import {
   AiFillHeart,
   AiOutlineDollarCircle,
 } from "react-icons/ai";
+import {
+  BsFillCartCheckFill
+} from "react-icons/bs";
 import { Session } from "next-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 
 import BuyModal from "@/components/modal/BuyModal";
 import { updatePhone } from "@/actions/user";
 import toast from "react-hot-toast";
-import { setFavorite } from "@/actions/products";
+import { addToCard, setFavorite } from "@/actions/products";
+import { AppDispatch, useAppSelector } from "@/redux/store";
+import { pushCartItem } from "@/redux/features/cart-slice";
 
 
 type IProps = {
@@ -26,16 +32,17 @@ type IProps = {
 
 const ActionButtons: React.FC<IProps> = ({ user, data }) => {
   const session: Session = JSON.parse(user)
+  const dispatch = useDispatch<AppDispatch>()
+
   const [products, setProducts] = React.useState<IProductDetail | null>(JSON.parse(data) || null)
   // let products: (IProductDetail | null)[] = JSON.parse(data)
 
   const [favorited, setFavorited] = React.useState<boolean>(products?.isFavorite || false);
   const [favoriteLoading, setFavoriteLoading] = React.useState<boolean>(false);
+  const [addToCartLoading, setAddToCartLoading] = React.useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { isOpen: isOpenPhoneChange, onOpen: onOpenPhoneChange, onOpenChange: onOpenChangePhone, onClose: onClosePhoneChange } = useDisclosure();
   const router = useRouter()
-
-
 
   const handleFavorited = async () => {
     if (!session) {
@@ -70,9 +77,24 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
     onOpen()
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!session) {
       router.push("/login")
+    }
+    setAddToCartLoading(true)
+    const res = await addToCard(products?._id!, session.user._id, session.user.accessToken)
+    setAddToCartLoading(false)
+
+    if (res.code === 200) {
+      toast.success(res.message)
+      dispatch(pushCartItem({
+        productId: products?._id!,
+        addedDate: new Date
+      }))
+    } else if (res.code === 202) {
+      toast.success(res.message)
+    } else {
+      toast.error(res.message)
     }
   }
 
@@ -112,12 +134,30 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
     }
   }
 
+  const cartItems = useAppSelector((state) => state.cartReducer.value)
+  const isProductInCart = cartItems && cartItems.length > 0 && cartItems.map(item => item.productId === products?._id)
+
+  console.log("isProductInCart", isProductInCart)
+
   return (
     <>
       <div className="flex justify-center gap-7 items-center mt-3">
         <Tooltip content={`${!session ? "Đăng nhập" : "Thêm vào giỏ hàng"}`}>
-          <Button isIconOnly variant="ghost" radius="full" onPress={handleAddToCart}>
-            <AiOutlineShoppingCart className="text-xl" />
+          <Button
+            isIconOnly
+            isDisabled={addToCartLoading}
+            variant="flat"
+            color={isProductInCart && isProductInCart[0] ? "success" : "default"}
+            radius="full"
+            onPress={handleAddToCart}
+          >
+            {
+              isProductInCart && isProductInCart[0] ? (
+                <BsFillCartCheckFill className="text-xl" />
+              ) : (
+                <AiOutlineShoppingCart className="text-xl" />
+              )
+            }
           </Button>
         </Tooltip>
 
@@ -128,7 +168,8 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
         >
           <Button
             isIconOnly
-            variant="ghost"
+            variant="flat"
+            color={favorited ? "danger" : "default"}
             radius="full"
             isDisabled={favoriteLoading}
             onClick={handleFavorited}
@@ -143,9 +184,9 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
 
         <Tooltip content={`${!session ? "Đăng nhập" : "Mua ngay"}`}>
           <Button
-            variant="flat"
+            variant="solid"
             radius="full"
-            className="bg-emerald-500"
+            color="success"
             startContent={<AiOutlineDollarCircle className="text-xl" />}
             onPress={handleBuyButtomClick}
           >

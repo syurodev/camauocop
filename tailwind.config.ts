@@ -26,6 +26,9 @@ const config: Config = {
             DEFAULT: "#dba03f",
             foreground: "#000000",
           },
+          success: {
+            DEFAULT: "#52b788",
+          }
         }
       },
       dark: {
@@ -34,6 +37,9 @@ const config: Config = {
             DEFAULT: "#F7B750",
             foreground: "#ffffff",
           },
+          success: {
+            DEFAULT: "#52b788",
+          }
         }
       }
     }

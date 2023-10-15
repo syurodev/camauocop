@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { getRecommentdation } from "@/actions/recommendation";
 import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
+import CardItem from "@/components/card/CardItem";
 
 type Props = {
   id: string;
@@ -51,28 +52,7 @@ const Recommectdation: React.FC<Props> = ({ id }) => {
       ) : recommendation && recommendation?.products.length > 0 ? (
         recommendation.products.map((product) => {
           return (
-            <Card
-              shadow="sm"
-              key={product._id}
-              isPressable
-              onPress={() => router.push(`/products/product/${product._id}`)}
-            >
-              <CardBody className="overflow-visible p-0">
-                <Image
-                  shadow="sm"
-                  radius="lg"
-                  isZoomed
-                  width="100%"
-                  alt={product.productName}
-                  className="w-full object-cover h-[140px]"
-                  src={product.productImages[0]}
-                />
-              </CardBody>
-              <CardFooter className="flex flex-col text-small justify-between">
-                <b className="line-clamp-1">{product.productName}</b>
-                <p className="text-default-500">{formattedPriceWithUnit(product.productPrice)}</p>
-              </CardFooter>
-            </Card>
+            <CardItem key={product._id} data={product} />
           );
         })
       ) : (
