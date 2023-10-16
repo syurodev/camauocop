@@ -252,6 +252,7 @@ export const topProduct = async (shopId: string, accessToken: string): Promise<T
       const today = new Date();
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
       const orders: IOrderSchema[] = await Order.find({
         shopId: shopId,
         orderDate: {
@@ -262,52 +263,59 @@ export const topProduct = async (shopId: string, accessToken: string): Promise<T
           $nin: ["pending", "canceled"],
         },
       }).exec();
+      if (orders.length > 0) {
 
-      // Tạo một mapping của _id sản phẩm đến trọng lượng đã bán
-      const productSales: { [productId: string]: { productName: string, weightSold: number } } = {};
+        // Tạo một mapping của _id sản phẩm đến trọng lượng đã bán
+        const productSales: { [productId: string]: { productName: string, weightSold: number } } = {};
 
-      // Lặp qua các đơn đặt hàng để tính trọng lượng sản phẩm đã bán và lấy _id sản phẩm
-      orders.forEach((order) => {
-        order.products.forEach((product) => {
-          const productId = product.productId
-          const productName = product.productSnapshot.name;
-          let productWeight = 0
+        // Lặp qua các đơn đặt hàng để tính trọng lượng sản phẩm đã bán và lấy _id sản phẩm
+        orders.forEach((order) => {
+          order.products.forEach((product) => {
+            const productId = product.productId
+            const productName = product.productSnapshot.name;
+            let productWeight = 0
 
-          if (product.unit === "kg") {
-            productWeight = product.weight * product.quantity
-          } else {
-            productWeight = convertWeight(product.weight, product.unit as WeightUnit, "kg") * product.quantity
-          }
+            if (product.unit === "kg") {
+              productWeight = product.weight * product.quantity
+            } else {
+              productWeight = convertWeight(product.weight, product.unit as WeightUnit, "kg") * product.quantity
+            }
 
-          if (productSales[productId]) {
-            productSales[productId].weightSold += productWeight
-          } else {
-            productSales[productId] = {
-              productName,
-              weightSold: productWeight,
-            };
-          }
+            if (productSales[productId]) {
+              productSales[productId].weightSold += productWeight
+            } else {
+              productSales[productId] = {
+                productName,
+                weightSold: productWeight,
+              };
+            }
+          });
         });
-      });
 
-      // Chuyển đổi mapping thành mảng
-      const topSellingProducts = Object.keys(productSales).map((productId) => ({
-        productId,
-        ...productSales[productId],
-      }));
+        // Chuyển đổi mapping thành mảng
+        const topSellingProducts = Object.keys(productSales).map((productId) => ({
+          productId,
+          ...productSales[productId],
+        }));
 
-      // Sắp xếp sản phẩm theo trọng lượng đã bán giảm dần
-      topSellingProducts.sort((a, b) => b.weightSold - a.weightSold);
+        // Sắp xếp sản phẩm theo trọng lượng đã bán giảm dần
+        topSellingProducts.sort((a, b) => b.weightSold - a.weightSold);
 
-      // Giới hạn số lượng sản phẩm trả về thành 10
-      const top10SellingProducts = topSellingProducts.slice(0, 10);
+        // Giới hạn số lượng sản phẩm trả về thành 10
+        const top10SellingProducts = topSellingProducts.slice(0, 10);
 
-      return {
-        code: 200,
-        message: "successfully",
-        data: top10SellingProducts
+        return {
+          code: 200,
+          message: "successfully",
+          data: top10SellingProducts
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không có dữ liệu top sản phẩm bán chạy",
+          data: null
+        }
       }
-
     } else {
       return {
         code: 400,
@@ -346,25 +354,32 @@ export const getSalesForLast5Months = async (shopId: string, accessToken: string
         },
       }).exec();
 
-      const monthlySales: MonthlySale = {};
-      for (const order of sales) {
-        const month = order.orderDate.getMonth() + 1;
-        const totalAmount = order.totalAmount;
+      if (sales.length > 0) {
+        const monthlySales: MonthlySale = {};
+        for (const order of sales) {
+          const month = order.orderDate.getMonth() + 1;
+          const totalAmount = order.totalAmount;
 
-        if (!monthlySales[month]) {
-          monthlySales[month] = 0;
+          if (!monthlySales[month]) {
+            monthlySales[month] = 0;
+          }
+          monthlySales[month] += totalAmount;
         }
-        monthlySales[month] += totalAmount;
+
+        const result = transformMonthlySales(monthlySales)
+
+        return {
+          code: 200,
+          message: "successfully",
+          data: result
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không có dữ liệu doanh thu",
+          data: null
+        }
       }
-
-      const result = transformMonthlySales(monthlySales)
-
-      return {
-        code: 200,
-        message: "successfully",
-        data: result
-      }
-
     } else {
       return {
         code: 400,
@@ -414,41 +429,49 @@ export const topSellingProductTypes = async (shopId: string, accessToken: string
         },
       }).exec();
 
-      const productTypeSales: Record<string, number> = {};
+      if (orders.length > 0) {
+        const productTypeSales: Record<string, number> = {};
 
-      orders.forEach((order) => {
-        order.products.forEach((product) => {
-          const productType = product.productSnapshot.productType;
-          if (!productTypeSales[productType]) {
-            productTypeSales[productType] = 0;
-          }
+        orders.forEach((order) => {
+          order.products.forEach((product) => {
+            const productType = product.productSnapshot.productType;
+            if (!productTypeSales[productType]) {
+              productTypeSales[productType] = 0;
+            }
 
-          if (product.unit === "kg") {
-            productTypeSales[productType] += product.weight * product.quantity;
-          } else {
-            productTypeSales[productType] += convertWeight(product.weight, product.unit as WeightUnit, "kg") * product.quantity;
-          }
+            if (product.unit === "kg") {
+              productTypeSales[productType] += product.weight * product.quantity;
+            } else {
+              productTypeSales[productType] += convertWeight(product.weight, product.unit as WeightUnit, "kg") * product.quantity;
+            }
+          });
         });
-      });
 
-      const sortedProductTypes = Object.keys(productTypeSales).sort(
-        (a, b) => productTypeSales[b] - productTypeSales[a]
-      );
+        const sortedProductTypes = Object.keys(productTypeSales).sort(
+          (a, b) => productTypeSales[b] - productTypeSales[a]
+        );
 
-      const result = await Promise.all(
-        sortedProductTypes.map(async (productTypeId) => {
-          const productType = await ProductType.findById(productTypeId).exec();
-          return {
-            name: productType ? productType.name : 'Unknown',
-            sold: productTypeSales[productTypeId],
-          };
-        })
-      );
+        const result = await Promise.all(
+          sortedProductTypes.map(async (productTypeId) => {
+            const productType = await ProductType.findById(productTypeId).exec();
+            return {
+              name: productType ? productType.name : 'Unknown',
+              sold: productTypeSales[productTypeId],
+            };
+          })
+        );
 
-      return {
-        code: 200,
-        message: "successfully",
-        data: result
+        return {
+          code: 200,
+          message: "successfully",
+          data: result
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không có dữ liệu top loại sản phẩm bán chạy",
+          data: null
+        }
       }
     } else {
       return {
