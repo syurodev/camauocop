@@ -115,4 +115,4 @@ const RenderDescription: React.FC<IDescription> = ({ description }) => {
   );
 };
 
-export default RenderDescription;
+export default React.memo(RenderDescription);

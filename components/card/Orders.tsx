@@ -62,17 +62,21 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, accessToken }) => {
                   }}
                 >
                   <div className="max-w-[300px] w-full flex items-center gap-3">
-                    <div>
+                    <div className='ps-2'>
                       <Avatar
                         src={order.productImage}
                         alt="product image"
-                        className="w-[4rem] h-[4rem]"
+                        className="w-[3rem] h-[3rem]"
                         isBordered
                         color={getColorForOrderStatus(order.orderStatus)}
                       />
                     </div>
                     <div className="w-[65%] flex flex-col justify-start items-start overflow-hidden line-clamp-1">
-                      <p className='text-start font-medium w-full line-clamp-1'>{order.buyerId.username || order.buyerId.email}</p>
+                      <p className='text-start font-medium w-full line-clamp-1'>
+                        {
+                          role === "shop" ? order.buyerId.username || order.buyerId.email : order.shopId.name
+                        }
+                      </p>
                       <p className='text-primary'>{formattedPriceWithUnit(order.totalAmount)}</p>
                       <p className='text-sm'>{formatDate(order?.orderDateConvert!)}</p>
                     </div>

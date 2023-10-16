@@ -9,7 +9,7 @@ type Props = {
   params: { id: string };
 };
 
-const ShopPage: React.FC<Props> = async ({ params }: Props) => {
+const ShopPage: React.FC<Props> = async ({ params }) => {
   let info = ""
 
   const session: Session | null = await getServerSession(authOptions)

@@ -31,6 +31,7 @@ import { INotification } from "@/lib/models/notification";
 import { setCartItems } from "@/redux/features/cart-slice"
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { getCartItems } from "@/actions/cart"
+import { setSession } from "@/redux/features/session-slice";
 
 type IProps = {
   sessionData: string
@@ -45,6 +46,8 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
   const dispatch = useDispatch<AppDispatch>()
 
   useEffect(() => {
+    dispatch(setSession(session))
+
     const fetchNotifications = async () => {
       const res: INotificationResponse = await getNotifications(session?.user._id!, notifications.length)
       setNotifications(res.data)
@@ -166,6 +169,8 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
                   isIconOnly
                   radius="full"
                   className="border-none text-xl"
+                  onClick={() => router.push(`/users/cart/${session.user._id}`)}
+
                 >
                   <Badge
                     as="span"

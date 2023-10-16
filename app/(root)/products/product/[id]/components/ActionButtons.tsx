@@ -23,6 +23,7 @@ import toast from "react-hot-toast";
 import { addToCard, setFavorite } from "@/actions/products";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { pushCartItem } from "@/redux/features/cart-slice";
+import { setProductsDetail } from "@/redux/features/products-slice";
 
 
 type IProps = {
@@ -35,7 +36,6 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
   const dispatch = useDispatch<AppDispatch>()
 
   const [products, setProducts] = React.useState<IProductDetail | null>(JSON.parse(data) || null)
-  // let products: (IProductDetail | null)[] = JSON.parse(data)
 
   const [favorited, setFavorited] = React.useState<boolean>(products?.isFavorite || false);
   const [favoriteLoading, setFavoriteLoading] = React.useState<boolean>(false);
@@ -43,6 +43,13 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { isOpen: isOpenPhoneChange, onOpen: onOpenPhoneChange, onOpenChange: onOpenChangePhone, onClose: onClosePhoneChange } = useDisclosure();
   const router = useRouter()
+
+  React.useEffect(() => {
+    if (products) {
+      dispatch(setProductsDetail(Array(products)))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products])
 
   const handleFavorited = async () => {
     if (!session) {
@@ -135,9 +142,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
   }
 
   const cartItems = useAppSelector((state) => state.cartReducer.value)
-  const isProductInCart = cartItems && cartItems.length > 0 && cartItems.map(item => item.productId === products?._id)
-
-  console.log("isProductInCart", isProductInCart)
+  const isProductInCart = cartItems && cartItems.length > 0 && cartItems.some(item => item.productId === products?._id)
 
   return (
     <>
@@ -147,12 +152,12 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
             isIconOnly
             isDisabled={addToCartLoading}
             variant="flat"
-            color={isProductInCart && isProductInCart[0] ? "success" : "default"}
+            color={isProductInCart ? "success" : "default"}
             radius="full"
             onPress={handleAddToCart}
           >
             {
-              isProductInCart && isProductInCart[0] ? (
+              isProductInCart ? (
                 <BsFillCartCheckFill className="text-xl" />
               ) : (
                 <AiOutlineShoppingCart className="text-xl" />
@@ -200,7 +205,6 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
           isOpenBuyModal={isOpen}
           onOpenChangeBuyModal={onOpenChange}
           onCloseBuyModal={onClose}
-          data={products}
           session={session}
         />
       </div>
@@ -248,4 +252,4 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
   );
 };
 
-export default ActionButtons;
+export default React.memo(ActionButtons);

@@ -14,25 +14,25 @@ import { getGHNServiceFee } from "@/actions/delivery";
 import { createOrder } from "@/actions/order";
 import { Session } from "next-auth";
 import toast from "react-hot-toast";
+import { useAppSelector } from "@/redux/store";
 
 type IProps = {
   isOpenBuyModal: boolean;
   onCloseBuyModal: () => void;
   onOpenChangeBuyModal: () => void;
-  data: IProductDetail | IProductDetail[] | null,
   session: Session
 }
 
-const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenChangeBuyModal, data, session }) => {
-  const [productsData, setProductsData] = React.useState<IProductDetail[] | null>(() => {
-    if (data === null) {
-      return null;
-    } else if (Array.isArray(data)) {
-      return data;
-    } else {
-      return [data];
-    }
-  });
+const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenChangeBuyModal, session }) => {
+  // const [productsData, setProductsData] = React.useState<IProductDetail[] | null>(() => {
+  //   if (data === null) {
+  //     return null;
+  //   } else if (Array.isArray(data)) {
+  //     return data;
+  //   } else {
+  //     return [data];
+  //   }
+  // });
   const [provinceId, setProvinceId] = React.useState<number>(0)
   const [districtId, setDistrictId] = React.useState<number>(0)
   const [wardId, setWardId] = React.useState<string>("0")
@@ -47,6 +47,8 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
 
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+
+  const productsData = useAppSelector((state) => state.productsDetailReducer.value)
 
   // React Hook Form
   const {
@@ -97,7 +99,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
       setProductWeight(defaultWeight)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [productsData]);
 
   const handleUnitChange = (productId: string, unit: WeightUnit, index: number) => {
     const weight = convertWeight(productWeightState[productId], selectedUnits[productId], unit)
@@ -351,7 +353,6 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
     selectedUnits,
     packSeleced,
     productWeight,
-    data,
     productsData,
     isOpenBuyModal,
     productQuantity
@@ -439,143 +440,145 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                   </CardHeader>
                   <Divider />
                   <CardBody>
-                    {
-                      productsData && productsData.length > 0 && productsData.map((product, index) => {
-                        return (
-                          <div className="flex flex-col gap-2" key={product?._id}>
-                            <div className="flex flex-row gap-2 mb-2">
-                              <Image
-                                src={product?.productImages[0]}
-                                alt={product?.productName}
-                                width={60}
-                                height={60}
-                                radius="lg"
-                                className="object-cover w-14 h-14 rounded-full shadow-sm"
-                              />
-                              <div>
-                                <h4 className="font-medium">{product?.productName}</h4>
-                                <div className="flex flex-row items-center justify-between">
-                                  <h4 className="text-primary">{product?.productPrice ?
-                                    `Giá bán lẻ: ${formattedPriceWithUnit(product?.productPrice)}`
-                                    : "Không có giá bán lẻ"}
-                                  </h4>
+                    <div className="flex flex-col gap-4">
+                      {
+                        productsData && productsData.length > 0 && productsData.map((product, index) => {
+                          return (
+                            <div className="flex flex-col gap-2" key={product?._id}>
+                              <div className="flex flex-row gap-2 mb-2">
+                                <Image
+                                  src={product?.productImages[0]}
+                                  alt={product?.productName}
+                                  width={50}
+                                  height={50}
+                                  radius="lg"
+                                  className="object-cover w-12 h-12 rounded-full shadow-sm"
+                                />
+                                <div>
+                                  <h4 className="font-medium">{product?.productName}</h4>
+                                  <div className="flex flex-row items-center justify-between">
+                                    <h4 className="text-primary">{product?.productPrice ?
+                                      `Giá bán lẻ: ${formattedPriceWithUnit(product?.productPrice)}`
+                                      : "Không có giá bán lẻ"}
+                                    </h4>
+                                  </div>
                                 </div>
                               </div>
+                              {product?.productPrice! > 0 && <Button
+                                variant="bordered"
+                                onPress={() => swarpMode(product?._id!, retail[product?._id!], index)}
+                              >
+                                {retail[product?._id!] ? "Chọn gói" : "Mua lẻ"}
+                              </Button>}
+
+                              {
+                                retail[product?._id!] ? (
+                                  <div className="flex flex-col gap-3">
+                                    <Select
+                                      isRequired
+                                      items={unit}
+                                      label="Chọn đơn vị tính"
+                                      className="max-w-full"
+                                      onSelectionChange={(keys) => handleUnitChange(product?._id!, Array.from(keys)[0].toString() as WeightUnit, index)}
+                                    >
+                                      {(unit) => <SelectItem key={unit.name}>{unit.name}</SelectItem>}
+                                    </Select>
+
+                                    <Input
+                                      isRequired
+                                      type="number"
+                                      label="Số lượng"
+                                      isInvalid={!!errors.products?.[index]?.weight}
+                                      errorMessage={errors.products?.[index]?.weight?.message}
+                                      {...register(`products.${index}.weight`)}
+                                      value={productWeight[product?._id!].toString()}
+                                      onChange={(e) => handleWeightChange(e, product!,
+                                        productWeightState[product?._id!], index, product?.productPrice!)}
+                                    />
+                                  </div>
+                                ) : (
+                                  <>
+                                    <Select
+                                      isRequired
+                                      items={product?.packageOptions}
+                                      label="Chọn gói"
+                                      className="max-w-full"
+                                      variant="bordered"
+                                      isInvalid={!!errors.products}
+                                      classNames={{
+                                        label: "group-data-[filled=true]:-translate-y-5",
+                                        trigger: "min-h-unit-16",
+                                        listboxWrapper: "max-h-[400px]",
+                                      }}
+                                      listboxProps={{
+                                        itemClasses: {
+                                          base: [
+                                            "rounded-md",
+                                            "text-default-500",
+                                            "transition-opacity",
+                                            "data-[hover=true]:text-foreground",
+                                            "data-[hover=true]:bg-default-100",
+                                            "dark:data-[hover=true]:bg-default-50",
+                                            "data-[selectable=true]:focus:bg-default-50",
+                                            "data-[pressed=true]:opacity-70",
+                                            "data-[focus-visible=true]:ring-default-500",
+                                          ],
+                                        },
+                                      }}
+                                      popoverProps={{
+                                        classNames: {
+                                          base: "p-0 border-small border-divider bg-background",
+                                          arrow: "bg-default-200",
+                                        },
+                                      }}
+                                      renderValue={(items) => {
+                                        return items.map((item) => (
+                                          <div key={item.data?.price} className="flex items-center gap-2">
+                                            <div className="flex flex-col">
+                                              <span>{`${item.data?.weight} ${item.data?.unit}`}</span>
+                                              <span className="text-default-500 text-tiny">{item.data?.price}</span>
+                                            </div>
+                                          </div>
+                                        ));
+                                      }}
+                                      onSelectionChange={keys => handlePackChange(product?._id!, index, +Array.from(keys)[0])}
+                                    >
+                                      {(packageOptions) => (
+                                        <SelectItem key={packageOptions.price} textValue={`${packageOptions.weight} ${packageOptions.unit}`}>
+                                          <div className="flex gap-2 items-center">
+                                            <div className="flex flex-col">
+                                              <span className="text-small">{`${packageOptions.weight} ${packageOptions.unit}`}</span>
+                                              <span className="text-tiny text-default-400">{packageOptions.price}</span>
+                                            </div>
+                                          </div>
+                                        </SelectItem>
+                                      )}
+                                    </Select>
+
+                                    <Input
+                                      isRequired
+                                      type="number"
+                                      label="Số lượng gói"
+                                      isInvalid={!!errors.products?.[index]?.quantity}
+                                      errorMessage={errors.products?.[index]?.quantity?.message}
+                                      {...register(`products.${index}.quantity`)}
+                                      value={productQuantity[product?._id!].toString()}
+                                      onChange={(e) => {
+                                        setProductQuantity((prevProductQuantity) => ({
+                                          ...prevProductQuantity,
+                                          [product?._id!]: +e.target.value
+                                        }))
+                                        setValue(`products.${index}.quantity`, +e.target.value)
+                                      }}
+                                    />
+                                  </>
+                                )
+                              }
                             </div>
-                            {product?.productPrice! > 0 && <Button
-                              variant="bordered"
-                              onPress={() => swarpMode(product?._id!, retail[product?._id!], index)}
-                            >
-                              {retail[product?._id!] ? "Chọn gói" : "Mua lẻ"}
-                            </Button>}
-
-                            {
-                              retail[product?._id!] ? (
-                                <div className="flex flex-col gap-3">
-                                  <Select
-                                    isRequired
-                                    items={unit}
-                                    label="Chọn đơn vị tính"
-                                    className="max-w-full"
-                                    onSelectionChange={(keys) => handleUnitChange(product?._id!, Array.from(keys)[0].toString() as WeightUnit, index)}
-                                  >
-                                    {(unit) => <SelectItem key={unit.name}>{unit.name}</SelectItem>}
-                                  </Select>
-
-                                  <Input
-                                    isRequired
-                                    type="number"
-                                    label="Số lượng"
-                                    isInvalid={!!errors.products?.[index]?.weight}
-                                    errorMessage={errors.products?.[index]?.weight?.message}
-                                    {...register(`products.${index}.weight`)}
-                                    value={productWeight[product?._id!].toString()}
-                                    onChange={(e) => handleWeightChange(e, product!,
-                                      productWeightState[product?._id!], index, product?.productPrice!)}
-                                  />
-                                </div>
-                              ) : (
-                                <>
-                                  <Select
-                                    isRequired
-                                    items={product?.packageOptions}
-                                    label="Chọn gói"
-                                    className="max-w-full"
-                                    variant="bordered"
-                                    isInvalid={!!errors.products}
-                                    classNames={{
-                                      label: "group-data-[filled=true]:-translate-y-5",
-                                      trigger: "min-h-unit-16",
-                                      listboxWrapper: "max-h-[400px]",
-                                    }}
-                                    listboxProps={{
-                                      itemClasses: {
-                                        base: [
-                                          "rounded-md",
-                                          "text-default-500",
-                                          "transition-opacity",
-                                          "data-[hover=true]:text-foreground",
-                                          "data-[hover=true]:bg-default-100",
-                                          "dark:data-[hover=true]:bg-default-50",
-                                          "data-[selectable=true]:focus:bg-default-50",
-                                          "data-[pressed=true]:opacity-70",
-                                          "data-[focus-visible=true]:ring-default-500",
-                                        ],
-                                      },
-                                    }}
-                                    popoverProps={{
-                                      classNames: {
-                                        base: "p-0 border-small border-divider bg-background",
-                                        arrow: "bg-default-200",
-                                      },
-                                    }}
-                                    renderValue={(items) => {
-                                      return items.map((item) => (
-                                        <div key={item.data?.price} className="flex items-center gap-2">
-                                          <div className="flex flex-col">
-                                            <span>{`${item.data?.weight} ${item.data?.unit}`}</span>
-                                            <span className="text-default-500 text-tiny">{item.data?.price}</span>
-                                          </div>
-                                        </div>
-                                      ));
-                                    }}
-                                    onSelectionChange={keys => handlePackChange(product?._id!, index, +Array.from(keys)[0])}
-                                  >
-                                    {(packageOptions) => (
-                                      <SelectItem key={packageOptions.price} textValue={`${packageOptions.weight} ${packageOptions.unit}`}>
-                                        <div className="flex gap-2 items-center">
-                                          <div className="flex flex-col">
-                                            <span className="text-small">{`${packageOptions.weight} ${packageOptions.unit}`}</span>
-                                            <span className="text-tiny text-default-400">{packageOptions.price}</span>
-                                          </div>
-                                        </div>
-                                      </SelectItem>
-                                    )}
-                                  </Select>
-
-                                  <Input
-                                    isRequired
-                                    type="number"
-                                    label="Số lượng gói"
-                                    isInvalid={!!errors.products?.[index]?.quantity}
-                                    errorMessage={errors.products?.[index]?.quantity?.message}
-                                    {...register(`products.${index}.quantity`)}
-                                    value={productQuantity[product?._id!].toString()}
-                                    onChange={(e) => {
-                                      setProductQuantity((prevProductQuantity) => ({
-                                        ...prevProductQuantity,
-                                        [product?._id!]: +e.target.value
-                                      }))
-                                      setValue(`products.${index}.quantity`, +e.target.value)
-                                    }}
-                                  />
-                                </>
-                              )
-                            }
-                          </div>
-                        )
-                      })
-                    }
+                          )
+                        })
+                      }
+                    </div>
                   </CardBody>
                 </Card>
 

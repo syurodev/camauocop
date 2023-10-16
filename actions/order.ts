@@ -128,6 +128,7 @@ export const getOrders = async ({
       const orders: IOrder[] = await Order.find(query)
         .skip(skip)
         .limit(perPage)
+        .sort({ orderDate: -1 })
         .populate({
           path: 'buyerId',
           select: 'username email',

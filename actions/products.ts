@@ -164,68 +164,119 @@ export async function getProducts(
   }
 }
 
-export async function getProductDetail(_id: string, userId?: string): Promise<IProductDetail | null> {
+export async function getProductDetail(_id: string | string[], userId?: string): Promise<IProductDetail | IProductDetail[] | null> {
   try {
+    const query = Array.isArray(_id) ? { _id: { $in: _id } } : { _id: _id };
+
     await connectToDB();
-    const product = await Product.findById(_id)
-      .populate({
-        path: "shopId",
-        select: "name _id phone delivery shop_id address",
-        populate: {
-          path: "auth",
-          select: "username phone image _id",
-        },
-      })
-      .populate({
-        path: "productType",
-        select: "name _id",
+
+    if (Array.isArray(_id)) {
+      const products = await Product.find(query)
+        .populate({
+          path: "shopId",
+          select: "name _id phone delivery shop_id address",
+          populate: {
+            path: "auth",
+            select: "username phone image _id",
+          },
+        })
+        .populate({
+          path: "productType",
+          select: "name _id",
+        });
+
+      const formattedProducts: IProductDetail[] = products.map((product) => {
+        return {
+          _id: product._id.toString(),
+          productName: product.name,
+          productDescription: product.description,
+          retail: product.retail,
+          packageOptions: product.packageOptions,
+          productPrice: product.retailPrice,
+          productSold: product.sold || 0,
+          productQuantity: product.quantity,
+          productImages: product.images,
+          productCreatedAt: product.createdAt,
+          productDeletedAt: product.deleteAt,
+          shopName: product.shopId.username || "block user",
+          shopId: product.shopId._id.toString() || "",
+          sellerId: product.shopId.auth._id.toString() || "",
+          sellerName: product.shopId.auth.username || "block user",
+          sellerAvatar: product.shopId.auth.image || "",
+          productTypeName: product.productType.name.toString(),
+          productTypeId: product.productType._id.toString(),
+          shopInfo: {
+            delivery: product.shopId.delivery,
+            address: product.shopId.address,
+            shop_id: product.shopId.shop_id,
+            name: product.shopId.name,
+            phone: product.shopId.auth.phone
+          },
+        };
       });
+      return formattedProducts;
+    } else {
+      const product = await Product.findById(query)
+        .populate({
+          path: "shopId",
+          select: "name _id phone delivery shop_id address",
+          populate: {
+            path: "auth",
+            select: "username phone image _id",
+          },
+        })
+        .populate({
+          path: "productType",
+          select: "name _id",
+        });
 
-    if (!product) {
-      return null;
-    }
-
-    // Kiểm tra xem sản phẩm có được yêu thích hay không
-    let isFavorite = false;
-    if (userId) {
-      // Nếu userId tồn tại, kiểm tra danh sách yêu thích của người dùng
-      const favorite: IFavorite | null = await Favorite.findOne({ userId });
-      if (favorite) {
-        isFavorite = favorite.products.some((favoriteProduct) => favoriteProduct.productId.toString() === _id);
+      if (!product) {
+        return null;
       }
+
+      // Kiểm tra xem sản phẩm có được yêu thích hay không
+      let isFavorite = false;
+      if (userId) {
+        // Nếu userId tồn tại, kiểm tra danh sách yêu thích của người dùng
+        const favorite: IFavorite | null = await Favorite.findOne({ userId });
+        if (favorite) {
+          isFavorite = favorite.products.some((favoriteProduct) => favoriteProduct.productId.toString() === _id);
+        }
+      }
+
+      // Format the data
+      const formattedProduct: IProductDetail = {
+        _id: product._id.toString(),
+        productName: product.name,
+        productDescription: product.description,
+        retail: product.retail,
+        packageOptions: product.packageOptions,
+        productPrice: product.retailPrice,
+        productSold: product.sold || 0,
+        productQuantity: product.quantity,
+        productImages: product.images,
+        productCreatedAt: product.createdAt,
+        productDeletedAt: product.deleteAt,
+        shopName: product.shopId.username || "block user",
+        shopId: product.shopId._id.toString() || "",
+        sellerId: product.shopId.auth._id.toString() || "",
+        sellerName: product.shopId.auth.username || "block user",
+        sellerAvatar: product.shopId.auth.image || "",
+        productTypeName: product.productType.name.toString(),
+        productTypeId: product.productType._id.toString(),
+        shopInfo: {
+          delivery: product.shopId.delivery,
+          address: product.shopId.address,
+          shop_id: product.shopId.shop_id,
+          name: product.shopId.name,
+          phone: product.shopId.auth.phone
+        },
+        isFavorite
+      };
+
+      return formattedProduct;
     }
 
-    // Format the data
-    const formattedProduct: IProductDetail = {
-      _id: product._id.toString(),
-      productName: product.name,
-      productDescription: product.description,
-      retail: product.retail,
-      packageOptions: product.packageOptions,
-      productPrice: product.retailPrice,
-      productSold: product.sold || 0,
-      productQuantity: product.quantity,
-      productImages: product.images,
-      productCreatedAt: product.createdAt,
-      productDeletedAt: product.deleteAt,
-      shopName: product.shopId.username || "block user",
-      shopId: product.shopId._id.toString() || "",
-      sellerId: product.shopId.auth._id.toString() || "",
-      sellerName: product.shopId.auth.username || "block user",
-      sellerAvatar: product.shopId.auth.image || "",
-      productTypeName: product.productType.name.toString(),
-      productTypeId: product.productType._id.toString(),
-      shopInfo: {
-        delivery: product.shopId.delivery,
-        address: product.shopId.address,
-        shop_id: product.shopId.shop_id,
-        name: product.shopId.name,
-        phone: product.shopId.auth.phone
-      },
-      isFavorite
-    };
-
-    return formattedProduct;
   } catch (error) {
     console.log("Lỗi lấy chi tiết sản phẩm", error);
     return null;
