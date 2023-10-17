@@ -234,10 +234,8 @@ export async function getProductDetail(_id: string | string[], userId?: string):
         return null;
       }
 
-      // Kiểm tra xem sản phẩm có được yêu thích hay không
       let isFavorite = false;
       if (userId) {
-        // Nếu userId tồn tại, kiểm tra danh sách yêu thích của người dùng
         const favorite: IFavorite | null = await Favorite.findOne({ userId });
         if (favorite) {
           isFavorite = favorite.products.some((favoriteProduct) => favoriteProduct.productId.toString() === _id);

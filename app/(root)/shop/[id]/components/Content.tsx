@@ -51,6 +51,7 @@ const Content: React.FC<IProps> = ({ id, info, role, accessToken }) => {
       <Tabs
         aria-label="Dynamic tabs"
         color='primary'
+        variant='light'
         className='max-w-full flex flex-col justify-center'
         selectedKey={Array.from(selected)[0]}
         onSelectionChange={(key) => setSelected(new Set([key]))}

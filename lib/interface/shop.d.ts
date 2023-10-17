@@ -53,3 +53,13 @@ type MonthlySalesResponse = {
   message: string;
   data: MonthlySales[] | null
 }
+
+type IShopsResponse = {
+  _id: string
+  name: string
+  status: "active" | "block",
+  address: string
+  authId: string,
+  username: string,
+  image: string
+}

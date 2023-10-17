@@ -34,7 +34,7 @@ const processedDocs: ProductData = [];
 
 export const getProductData = async () => {
   // const productData: ProductData = [];
-  const products: IProduct[] = await Product.find();
+  const products: IProduct[] = await Product.find({ deleted: false });
 
   if (products.length > 0) {
     products.map((product: IProduct) => {

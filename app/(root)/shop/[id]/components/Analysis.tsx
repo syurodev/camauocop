@@ -31,7 +31,7 @@ const Analysis: React.FC<IProps> = ({ shopId, accessToken }) => {
       settopProductTypeLoading(true)
 
       const sellingRes: TopSellingProductResponse = await topProduct(shopId, accessToken)
-
+      console.log(sellingRes)
       if (sellingRes.code === 200 && sellingRes.data && sellingRes.data.length > 0) {
         settopProductData({
           labels: sellingRes.data.map(item => item.productName),
@@ -52,7 +52,7 @@ const Analysis: React.FC<IProps> = ({ shopId, accessToken }) => {
       }
 
       const topProductTypeRes = await topSellingProductTypes(shopId, accessToken)
-
+      console.log(topProductTypeRes)
       if (topProductTypeRes.code === 200 && topProductTypeRes.data && topProductTypeRes.data.length > 0) {
         settopProductTypeData({
           labels: topProductTypeRes.data.map(item => item.name),
@@ -73,6 +73,7 @@ const Analysis: React.FC<IProps> = ({ shopId, accessToken }) => {
       }
 
       const monthSales = await getSalesForLast5Months(shopId, accessToken)
+      console.log(monthSales)
       if (monthSales.code === 200 && monthSales.data && monthSales.data.length > 0) {
 
         setMonthSalesData({
@@ -96,8 +97,8 @@ const Analysis: React.FC<IProps> = ({ shopId, accessToken }) => {
     fetchApi()
   }, [shopId, accessToken])
   return (
-    <div className='flex flex-col gap-5'>
-      <div className='flex flex-col gap-5 md:flex-row justify-between w-full'>
+    <div className='flex flex-col gap-5 justify-center'>
+      <div className='flex flex-col gap-5 md:!flex-row justify-between w-full'>
         {
           topProductLoading ? (
             <Skeleton className="flex rounded-full w-[500px] h-[500px]" />

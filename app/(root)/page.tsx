@@ -1,7 +1,5 @@
 import React from "react";
 
-import { Spacer } from "@nextui-org/react";
-
 import Categories from "@/components/Categories";
 import Promotions from "@/components/Promotion";
 import News from "@/components/News";

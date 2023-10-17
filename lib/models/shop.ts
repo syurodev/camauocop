@@ -16,6 +16,7 @@ export interface IShop extends Document {
     GHN_ward_code?: string;
   }];
   name: string;
+  status: "active" | "block";
   delivery: string[]
 }
 
@@ -23,6 +24,7 @@ const ShopSchema: Schema = new Schema(
   {
     auth: { type: Schema.Types.ObjectId, ref: User, required: true },
     name: { type: String, required: true },
+    status: { type: String, required: true, default: "active" },
     delivery: [{ type: String, required: true }],
     address: [{
       province: {

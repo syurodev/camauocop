@@ -10,7 +10,7 @@ export interface IUser extends Document {
     ward: string;
     apartment: string;
   }];
-  role?: "individual" | "shop" | "business";
+  role?: "individual" | "shop" | "business" | "admin";
   phone?: string;
   provider: string;
   image: string;

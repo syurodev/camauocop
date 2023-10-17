@@ -20,7 +20,7 @@ type IGeolocation = {
 
 type WeightUnit = 'tấn' | 'kg' | 'gram';
 
-type UserRole = "individual" | "shop" | "business"
+type UserRole = "individual" | "shop" | "business" | "admin"
 
 type INotificationResponse = {
   code: number,

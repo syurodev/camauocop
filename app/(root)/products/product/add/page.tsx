@@ -1,37 +1,24 @@
-"use client";
+import React from 'react'
+import AddProductWrapper from './components/Wrapper'
+import { Session, getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/options'
+import { redirect } from 'next/navigation'
 
-import React from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+const AddProductPage: React.FC = async () => {
+  const session: Session | null = await getServerSession(authOptions)
+  let sessionData
 
-import AddProductForm from "@/components/form/AddProductForm";
-
-const AddProductPage: React.FC = () => {
-  const router = useRouter();
-  const { data: session, status } = useSession();
-
-  if (status === "unauthenticated") {
-    router.push("/");
-  }
-
-  if (session?.user.role === "individual") {
-    router.push("/");
+  if (session) {
+    sessionData = JSON.stringify(session)
+  } else {
+    redirect("/login")
   }
 
   return (
-    <>
-      <motion.h1
-        className="my-3 text-3xl font-bold"
-        initial={{ y: 0, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-      >
-        THÊM SẢN PHẨM
-      </motion.h1>
+    <div>
+      <AddProductWrapper sessionData={sessionData} />
+    </div>
+  )
+}
 
-      <AddProductForm session={session} />
-    </>
-  );
-};
-
-export default AddProductPage;
+export default AddProductPage

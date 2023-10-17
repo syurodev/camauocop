@@ -16,6 +16,7 @@ import {
 } from "react-icons/ai";
 import { TbShoppingCartCopy } from "react-icons/tb";
 import { LuMoon, LuSunMedium } from "react-icons/lu"
+import { MdOutlineAdminPanelSettings } from "react-icons/md"
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -64,7 +65,10 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
             </DropdownItem>
           </DropdownSection>
 
-          <DropdownSection showDivider>
+          <DropdownSection
+            showDivider
+            className={`${session?.user.role === "admin" ? "hidden" : "flex"}`}
+          >
             <DropdownItem
               key="my-shop"
               startContent={<TbShoppingCartCopy className="text-lg" />}
@@ -74,7 +78,7 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
           </DropdownSection>
 
           <DropdownSection showDivider
-            className={`${session?.user.role !== "individual" ? "block" : "hidden"}`}
+            className={`${session?.user.role !== "individual" && session?.user.role !== "admin" ? "block" : "hidden"}`}
           >
             <DropdownItem
               key="my-shop"
@@ -95,6 +99,21 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
               }
             >
               <span>Đăng ký bán hàng</span>
+            </DropdownItem>
+          </DropdownSection>
+
+          <DropdownSection
+            showDivider
+            className={`${session?.user.role === "admin" ? "block" : "hidden"}`}
+          >
+            <DropdownItem
+              key="register-shop"
+              startContent={<MdOutlineAdminPanelSettings className="text-lg" />}
+              onPress={() =>
+                router.push(`/admin`)
+              }
+            >
+              <span>Quản lý hệ thống</span>
             </DropdownItem>
           </DropdownSection>
 

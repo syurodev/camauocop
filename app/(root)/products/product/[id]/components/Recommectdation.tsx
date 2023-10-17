@@ -12,8 +12,6 @@ type Props = {
 };
 
 const Recommectdation: React.FC<Props> = ({ id }) => {
-  const router = useRouter();
-
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [recommendation, setRecommendation] =
     React.useState<IProductsResponse>();
