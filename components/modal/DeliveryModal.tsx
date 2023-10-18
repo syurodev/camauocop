@@ -1,20 +1,21 @@
+"use client"
 import React from 'react'
-import { Button, Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Input } from '@nextui-org/react';
+import { Button, Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Input, Spinner } from '@nextui-org/react';
 
-import { approveOrder } from '@/actions/shop';
+import { approveOrder } from '@/actions/order';
 import { useForm } from 'react-hook-form';
 import { DeliveryOrderSchema, IDeliveryOrderSchema } from '@/lib/zodSchema/order';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { GHNRequireNote, paymentType } from '@/lib/constant/GHNConstants';
 import { calculateTotalWeight } from '@/lib/calculateTotalWeight';
 import toast from 'react-hot-toast';
+import { useAppSelector } from '@/redux/store';
 
 type IProps = {
   isOpenDeliveryModal: boolean;
   onCloseDeliveryModal: () => void;
   onOpenChangeDeliveryModal: () => void;
-  id: string,
-  accessToken: string,
+  onCloseOrderDetailModal: () => void;
   orderDetail: IOrderDetail,
   GHNCodeData: GHNCodeResponse,
   totalWidth: number,
@@ -34,8 +35,7 @@ const DeliveryModal: React.FC<IProps> = ({
   isOpenDeliveryModal,
   onCloseDeliveryModal,
   onOpenChangeDeliveryModal,
-  id,
-  accessToken,
+  onCloseOrderDetailModal,
   orderDetail,
   GHNCodeData,
   totalWidth,
@@ -54,7 +54,11 @@ const DeliveryModal: React.FC<IProps> = ({
     resolver: zodResolver(DeliveryOrderSchema),
   })
 
+  const session = useAppSelector(state => state.sessionReducer.value)
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+
   const onSubmit = async (data: IDeliveryOrderSchema) => {
+    setIsLoading(true)
     data.to_name = orderDetail?.buyerId!.username || orderDetail?.buyerId!.email || ""
     data.to_address = `${orderDetail.apartment} - ${orderDetail.ward} - ${orderDetail.district} - ${orderDetail.province}`
     data.service_type_id = 2
@@ -75,11 +79,12 @@ const DeliveryModal: React.FC<IProps> = ({
     })
     data.Items = transformedArray
 
-    const res = await approveOrder(accessToken, id, data, orderDetail.shopId.shop_id.GHN!)
-
+    const res = await approveOrder(session?.user.accessToken!, orderDetail._id, data, orderDetail.shopId.shop_id.GHN!)
+    setIsLoading(false)
     if (res.code === 200) {
       toast.success(res.message)
       onCloseDeliveryModal()
+      onCloseOrderDetailModal()
     } else {
       toast.error(res.message)
     }
@@ -215,9 +220,15 @@ const DeliveryModal: React.FC<IProps> = ({
                   <Button variant='bordered' onPress={onCloseDeliveryModal}>Đóng</Button>
 
                   <Button
+                    isDisabled={isLoading}
                     color='success'
                     type='submit'
                   >
+                    {
+                      isLoading && (
+                        <Spinner size="sm" color="default" />
+                      )
+                    }
                     Xác nhận
                   </Button>
                 </ModalFooter>

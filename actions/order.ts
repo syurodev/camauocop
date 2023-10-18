@@ -1,11 +1,14 @@
 "use server"
 
+import { convertToKg } from "@/lib/convertToKg";
+import Fee, { IFee } from "@/lib/models/fee";
 import Notification, { INotification } from "@/lib/models/notification";
 import Order from "@/lib/models/orders"
 import Product from "@/lib/models/products";
 import Shop, { IShop } from "@/lib/models/shop";
 import { connectToDB, verifyJwtToken } from "@/lib/utils";
-import { IOrderZodSchema } from "@/lib/zodSchema/order"
+import { IDeliveryOrderSchema, IOrderZodSchema } from "@/lib/zodSchema/order"
+import { GHNCreateOrder } from "./delivery";
 
 type IGetOrdersProps = {
   id: string
@@ -66,7 +69,54 @@ export const createOrder = async (data: IOrderZodSchema) => {
     });
 
     const order = new Order(data)
+
+    await Promise.all(
+      data.products!.map(async (productInOrder) => {
+        const product = await Product.findById(productInOrder.productId);
+        if (!product) {
+          return {
+            code: 400,
+            message: `Sản phẩm với ID ${productInOrder.productId} không thể tìm thấy.`
+          }
+        } else {
+          const quantity = productInOrder.quantity || 1
+          if (productInOrder.unit === "kg") {
+            if (product.quantity >= productInOrder.weight! * quantity) {
+              const newQuantity = product.quantity - (productInOrder.weight! * quantity)
+              await Product.findByIdAndUpdate(productInOrder.productId, { quantity: newQuantity });
+            } else {
+              return {
+                code: 400,
+                message: `Sản phẩm ${productInOrder.productSnapshot?.name} đã vượt quá số lượng sản phẩm.`
+              }
+            }
+          } else {
+            const convertWeight = convertToKg(productInOrder.weight!, productInOrder.unit!)
+
+            if (product.quantity >= convertWeight * quantity) {
+              const newQuantity = product.quantity - convertWeight * quantity
+              await Product.findByIdAndUpdate(productInOrder.productId, { quantity: newQuantity });
+            } else {
+              return {
+                code: 400,
+                message: `Sản phẩm ${productInOrder.productSnapshot?.name} đã vượt quá số lượng sản phẩm.`
+              }
+            }
+          }
+        }
+      })
+    );
+
     await order.save()
+
+    const feePercentage = 0.01; // 1%
+    const newFee: IFee = new Fee({
+      order_id: order._id,
+      feeAmount: order.totalAmount * feePercentage,
+      status: "pending"
+    })
+
+    await newFee.save()
 
     const shopAuth: IShop | null = await Shop.findById({ _id: data.shopId })
 
@@ -131,11 +181,15 @@ export const getOrders = async ({
         .sort({ orderDate: -1 })
         .populate({
           path: 'buyerId',
-          select: 'username email',
+          select: 'username email image phone',
         })
         .populate({
           path: 'shopId',
           select: 'name',
+          populate: {
+            path: 'auth',
+            select: 'phone'
+          }
         })
         .select("_id buyerId shopId totalAmount orderStatus orderDate delivery products");
 
@@ -149,18 +203,17 @@ export const getOrders = async ({
 
           return {
             _id: order._id.toString(),
-            buyerId: {
-              _id: order.buyerId._id.toString(),
-              username: order.buyerId.username || "",
-              email: order.buyerId.email || ""
-            },
-            shopId: {
-              _id: order.shopId._id.toString(),
-              name: order.shopId.name
-            },
+            buyerId: order.buyerId._id.toString(),
+            buyerUsername: order.buyerId.username || order.buyerId.email,
+            buyerImage: order.buyerId.image,
+            buyerPhone: order.buyerId.phone,
+            buyerEmail: order.buyerId.email || "",
+            shopId: order.shopId._id.toString(),
+            shopPhone: order.shopId.auth.phone,
+            shopName: order.shopId.name,
             orderDateConvert: order.orderDate!.toISOString(),
             totalAmount: order.totalAmount,
-            orderStatus: order.orderStatus,
+            status: order.orderStatus,
             productImage: firstImage,
           };
         });
@@ -214,8 +267,9 @@ export const getOrderDetail = async (id: string): Promise<IOrderDetailResponse> 
           select: "username email image phone",
         }
       })
-
     if (order) {
+      const fee = await Fee.findOne({ order_id: order._id })
+        .select("feeAmount")
       const formattedOrderDetail: IOrderDetail = {
         _id: order._id.toString(),
         buyerId: {
@@ -259,6 +313,7 @@ export const getOrderDetail = async (id: string): Promise<IOrderDetailResponse> 
           height: product.height || 0,
         })),
         totalAmount: order.totalAmount,
+        fee: fee.feeAmount || 0,
         orderStatus: order.orderStatus,
         orderDate: order.orderDate!.toISOString(),
         delivery: order.delivery,
@@ -270,7 +325,7 @@ export const getOrderDetail = async (id: string): Promise<IOrderDetailResponse> 
 
       return {
         code: 200,
-        data: formattedOrderDetail
+        data: JSON.stringify(formattedOrderDetail)
       }
 
     } else {
@@ -286,6 +341,54 @@ export const getOrderDetail = async (id: string): Promise<IOrderDetailResponse> 
       code: 500,
       message: "Lỗi hệ thống, vui lòng thử lại",
       data: null
+    }
+  }
+}
+
+export const approveOrder = async (token: string, id: string, data: IDeliveryOrderSchema, shop_id: number) => {
+  try {
+    await connectToDB()
+    const verifyToken = verifyJwtToken(token)
+
+    if (!!verifyToken) {
+      const order = await Order.findById({ _id: id })
+
+      if (order) {
+        const GHNRes: GHNOrderDataResponse = await GHNCreateOrder(data, shop_id)
+
+        console.log(GHNRes)
+        if (GHNRes.code === 200) {
+          order.shippingCode = GHNRes.data?.order_code
+          order.orderStatus = "processed"
+
+          await order.save();
+          return {
+            code: 200,
+            message: "Đơn hàng đã được xử lý và cập nhật thành công.",
+          };
+        } else {
+          return {
+            code: 400,
+            message: GHNRes.code_message_value || "Lỗi tạo đơn hàng với Giao Hàng Nhanh"
+          }
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không tìm thấy đơn hàng"
+        }
+      }
+    } else {
+      return {
+        code: 400,
+        message: "Không được phép thực hiện chức năng này, vui lòng đăng nhập và thử lại"
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống, vui lòng thử lại"
     }
   }
 }

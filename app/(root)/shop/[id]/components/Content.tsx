@@ -11,10 +11,11 @@ type IProps = {
   id: string,
   info: string,
   role: string,
-  accessToken: string
+  accessToken: string,
+  shopId: string
 }
 
-const Content: React.FC<IProps> = ({ id, info, role, accessToken }) => {
+const Content: React.FC<IProps> = ({ id, info, role, accessToken, shopId }) => {
   const [selected, setSelected] = React.useState<Set<any>>(new Set(["products"]));
   const [orders, setOrders] = React.useState<IOrders[] | []>([])
   const [isOrdersLoading, setIsOrdersLoading] = React.useState<boolean>(false)
@@ -64,9 +65,9 @@ const Content: React.FC<IProps> = ({ id, info, role, accessToken }) => {
             <Tab key="orders" title="Đơn hàng">
               <Orders
                 role={role}
-                accessToken={accessToken}
                 isLoading={isOrdersLoading}
                 orders={orders}
+                shopId={shopId}
               />
             </Tab>
           )

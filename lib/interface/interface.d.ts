@@ -21,6 +21,7 @@ type IGeolocation = {
 type WeightUnit = 'tấn' | 'kg' | 'gram';
 
 type UserRole = "individual" | "shop" | "business" | "admin"
+type FeeStatus = "pending" | "collected" | "canceled"
 
 type INotificationResponse = {
   code: number,

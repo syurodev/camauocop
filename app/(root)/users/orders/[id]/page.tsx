@@ -28,8 +28,6 @@ const MyOrderPage: React.FC<Props> = async ({ params }: Props) => {
     redirect("/")
   }
 
-  console.log(data)
-
   return (
     <>
       {
@@ -38,7 +36,6 @@ const MyOrderPage: React.FC<Props> = async ({ params }: Props) => {
             isLoading={false}
             orders={data}
             role={session?.user?.role}
-            accessToken={session?.user?.accessToken}
           />
         )
       }

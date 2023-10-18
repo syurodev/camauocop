@@ -3,6 +3,7 @@ import cartReducer from "./features/cart-slice"
 import productsDetailReducer from "./features/products-slice"
 import sessionReducer from "./features/session-slice"
 import shopsReducer from "./features/shops-slice"
+import ordersReducer from "./features/orders.slice"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
 
 export const store = configureStore({
@@ -10,7 +11,8 @@ export const store = configureStore({
     cartReducer,
     productsDetailReducer,
     sessionReducer,
-    shopsReducer
+    shopsReducer,
+    ordersReducer
   }
 })
 

@@ -1,10 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Button, Card, CardBody, CardFooter, Image, useDisclosure } from "@nextui-org/react";
+import { Button, Card, CardBody, CardFooter, Image, useDisclosure, Popover, PopoverTrigger, PopoverContent } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { FiEdit3 } from "react-icons/fi"
-import { MdOutlineDelete } from "react-icons/md"
 
 import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
 import EditProductModal from "@/components/modal/EditProductModal";
@@ -24,66 +22,127 @@ const CardItem: React.FC<CardItemProps> = ({
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { isOpen: isOpenDelete, onOpen: onOpenDelete, onOpenChange: onOpenChangeDelete, onClose: onCloseDelete } = useDisclosure();
+  const [isOpenPopover, setIsOpenPopover] = React.useState(false);
 
   return (
     <>
-      <Card
-        shadow="sm"
-        key={data._id}
-        isPressable
-        onPress={() => router.push(`/products/product/${data._id}`)}
-      >
-        <CardBody className="overflow-visible p-0 relative">
-          <Image
-            shadow="sm"
-            radius="lg"
-            isZoomed
-            width="100%"
-            alt={data.productName}
-            className="w-full object-cover h-[140px]"
-            src={data.productImages[0]}
-          />
-
-          {
-            editButton && (
-              <Button
-                isIconOnly
-                size="sm"
-                color="default"
-                radius="lg"
-                className="shadow-sm border-none absolute bottom-2 right-2 z-20"
-                onPress={() => onOpen()}
-              >
-                <FiEdit3 className="text-lg" />
-              </Button>
-            )
-          }
-
-          {
-            deleteButton && (
-              <Button
-                isIconOnly
-                size="sm"
-                color="danger"
-                radius="lg"
-                className="shadow-sm border-none absolute bottom-2 left-2 z-20"
-                onPress={() => onOpenDelete()}
-              >
-                <MdOutlineDelete className="text-lg" />
-              </Button>
-            )
-          }
-        </CardBody>
-
-        <CardFooter className="flex flex-col text-small justify-between">
-          <b className="line-clamp-1">{data.productName}</b>
-          <p
-            className="text-default-500"
+      {
+        editButton || deleteButton ? (
+          <Popover
+            placement="right"
+            showArrow={true}
+            backdrop="blur"
+            isOpen={isOpenPopover}
+            onOpenChange={(open) => setIsOpenPopover(open)}
           >
-            {data.productPrice > 0 ? formattedPriceWithUnit(data.productPrice) : "Không có giá bán lẻ"}
-          </p>
-        </CardFooter>
-      </Card>
+            <PopoverTrigger>
+              <Card
+                shadow="sm"
+                key={data._id}
+                isPressable
+              >
+                <CardBody className="overflow-visible p-0 relative">
+                  <Image
+                    shadow="sm"
+                    radius="lg"
+                    isZoomed
+                    width="100%"
+                    alt={data.productName}
+                    className="w-full object-cover h-[140px]"
+                    src={data.productImages[0]}
+                  />
+                </CardBody>
+
+                <CardFooter className="flex flex-col text-small justify-between">
+                  <b className="line-clamp-1">{data.productName}</b>
+                  <p
+                    className="text-default-500"
+                  >
+                    {data.productPrice > 0 ? formattedPriceWithUnit(data.productPrice) : "Không có giá bán lẻ"}
+                  </p>
+                </CardFooter>
+              </Card>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <div className="flex !flex-col gap-3 w-[150px]">
+                <Button
+                  variant="ghost"
+                  color="default"
+                  radius="lg"
+                  className="border-none w-full"
+                  onPress={() => {
+                    setIsOpenPopover(false)
+                    router.push(`/products/product/${data._id}`)
+                  }}
+                >
+                  Truy cập
+                </Button>
+                {
+                  editButton && (
+                    <Button
+                      variant="ghost"
+                      color="default"
+                      radius="lg"
+                      className="border-none w-full"
+                      onPress={() => {
+                        setIsOpenPopover(false)
+                        onOpen()
+                      }}
+                    >
+                      Chỉnh sửa
+                    </Button>
+                  )
+                }
+
+                {
+                  deleteButton && (
+                    <Button
+                      color="danger"
+                      variant="ghost"
+                      radius="lg"
+                      className="border-none w-full"
+                      onPress={() => {
+                        setIsOpenPopover(false)
+                        onOpenDelete()
+                      }}
+                    >
+                      Xoá
+                    </Button>
+                  )
+                }
+              </div>
+            </PopoverContent>
+          </Popover>
+        ) : (
+          <Card
+            shadow="sm"
+            key={data._id}
+            isPressable
+            onPress={() => router.push(`/products/product/${data._id}`)}
+          >
+            <CardBody className="overflow-visible p-0 relative">
+              <Image
+                shadow="sm"
+                radius="lg"
+                isZoomed
+                width="100%"
+                alt={data.productName}
+                className="w-full object-cover h-[140px]"
+                src={data.productImages[0]}
+              />
+            </CardBody>
+
+            <CardFooter className="flex flex-col text-small justify-between">
+              <b className="line-clamp-1">{data.productName}</b>
+              <p
+                className="text-default-500"
+              >
+                {data.productPrice > 0 ? formattedPriceWithUnit(data.productPrice) : "Không có giá bán lẻ"}
+              </p>
+            </CardFooter>
+          </Card>
+        )
+      }
 
       <EditProductModal
         isOpen={isOpen}

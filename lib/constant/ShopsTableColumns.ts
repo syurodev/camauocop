@@ -1,6 +1,6 @@
 export const columns = [
-  { name: "Tên", uid: "name" },
-  { name: "Địa chỉ", uid: "address" },
-  { name: "Trạng thái", uid: "status" },
+  { name: "Shops", uid: "name", sortable: true },
+  { name: "Địa chỉ", uid: "address", sortable: true },
+  { name: "Trạng thái", uid: "status", sortable: true },
   { name: "Thao tác", uid: "actions" },
 ];

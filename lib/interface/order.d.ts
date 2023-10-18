@@ -46,6 +46,7 @@ type IOrderDetail = {
     height: number;
   }],
   totalAmount: number,
+  fee: number,
   orderStatus: 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled',
   orderDate: string,
   delivery: string[],
@@ -61,10 +62,15 @@ type IOrder = {
     _id: string,
     username: string
     email: string
+    image: string
+    phone: string
   },
   shopId: {
     _id: string,
-    name: string
+    name: string,
+    auth: {
+      phone: string,
+    }
   },
   totalAmount: number,
   orderStatus: 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled',
@@ -98,17 +104,16 @@ type IOrder = {
 
 type IOrders = {
   _id: string,
-  buyerId: {
-    _id: string,
-    username?: string,
-    email?: string,
-  },
-  shopId: {
-    _id: string,
-    name: string,
-  },
+  buyerId: strint,
+  buyerUsername: string,
+  buyerImage: string,
+  buyerPhone: string,
+  buyerEmail?: string,
+  shopId: string
+  shopName: string
+  shopPhone: string
   totalAmount: number,
-  orderStatus: 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled',
+  status: 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled',
   productImage: string,
   orderDate?: Date
   orderDateConvert?: string
@@ -123,6 +128,6 @@ type IOrderResponse = {
 
 type IOrderDetailResponse = {
   code: number,
-  data: IOrderDetail | null,
+  data: string | null,
   message?: string
 }

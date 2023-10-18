@@ -7,9 +7,6 @@ import { IUserRegisterShopZodSchema } from "@/lib/zodSchema/shop";
 import User, { IUser } from "@/lib/models/users";
 import Shop from "@/lib/models/shop";
 import Order, { IOrderSchema } from '@/lib/models/orders';
-import { IDeliveryOrderSchema } from '@/lib/zodSchema/order';
-import { GHNCreateOrder } from './delivery';
-import { revalidatePath } from 'next/cache';
 import { convertWeight } from '@/lib/convertWeight';
 import ProductType from '@/lib/models/productTypes';
 
@@ -191,54 +188,6 @@ export const getShopInfo = async (id: string): Promise<ShopInfoResponse> => {
     return {
       code: 500,
       message: "Lỗi lấy thông tin shop",
-    }
-  }
-}
-
-export const approveOrder = async (token: string, id: string, data: IDeliveryOrderSchema, shop_id: number) => {
-  try {
-    await connectToDB()
-    const verifyToken = verifyJwtToken(token)
-
-    if (!!verifyToken) {
-      const order = await Order.findById({ _id: id })
-
-      if (order) {
-        const GHNRes: GHNOrderDataResponse = await GHNCreateOrder(data, shop_id)
-
-        console.log(GHNRes)
-        if (GHNRes.code === 200) {
-          order.shippingCode = GHNRes.data?.order_code
-          order.orderStatus = "processed"
-
-          await order.save();
-          return {
-            code: 200,
-            message: "Đơn hàng đã được xử lý và cập nhật thành công.",
-          };
-        } else {
-          return {
-            code: 400,
-            message: GHNRes.code_message_value || "Lỗi tạo đơn hàng với Giao Hàng Nhanh"
-          }
-        }
-      } else {
-        return {
-          code: 404,
-          message: "Không tìm thấy đơn hàng"
-        }
-      }
-    } else {
-      return {
-        code: 400,
-        message: "Không được phép thực hiện chức năng này, vui lòng đăng nhập và thử lại"
-      }
-    }
-  } catch (error) {
-    console.log(error)
-    return {
-      code: 500,
-      message: "Lỗi hệ thống, vui lòng thử lại"
     }
   }
 }

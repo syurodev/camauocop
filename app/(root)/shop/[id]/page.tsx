@@ -27,6 +27,7 @@ const ShopPage: React.FC<Props> = async ({ params }) => {
           info={info}
           role={session?.user.role || ""}
           accessToken={session?.user.accessToken || ""}
+          shopId={params.id}
         />
       </article>
     ) : (

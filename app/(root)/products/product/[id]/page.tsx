@@ -64,7 +64,7 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
                 <AiOutlineStar />
               </div>
               <p>1000 đánh giá</p>
-              <p>{`${data?.productSold}Kg đã bán`}</p>
+              <p>{`${data?.productSold}kg đã bán`}</p>
             </div>
 
             <h2 className="text-center my-2 font-bold">

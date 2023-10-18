@@ -147,10 +147,10 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
   return (
     <>
       <div className="flex justify-center gap-7 items-center mt-3">
-        <Tooltip content={`${!session ? "Đăng nhập" : "Thêm vào giỏ hàng"}`}>
+        <Tooltip content={`${!session ? "Đăng nhập" : session.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Thêm vào giỏ hàng"}`}>
           <Button
             isIconOnly
-            isDisabled={addToCartLoading}
+            isDisabled={addToCartLoading || session?.user.shopId === products?.shopId}
             variant="flat"
             color={isProductInCart ? "success" : "default"}
             radius="full"
@@ -167,7 +167,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
         </Tooltip>
 
         <Tooltip
-          content={`${!session ? "Đăng nhập" : favorited
+          content={`${!session ? "Đăng nhập" : session?.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : favorited
             ? "Xoá khỏi danh sách yêu thích"
             : "Thêm vào danh sách yêu thích"}`}
         >
@@ -176,7 +176,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
             variant="flat"
             color={favorited ? "danger" : "default"}
             radius="full"
-            isDisabled={favoriteLoading}
+            isDisabled={favoriteLoading || session?.user.shopId === products?.shopId}
             onClick={handleFavorited}
           >
             {favorited ? (
@@ -187,16 +187,17 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
           </Button>
         </Tooltip>
 
-        <Tooltip content={`${!session ? "Đăng nhập" : "Mua ngay"}`}>
+        <Tooltip content={`${!session ? "Đăng nhập" : session?.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Mua ngay"}`}>
           <Button
             variant="solid"
             radius="full"
             color="success"
+            isDisabled={session?.user.shopId === products?.shopId}
             startContent={<AiOutlineDollarCircle className="text-xl" />}
             onPress={handleBuyButtomClick}
           >
             {
-              !session ? "Đăng nhập để mua" : "Mua ngay"
+              !session ? "Đăng nhập để mua" : session?.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Mua ngay"
             }
           </Button>
         </Tooltip>

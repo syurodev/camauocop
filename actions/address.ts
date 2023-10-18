@@ -15,41 +15,41 @@ export const getCurrentLocation = async ({
       `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
     );
 
-    if (!response.ok) {
+    if (response.ok) {
+      const data = await response.json();
+
+      const res: IGeolocation = {
+        code: 200,
+        display_name: data.display_name,
+        province: null,
+        district: null,
+        ward: null,
+        serviceName: null
+      };
+
+      const provinces: GHNApiProvinceResponse = await getGHNProvince()
+      res.provinces = provinces
+      res.province = findProvince(data.address.city || data.address.state, provinces)
+
+      if (res.province) {
+        const districts: GHNApiDistrictResponse = await getGHNDistrict(res.province?.ProvinceID)
+        res.districts = districts
+        res.district = findDistrict(data.address.district || data.address.county, districts)
+      }
+
+      if (res.district) {
+        const wards: GHNApiWardResponse = await getGHNWard(res.district?.DistrictID)
+        res.wards = wards
+        res.ward = findWard(data.address.suburb || data.address.village || data.address.quarter, wards)
+      }
+
+      return res;
+    } else {
       return {
         code: 500,
         message: "Có lỗi trong quá trình tự động định vị. Vui lòng chọn thủ công"
       }
     }
-
-    const data = await response.json();
-
-    const res: IGeolocation = {
-      code: 200,
-      display_name: data.display_name,
-      province: null,
-      district: null,
-      ward: null,
-      serviceName: null
-    };
-
-    const provinces: GHNApiProvinceResponse = await getGHNProvince()
-    res.provinces = provinces
-    res.province = findProvince(data.address.city || data.address.state, provinces)
-
-    if (res.province) {
-      const districts: GHNApiDistrictResponse = await getGHNDistrict(res.province?.ProvinceID)
-      res.districts = districts
-      res.district = findDistrict(data.address.district || data.address.county, districts)
-    }
-
-    if (res.district) {
-      const wards: GHNApiWardResponse = await getGHNWard(res.district?.DistrictID)
-      res.wards = wards
-      res.ward = findWard(data.address.suburb || data.address.village, wards)
-    }
-
-    return res;
   } catch (error) {
     console.error("Lỗi khi lấy thông tin địa chỉ:", error);
     return {
@@ -140,33 +140,45 @@ export const getGHNWard = async (id: number): Promise<GHNApiWardResponse> => {
 }
 
 const findProvince = (a: string, b: GHNApiProvinceResponse) => {
-  const foundProvince = b.data.find((item) =>
-    item.NameExtension.some((extension: string) => extension.toLowerCase() === a.toLowerCase())
-  );
-  if (foundProvince) {
-    return foundProvince
+  if (b && b.data) {
+    const foundProvince = b.data.find((item) =>
+      item.NameExtension && item.NameExtension.some((extension: string) => extension.toLowerCase() === a.toLowerCase())
+    );
+    if (foundProvince) {
+      return foundProvince
+    } else {
+      return null
+    }
   } else {
     return null
   }
 }
 
 const findDistrict = (a: string, b: GHNApiDistrictResponse) => {
-  const foundDistrict = b.data.find((item) =>
-    item.NameExtension.some((extension: string) => extension.toLowerCase() === a.toLowerCase())
-  );
-  if (foundDistrict) {
-    return foundDistrict
+  if (b && b.data) {
+    const foundDistrict = b.data.find((item) =>
+      item.NameExtension && item.NameExtension.some((extension: string) => extension.toLowerCase() === a.toLowerCase())
+    );
+    if (foundDistrict) {
+      return foundDistrict
+    } else {
+      return null
+    }
   } else {
     return null
   }
 }
 
 const findWard = (a: string, b: GHNApiWardResponse) => {
-  const foundWard = b.data.find((item) =>
-    item.NameExtension.some((extension: string) => extension.toLowerCase() === a.toLowerCase())
-  );
-  if (foundWard) {
-    return foundWard
+  if (b && b.data) {
+    const foundWard = b.data.find((item) =>
+      item.NameExtension && item.NameExtension.some((extension: string) => extension.toLowerCase() === a.toLowerCase())
+    );
+    if (foundWard) {
+      return foundWard
+    } else {
+      return null
+    }
   } else {
     return null
   }
@@ -197,8 +209,6 @@ export const getGHNCode = async (province: string, district: string, ward: strin
                   districtId: foundDistrict.DistrictID,
                   wardCode: foundWard.WardCode
                 }
-
-                console.log(data)
 
                 return {
                   code: 200,

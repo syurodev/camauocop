@@ -4,27 +4,26 @@ import { Avatar, Button, Card, CardBody, CardFooter, CardHeader, Divider, Modal,
 import toast from 'react-hot-toast';
 import { BsTelephone } from "react-icons/bs"
 import Link from 'next/link';
-import { TbTruckDelivery, TbMoneybag } from "react-icons/tb"
-import { CiMoneyBill } from "react-icons/ci"
+import { TbTruckDelivery } from "react-icons/tb"
+import { RiMoneyDollarCircleLine } from "react-icons/ri"
 
-import SlideShow from '../elements/SlideShow';
+import SlideShow from '@/components/elements/SlideShow';
 import { formattedPriceWithUnit } from '@/lib/formattedPriceWithUnit';
 import { getGHNCode } from '@/actions/address';
 import { getGHNServiceFee } from '@/actions/delivery';
 import { convertWeight } from '@/lib/convertWeight';
 import { getOrderDetail } from '@/actions/order';
 import DeliveryModal from './DeliveryModal';
+import { useAppSelector } from '@/redux/store';
 
 type IProps = {
   isOpenOrderDetailModal: boolean;
   onCloseOrderDetailModal: () => void;
   onOpenChangeOrderDetailModal: () => void;
-  id: string,
-  role: string,
-  accessToken: string
+  id: string
 }
 
-const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrderDetailModal, onOpenChangeOrderDetailModal, id, role, accessToken }) => {
+const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrderDetailModal, onOpenChangeOrderDetailModal, id }) => {
   const [orderDetail, setOrderDetail] = React.useState<IOrderDetail | null>(null)
   const [serviceFee, setServiceFee] = React.useState<number>(0)
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
@@ -36,6 +35,8 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
   const [totalHeight, setTotalHeight] = React.useState<number>(0)
   const [totalLength, setTotalLength] = React.useState<number>(0)
 
+  const session = useAppSelector(state => state.sessionReducer.value)
+
   React.useEffect(() => {
     const fetctData = async () => {
       setIsLoading(true)
@@ -46,21 +47,24 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
       if (res.code === 500) {
         toast.error(res.message!)
         onCloseOrderDetailModal()
+        return
       }
 
       if (res.code === 400) {
         toast.error(res.message!)
         onCloseOrderDetailModal()
+        return
       }
 
       if (res.code === 200) {
-        setOrderDetail(res.data)
-        const GHNCode: GHNCodeResponse = await getGHNCode(res.data?.province!, res.data?.district!, res.data?.ward!)
+        const orderData: IOrderDetail = JSON.parse(res?.data!)
+        setOrderDetail(orderData)
+        const GHNCode: GHNCodeResponse = await getGHNCode(orderData?.province!, orderData?.district!, orderData?.ward!)
 
         if (GHNCode.code === 200) {
           setGHNCodeData(GHNCode)
           let totalWeight = 0
-          const transformedArray = res.data?.products.map(product => {
+          const transformedArray = orderData?.products.map(product => {
             let name = product.productSnapshot.name;
             let quantity = product.quantity || 1;
             let weight = 0;
@@ -98,7 +102,7 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
           const deliveryFee: GHNApiServiceFee = await getGHNServiceFee({
             to_district_id: GHNCode.data?.districtId!,
             to_ward_code: GHNCode.data?.wardCode!,
-            shop_id: res.data?.shopId.shop_id.GHN!,
+            shop_id: orderData?.shopId.shop_id.GHN!,
             items: transformedArray || [],
             weight: totalWeight
           })
@@ -121,11 +125,11 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
       }
     }
 
-    if (isOpenOrderDetailModal && id) {
+    if (isOpenOrderDetailModal && session) {
       fetctData()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpenOrderDetailModal, id])
+  }, [isOpenOrderDetailModal, session])
 
   return (
     <section>
@@ -172,7 +176,7 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                 <Card shadow='sm' className='p-2'>
                   <CardHeader>
                     {
-                      role === "shop" ? "Thông tin người mua" : "Thông tin người bán"
+                      session?.user.role === "shop" && session.user.shopId ? "Thông tin người mua" : "Thông tin người bán"
                     }
                   </CardHeader>
 
@@ -184,7 +188,7 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                         <Skeleton className="flex rounded-full w-12 h-12" />
                       ) : (
                         <Avatar
-                          src={role === "shop" ? orderDetail?.buyerId.avatar : orderDetail?.shopId.auth.avatar}
+                          src={session?.user.role === "shop" && session?.user.shopId === orderDetail?.shopId._id ? orderDetail?.buyerId.avatar : orderDetail?.shopId.auth.avatar}
                           className='w-12 h-12'
                         />
                       )
@@ -195,7 +199,7 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                           <Skeleton className="h-4 w-3/5 rounded-lg mb-2" />
                         ) : (
                           <p>
-                            {role === "shop" ? orderDetail?.buyerId.username || orderDetail?.buyerId.email
+                            {session?.user.role === "shop" ? orderDetail?.buyerId.username || orderDetail?.buyerId.email
                               : orderDetail?.shopId.name}
                           </p>
                         )
@@ -206,7 +210,7 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                           isLoading ? (
                             <Skeleton className="h-4 w-4/5 rounded-lg" />
                           ) : (
-                            <p>{role === "shop" ? orderDetail?.buyerId.phone || "Không có" : orderDetail?.shopId.auth.phone || "Không có"}</p>
+                            <p>{session?.user.role === "shop" ? orderDetail?.buyerId.phone || "Không có" : orderDetail?.shopId.auth.phone || "Không có"}</p>
                           )
                         }
                       </div>
@@ -297,7 +301,7 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                             </div>
 
                             <div className='w-full flex flex-row items-center gap-1'>
-                              <CiMoneyBill />
+                              <RiMoneyDollarCircleLine />
                               <Skeleton className="h-4 w-1/4 rounded-lg bg-primary" />
                             </div>
                           </div>
@@ -312,7 +316,8 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                             </div>
 
                             <div className='flex flex-row items-center gap-1'>
-                              <CiMoneyBill />
+                              <RiMoneyDollarCircleLine />
+                              <span>Phí vận chuyển:</span>
                               <span className='text-primary font-semibold'>{formattedPriceWithUnit(serviceFee)}</span>
                             </div>
                           </div>
@@ -323,14 +328,44 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
 
                   <Divider />
 
-                  <CardFooter className='flex flex-row gap-2'>
-                    <TbMoneybag />
-                    <span>Tổng tiền:</span>
+                  <CardFooter className='flex flex-col justify-start items-start gap-2'>
+                    <div className='flex flex-row items-center gap-2 w-full'>
+                      <span>{session?.user.shopId === orderDetail?.shopId._id ? "Thực thu:" : "Tổng tiền"}</span>
+                      {
+                        isDeliveryLoading ? (
+                          <Skeleton className="h-4 w-1/4 rounded-lg bg-primary" />
+                        ) : (
+                          <span className='text-primary font-semibold'>{formattedPriceWithUnit(orderDetail?.totalAmount)}</span>
+                        )
+                      }
+                    </div>
+
                     {
-                      isDeliveryLoading ? (
-                        <Skeleton className="h-4 w-1/4 rounded-lg bg-primary" />
-                      ) : (
-                        <span className='text-primary font-semibold'>{formattedPriceWithUnit(orderDetail?.totalAmount)}</span>
+                      session?.user.shopId === orderDetail?.shopId._id &&
+                      (
+                        <>
+                          <div className='flex flex-row items-center gap-2 w-full'>
+                            <span>Phí dịch vụ:</span>
+                            {
+                              isDeliveryLoading ? (
+                                <Skeleton className="h-4 w-1/4 rounded-lg bg-primary" />
+                              ) : (
+                                <span className='text-primary font-semibold'>{formattedPriceWithUnit(orderDetail?.fee)}</span>
+                              )
+                            }
+                          </div>
+                          <div className='flex flex-row items-center gap-2 w-full'>
+                            <RiMoneyDollarCircleLine className="text-primary" />
+                            <span>Thực nhận:</span>
+                            {
+                              isDeliveryLoading ? (
+                                <Skeleton className="h-4 w-1/4 rounded-lg bg-primary" />
+                              ) : (
+                                <span className='text-primary font-semibold'>{formattedPriceWithUnit(orderDetail?.totalAmount! - orderDetail?.fee!)}</span>
+                              )
+                            }
+                          </div>
+                        </>
                       )
                     }
                   </CardFooter>
@@ -344,14 +379,24 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
 
                 <Button color='danger'>
                   {
-                    role === "shop" ? (
+                    session?.user.role === "shop" && session?.user.shopId === orderDetail?.shopId._id ? (
                       orderDetail?.orderStatus !== "pending" ? "Huỷ đơn" : "Từ chối"
                     ) : "Huỷ"
                   }
                 </Button>
 
                 {
-                  role === "shop" && orderDetail?.orderStatus === "pending" && (
+                  session?.user.role === "shop" && session?.user.shopId === orderDetail?.shopId._id && orderDetail?.orderStatus !== "pending" && (
+                    <Button
+                      color='success'
+                    >
+                      Chỉnh sửa trạng thái đơn hàng
+                    </Button>
+                  )
+                }
+
+                {
+                  session?.user.role === "shop" && session?.user.shopId === orderDetail?.shopId._id && orderDetail?.orderStatus === "pending" && (
                     <Button
                       color='success'
                       onPress={() => onOpen()}
@@ -367,12 +412,11 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
       </Modal>
 
       {
-        role === "shop" && orderDetail && GHNCodeData && <DeliveryModal
+        session?.user.role === "shop" && session?.user.shopId === orderDetail?.shopId._id && orderDetail && GHNCodeData && <DeliveryModal
           isOpenDeliveryModal={isOpen}
           onCloseDeliveryModal={onClose}
           onOpenChangeDeliveryModal={onOpenChange}
-          id={id}
-          accessToken={accessToken}
+          onCloseOrderDetailModal={onCloseOrderDetailModal}
           orderDetail={orderDetail}
           GHNCodeData={GHNCodeData}
           totalWidth={totalWidth}

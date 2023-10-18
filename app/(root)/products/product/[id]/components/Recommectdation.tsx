@@ -1,10 +1,8 @@
 "use client";
 import React from "react";
 import { Card, CardBody, CardFooter, Image, Skeleton } from "@nextui-org/react";
-import { useRouter } from "next/navigation";
 
 import { getRecommentdation } from "@/actions/recommendation";
-import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
 import CardItem from "@/components/card/CardItem";
 
 type Props = {

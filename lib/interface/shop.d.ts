@@ -62,4 +62,5 @@ type IShopsResponse = {
   authId: string,
   username: string,
   image: string
+  [key: string]: any;
 }

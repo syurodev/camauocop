@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody, Select, SelectItem, Card, CardHeader, CardBody, Image, Input, Button, Divider, useDisclosure, ModalFooter } from "@nextui-org/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, Select, SelectItem, Card, CardHeader, CardBody, Image, Input, Button, Divider, useDisclosure, ModalFooter, Spinner } from "@nextui-org/react";
 import { LuArrowRight } from "react-icons/lu"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -668,7 +668,12 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
 
               <ModalFooter>
                 <Button variant="bordered" onPress={onClose}>Huỷ</Button>
-                <Button color="success" type="submit">Mua</Button>
+                <Button isDisabled={isLoading} color="success" type="submit">
+                  {
+                    isLoading && <Spinner size="sm" color="default" />
+                  }
+                  Mua
+                </Button>
               </ModalFooter>
             </form>
           )}
