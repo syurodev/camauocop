@@ -143,23 +143,29 @@ const CardItem: React.FC<CardItemProps> = ({
           </Card>
         )
       }
-
-      <EditProductModal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        onClose={onClose}
-        productId={data._id}
-      />
-
-      <DeleteConfirmModal
-        isOpen={isOpenDelete}
-        onClose={onCloseDelete}
-        onOpenChange={onOpenChangeDelete}
-        label={"Xác nhận xoá sản phẩm"}
-        future={"delete product"}
-        content={`Bạn có chắc muốn xoá sản phẩm ${data.productName}`}
-        id={data._id}
-      />
+      {
+        isOpen && (
+          <EditProductModal
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+            onClose={onClose}
+            productId={data._id}
+          />
+        )
+      }
+      {
+        isOpenDelete && (
+          <DeleteConfirmModal
+            isOpen={isOpenDelete}
+            onClose={onCloseDelete}
+            onOpenChange={onOpenChangeDelete}
+            label={"Xác nhận xoá sản phẩm"}
+            future={"delete product"}
+            content={`Bạn có chắc muốn xoá sản phẩm ${data.productName}`}
+            id={data._id}
+          />
+        )
+      }
     </>
   );
 };
