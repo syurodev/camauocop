@@ -55,13 +55,22 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
             src={session?.user.image}
           />
         </DropdownTrigger>
-        <DropdownMenu aria-label="Profile Actions" variant="flat">
+        <DropdownMenu
+          aria-label="Profile Actions"
+          variant="flat"
+          disabledKeys={session?.user.shopStatus === "block" ? ["my-shop"] : []}
+        >
           <DropdownSection showDivider>
             <DropdownItem key="profile" className="h-14 gap-2">
               <p className="font-semibold">Đã đăng nhập với</p>
               <p className="font-semibold">
                 {session?.user.email || session?.user.username}
               </p>
+              {
+                session?.user.shopStatus === "block" && (
+                  <p className="text-warning">Cửa hàng đã bị khoá, bạn chỉ có thể mua hàng</p>
+                )
+              }
             </DropdownItem>
           </DropdownSection>
 
@@ -70,7 +79,7 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
             className={`${session?.user.role === "admin" ? "hidden" : "block"}`}
           >
             <DropdownItem
-              key="my-shop"
+              key="my-order"
               startContent={<TbShoppingCartCopy className="text-lg" />}
             >
               <Link href={`/users/orders/${session.user._id}`}>Đơn hàng của tôi</Link>

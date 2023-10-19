@@ -148,7 +148,8 @@ async function getUserByEmail({ email }: { email: string | null | undefined }) {
 
     if (shop) {
       const shopId = shop._id
-      result = { ...result, shopId }
+      const shopStatus = shop.status
+      result = { ...result, shopId, shopStatus }
     }
   }
 

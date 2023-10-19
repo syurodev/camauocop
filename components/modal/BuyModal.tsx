@@ -433,7 +433,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                 Mua hàng
               </ModalHeader>
 
-              <ModalBody className="flex gap-3 flex-col md:flex-row w-full">
+              <ModalBody className="flex gap-3 flex-col md:!flex-row w-full">
                 <Card shadow="sm" className="flex-1">
                   <CardHeader>
                     Thông tin sản phẩm
@@ -621,7 +621,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                                         formattedPriceWithUnit(product?.productPrice!, selectedUnits[product?._id!], productWeight[product?._id!])
                                       }
                                     </span>
-                                    <span className="font-medium text-xs opacity-70">{productWeight[index || 0]}{selectedUnits[product?._id!]}</span>
+                                    <span className="font-medium text-xs opacity-70">{productWeight[product?._id!]}{selectedUnits[product?._id!]}</span>
                                   </div>
 
                                 ) : (

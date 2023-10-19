@@ -13,6 +13,7 @@ const ShopPage: React.FC<Props> = async ({ params }) => {
   let info = ""
 
   const session: Session | null = await getServerSession(authOptions)
+  console.log(session)
 
   const data: ShopInfoResponse = await getShopInfo(params.id)
   if (data.data) {

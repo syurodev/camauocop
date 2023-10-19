@@ -68,7 +68,7 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionData])
 
-  const cartItems = useAppSelector((state) => state.cartReducer.value)
+  const cartItems = useAppSelector((state) => state?.cartReducer.value)
 
   const countUnreadNotifications = (notifications: INotification[]): number => {
     const unreadNotifications = notifications.filter((notification) => notification.status === 'unread');
@@ -188,6 +188,7 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
                 <Tooltip content="Thêm hàng">
                   <Button
                     variant={"ghost"}
+                    isDisabled={session?.user.shopStatus === "block"}
                     isIconOnly
                     radius="full"
                     onClick={() => router.push("/products/product/add")}

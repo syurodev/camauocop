@@ -386,16 +386,6 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                 </Button>
 
                 {
-                  session?.user.role === "shop" && session?.user.shopId === orderDetail?.shopId._id && orderDetail?.orderStatus !== "pending" && (
-                    <Button
-                      color='success'
-                    >
-                      Chỉnh sửa trạng thái đơn hàng
-                    </Button>
-                  )
-                }
-
-                {
                   session?.user.role === "shop" && session?.user.shopId === orderDetail?.shopId._id && orderDetail?.orderStatus === "pending" && (
                     <Button
                       color='success'

@@ -4,6 +4,7 @@ import { Tab, Tabs } from '@nextui-org/react'
 import { AiOutlineShop } from "react-icons/ai"
 import { RiMoneyDollarCircleLine } from "react-icons/ri"
 import Shops from './Shops'
+import Analysis from './Analysis'
 
 const AdminContent: React.FC = () => {
   const [selected, setSelected] = React.useState<Set<any>>(new Set(["shops"]));
@@ -32,6 +33,7 @@ const AdminContent: React.FC = () => {
             <span>Quản lý doanh thu</span>
           </div>
         }>
+          <Analysis />
         </Tab>
 
       </Tabs>

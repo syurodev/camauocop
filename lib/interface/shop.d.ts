@@ -57,10 +57,16 @@ type MonthlySalesResponse = {
 type IShopsResponse = {
   _id: string
   name: string
-  status: "active" | "block",
+  status: ShopStatus,
   address: string
   authId: string,
   username: string,
   image: string
   [key: string]: any;
 }
+
+type ShopStatus = "active" | "block"
+
+type MonthlyRevenue = {
+  [month: number]: number;
+};

@@ -110,9 +110,12 @@ export const createOrder = async (data: IOrderZodSchema) => {
     await order.save()
 
     const feePercentage = 0.01; // 1%
+    const feeAmount = order.totalAmount * feePercentage;
+    const roundedFeeAmount = Math.floor(feeAmount);
+
     const newFee: IFee = new Fee({
       order_id: order._id,
-      feeAmount: order.totalAmount * feePercentage,
+      feeAmount: roundedFeeAmount,
       status: "pending"
     })
 
@@ -362,6 +365,18 @@ export const approveOrder = async (token: string, id: string, data: IDeliveryOrd
           order.orderStatus = "processed"
 
           await order.save();
+
+          const notificationData = {
+            userId: order.buyerId,
+            content: `Đơn hàng của bạn đã được duyệt`,
+            type: 'order',
+            status: 'unread',
+            orderId: order._id
+          };
+
+          const notification = new Notification(notificationData);
+          await notification.save();
+
           return {
             code: 200,
             message: "Đơn hàng đã được xử lý và cập nhật thành công.",
@@ -371,6 +386,56 @@ export const approveOrder = async (token: string, id: string, data: IDeliveryOrd
             code: 400,
             message: GHNRes.code_message_value || "Lỗi tạo đơn hàng với Giao Hàng Nhanh"
           }
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không tìm thấy đơn hàng"
+        }
+      }
+    } else {
+      return {
+        code: 400,
+        message: "Không được phép thực hiện chức năng này, vui lòng đăng nhập và thử lại"
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống, vui lòng thử lại"
+    }
+  }
+}
+
+export const changeOrderStatus = async (accessToken: string, orderId: string, newStatus: OrderStatus) => {
+  try {
+    const token = verifyJwtToken(accessToken)
+
+    if (!!token) {
+      const order = await Order.findByIdAndUpdate({ _id: orderId }, { orderStatus: newStatus })
+
+      if (order) {
+        if (newStatus === "delivered") {
+          await Fee.findOneAndUpdate({ order_id: orderId }, { status: "collected" })
+        } else if (newStatus === "canceled") {
+          await Fee.findOneAndUpdate({ order_id: orderId }, { status: "canceled" })
+        }
+
+        const notificationData = {
+          userId: order.buyerId,
+          content: `${newStatus === "shipped" ? "Đơn hàng của bạn đang được vận chuyển" : newStatus === "delivered" ? "Đơn hàng của bạn đã được giao" : "Đơn hàng của bạn đã bị huỷ"}`,
+          type: 'order',
+          status: 'unread',
+          orderId: order._id
+        };
+
+        const notification = new Notification(notificationData);
+        await notification.save();
+
+        return {
+          code: 200,
+          message: "Cập nhật thành công"
         }
       } else {
         return {

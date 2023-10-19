@@ -9,7 +9,7 @@ type IProps = {
   chartTitle: string
 }
 
-export const DoughnutChart: React.FC<IProps> = ({ chartData, chartTitle }) => {
+const DoughnutChart: React.FC<IProps> = ({ chartData, chartTitle }) => {
   const options = {
     plugins: {
       title: {

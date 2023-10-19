@@ -220,7 +220,7 @@ export default function Shops() {
                   size="sm"
                   variant="flat"
                 >
-                  Status
+                  Trạng thái
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
@@ -238,31 +238,6 @@ export default function Shops() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button
-                  endContent={<BsThreeDotsVertical className="text-small" />}
-                  size="sm"
-                  variant="flat"
-                >
-                  Columns
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode="multiple"
-                onSelectionChange={setVisibleColumns}
-              >
-                {columns.map((column) => (
-                  <DropdownItem key={column.uid} className="capitalize">
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
             {/* <Button
               className="bg-foreground text-background"
               endContent={<AiOutlinePlus />}
@@ -274,17 +249,6 @@ export default function Shops() {
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">Hiện có {shops.length} cửa hàng</span>
-          <label className="flex items-center text-default-400 text-small">
-            Số cửa hảng mỗi trang:
-            <select
-              className="bg-transparent outline-none text-default-400 text-small"
-              onChange={onRowsPerPageChange}
-            >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="15">15</option>
-            </select>
-          </label>
         </div>
       </div>
     );
@@ -314,18 +278,18 @@ export default function Shops() {
           variant="light"
           onChange={setPage}
         />
-        <span className="text-small text-default-400">
+        {/* <span className="text-small text-default-400">
           {selectedKeys === "all"
             ? "Đã chọn tất cả"
             : `${selectedKeys.size} trên ${items.length} được chọn`}
-        </span>
+        </span> */}
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [page, pages, hasSearchFilter]);
 
   const classNames = React.useMemo(
     () => ({
-      wrapper: ["max-h-[382px]", "max-w-3xl"],
+      wrapper: ["max-h-[382px]", "max-w-full"],
       th: ["bg-transparent", "text-default-500", "border-b", "border-divider"],
       td: [
         // changing the rows border radius
@@ -345,8 +309,8 @@ export default function Shops() {
   return (
     <Table
       isCompact
-      removeWrapper
-      aria-label="Example table with custom cells, pagination and sorting"
+      // removeWrapper
+      aria-label="Các shop trên hệ thống"
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       checkboxesProps={{
@@ -356,7 +320,7 @@ export default function Shops() {
       }}
       classNames={classNames}
       selectedKeys={selectedKeys}
-      selectionMode="multiple"
+      // selectionMode="multiple"
       sortDescriptor={sortDescriptor}
       topContent={topContent}
       topContentPlacement="outside"

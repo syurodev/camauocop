@@ -43,7 +43,7 @@ h6 {
   font-style: normal;
 }
 
-
+/* 
 ::-webkit-scrollbar {
   width: 0px;
   height: 0px;
@@ -59,7 +59,7 @@ h6 {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
-}
+} */
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

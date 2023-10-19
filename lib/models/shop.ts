@@ -16,7 +16,7 @@ export interface IShop extends Document {
     GHN_ward_code?: string;
   }];
   name: string;
-  status: "active" | "block";
+  status: ShopStatus;
   delivery: string[]
 }
 

@@ -31,7 +31,6 @@ const Analysis: React.FC<IProps> = ({ shopId, accessToken }) => {
       settopProductTypeLoading(true)
 
       const sellingRes: TopSellingProductResponse = await topProduct(shopId, accessToken)
-      console.log(sellingRes)
       if (sellingRes.code === 200 && sellingRes.data && sellingRes.data.length > 0) {
         settopProductData({
           labels: sellingRes.data.map(item => item.productName),
@@ -46,13 +45,14 @@ const Analysis: React.FC<IProps> = ({ shopId, accessToken }) => {
           ]
         })
         settopProductLoading(false)
-      } else {
+      } else if (sellingRes.code === 400 || sellingRes.code === 500) {
         settopProductLoading(false)
         toast.error(sellingRes.message)
+      } else {
+        settopProductLoading(false)
       }
 
       const topProductTypeRes = await topSellingProductTypes(shopId, accessToken)
-      console.log(topProductTypeRes)
       if (topProductTypeRes.code === 200 && topProductTypeRes.data && topProductTypeRes.data.length > 0) {
         settopProductTypeData({
           labels: topProductTypeRes.data.map(item => item.name),
@@ -73,7 +73,6 @@ const Analysis: React.FC<IProps> = ({ shopId, accessToken }) => {
       }
 
       const monthSales = await getSalesForLast5Months(shopId, accessToken)
-      console.log(monthSales)
       if (monthSales.code === 200 && monthSales.data && monthSales.data.length > 0) {
 
         setMonthSalesData({

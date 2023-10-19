@@ -36,6 +36,7 @@ declare module "next-auth" {
       username: string,
       accessToken: string,
       shopId?: string,
+      shopStatus?: ShopStatus,
       _id: string,
     }
   }

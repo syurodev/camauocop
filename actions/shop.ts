@@ -9,6 +9,7 @@ import Shop from "@/lib/models/shop";
 import Order, { IOrderSchema } from '@/lib/models/orders';
 import { convertWeight } from '@/lib/convertWeight';
 import ProductType from '@/lib/models/productTypes';
+import Fee from '@/lib/models/fee';
 
 type IProps = {
   data: IUserRegisterShopZodSchema,
@@ -208,9 +209,7 @@ export const topProduct = async (shopId: string, accessToken: string): Promise<T
           $gte: firstDayOfMonth,
           $lte: lastDayOfMonth,
         },
-        orderStatus: {
-          $nin: ["pending", "canceled"],
-        },
+        orderStatus: "delivered",
       }).exec();
       if (orders.length > 0) {
 
@@ -298,16 +297,16 @@ export const getSalesForLast5Months = async (shopId: string, accessToken: string
           $gte: fiveMonthsAgo,
           $lte: currentDate
         },
-        orderStatus: {
-          $nin: ["pending", "canceled"],
-        },
+        orderStatus: "delivered",
       }).exec();
 
       if (sales.length > 0) {
         const monthlySales: MonthlySale = {};
         for (const order of sales) {
           const month = order.orderDate.getMonth() + 1;
-          const totalAmount = order.totalAmount;
+          const fee = await Fee.findOne({ order_id: order._id })
+
+          const totalAmount = order.totalAmount - fee.feeAmount;
 
           if (!monthlySales[month]) {
             monthlySales[month] = 0;
@@ -373,9 +372,7 @@ export const topSellingProductTypes = async (shopId: string, accessToken: string
           $gte: startDate,
           $lte: endDate
         },
-        orderStatus: {
-          $nin: ["pending", "canceled"],
-        },
+        orderStatus: "delivered",
       }).exec();
 
       if (orders.length > 0) {

@@ -29,7 +29,7 @@ export interface IOrderSchema extends Document {
   shopId: string;
   products: IProductInOrder[];
   totalAmount: number;
-  orderStatus: 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled';
+  orderStatus: OrderStatus;
   orderDate: Date;
   shippingCode?: string;
   delivery: string[];

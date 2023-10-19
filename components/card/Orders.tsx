@@ -21,11 +21,10 @@ import {
   ChipProps,
   SortDescriptor,
   Tooltip,
-  useDisclosure
+  useDisclosure,
 } from "@nextui-org/react";
 import { AiOutlineSearch, AiOutlineEye, AiOutlineEdit } from "react-icons/ai"
 import { BsThreeDotsVertical } from "react-icons/bs"
-import { MdOutlineDelete } from "react-icons/md"
 import { useDispatch } from "react-redux";
 
 import { capitalize } from "@/lib/utils";
@@ -35,6 +34,7 @@ import { setOrders } from "@/redux/features/orders.slice";
 import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
 import { formatDate } from "@/lib/formatDate";
 import OrderDetailModal from "../modal/OrderDetailModal";
+import ChangeOrderStatus from "../modal/ChangeOrderStatus";
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   pending: "warning",
@@ -63,7 +63,6 @@ type IProps = {
 
 const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
   const [filterValue, setFilterValue] = React.useState("");
-  // const [isLoading, setIsLoading] = React.useState(true);
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
@@ -72,10 +71,12 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
     column: "date",
     direction: "ascending",
   });
+
   const dispatch = useDispatch()
   const [page, setPage] = React.useState(1);
   const [orderSelected, setOrderSelected] = React.useState<string>("")
   const { isOpen: isOpenOrderDetail, onOpen: onOpenOrderDetail, onOpenChange: onOpenChangeOrderDetail, onClose: onCloseOrderDetail } = useDisclosure();
+  const { isOpen: isOpenChangeStatus, onOpen: onOpenChangeStatus, onOpenChange: onOpenChangeChangeStatus, onClose: onCloseChangeStatus } = useDisclosure();
 
   const session = useAppSelector((state) => state.sessionReducer.value)
   const columns = getColumns(session?.user.role === "shop" && session.user.shopId === shopId)
@@ -188,6 +189,24 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
                 <AiOutlineEye />
               </Button>
             </Tooltip>
+
+            {
+              session?.user.role === "shop" && session?.user.shopId === order?.shopId && order?.status !== "pending" && (
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="ghost"
+                  radius="full"
+                  className="border-none"
+                  onPress={() => {
+                    setOrderSelected(order._id)
+                    onOpenChangeStatus()
+                  }}
+                >
+                  <AiOutlineEdit />
+                </Button>
+              )
+            }
           </div>
         );
       default:
@@ -291,17 +310,6 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">Hiện có {ordersData.length} đơn hàng</span>
-          <label className="flex items-center text-default-400 text-small">
-            Số đơn hàng mỗi trang:
-            <select
-              className="bg-transparent outline-none text-default-400 text-small"
-              onChange={onRowsPerPageChange}
-            >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="15">15</option>
-            </select>
-          </label>
         </div>
       </div>
     );
@@ -331,18 +339,18 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
           variant="light"
           onChange={setPage}
         />
-        <span className="text-small text-default-400">
+        {/* <span className="text-small text-default-400">
           {selectedKeys === "all"
             ? "Đã chọn tất cả"
             : `${selectedKeys.size} trên ${items.length} được chọn`}
-        </span>
+        </span> */}
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [page, pages, hasSearchFilter]);
 
   const classNames = React.useMemo(
     () => ({
-      wrapper: ["max-h-[382px]", "max-w-3xl"],
+      wrapper: ["max-h-[382px]", "max-w-full"],
       th: ["bg-transparent", "text-default-500", "border-b", "border-divider"],
       td: [
         // changing the rows border radius
@@ -363,7 +371,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
     <>
       <Table
         isCompact
-        removeWrapper
+        // removeWrapper
         aria-label="Bảng đơn hàng"
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
@@ -374,7 +382,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
         }}
         classNames={classNames}
         selectedKeys={selectedKeys}
-        selectionMode="multiple"
+        // selectionMode="multiple"
         sortDescriptor={sortDescriptor}
         topContent={topContent}
         topContentPlacement="outside"
@@ -408,6 +416,17 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
             onCloseOrderDetailModal={onCloseOrderDetail}
             onOpenChangeOrderDetailModal={onOpenChangeOrderDetail}
             id={orderSelected}
+          />
+        )
+      }
+
+      {
+        isOpenChangeStatus && (
+          <ChangeOrderStatus
+            isOpen={isOpenChangeStatus}
+            onClose={onCloseChangeStatus}
+            onOpenChange={onOpenChangeChangeStatus}
+            orderId={orderSelected}
           />
         )
       }

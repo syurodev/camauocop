@@ -1,6 +1,7 @@
 "use client"
 import React from 'react'
 import { Button, Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Input, Spinner } from '@nextui-org/react';
+import { useDispatch } from 'react-redux';
 
 import { approveOrder } from '@/actions/order';
 import { useForm } from 'react-hook-form';
@@ -10,6 +11,7 @@ import { GHNRequireNote, paymentType } from '@/lib/constant/GHNConstants';
 import { calculateTotalWeight } from '@/lib/calculateTotalWeight';
 import toast from 'react-hot-toast';
 import { useAppSelector } from '@/redux/store';
+import { updateOrderStatus } from '@/redux/features/orders.slice';
 
 type IProps = {
   isOpenDeliveryModal: boolean;
@@ -54,6 +56,7 @@ const DeliveryModal: React.FC<IProps> = ({
     resolver: zodResolver(DeliveryOrderSchema),
   })
 
+  const dispatch = useDispatch()
   const session = useAppSelector(state => state.sessionReducer.value)
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
@@ -83,6 +86,10 @@ const DeliveryModal: React.FC<IProps> = ({
     setIsLoading(false)
     if (res.code === 200) {
       toast.success(res.message)
+      dispatch(updateOrderStatus({
+        orderId: orderDetail._id,
+        newStatus: "processed",
+      }))
       onCloseDeliveryModal()
       onCloseOrderDetailModal()
     } else {

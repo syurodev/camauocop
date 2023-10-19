@@ -113,11 +113,13 @@ type IOrders = {
   shopName: string
   shopPhone: string
   totalAmount: number,
-  status: 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled',
+  status: OrderStatus,
   productImage: string,
   orderDate?: Date
   orderDateConvert?: string
 }
+
+type OrderStatus = 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled'
 
 type IOrderResponse = {
   code: number,

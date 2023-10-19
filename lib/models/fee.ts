@@ -5,6 +5,7 @@ export interface IFee extends Document {
   order_id: string;
   feeAmount: number;
   status: FeeStatus;
+  createdAt: Date;
 }
 
 const FeeSchema: Schema = new Schema({

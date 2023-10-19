@@ -44,7 +44,7 @@ const SlideShow: React.FC<IProps> = ({ images, w = "w-full lg:w-1/2", h = "h-[60
       <Button
         isIconOnly
         radius="full"
-        className="opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-[50%] -translate-x-0 translate-y-[-50%] left-4 z-20"
+        className={`opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-[50%] -translate-x-0 translate-y-[-50%] left-4 z-20 ${images.length <= 1 ? "hidden" : ""}`}
         onClick={prevSlide}
       >
         <GrFormPrevious className="text-xl" />
@@ -53,7 +53,7 @@ const SlideShow: React.FC<IProps> = ({ images, w = "w-full lg:w-1/2", h = "h-[60
       <Button
         isIconOnly
         radius="full"
-        className="opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-[50%] -translate-x-0 translate-y-[-50%] right-4 z-20"
+        className={`opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-[50%] -translate-x-0 translate-y-[-50%] right-4 z-20 ${images.length <= 1 ? "hidden" : ""}`}
         onClick={nextSlide}
       >
         <GrFormNext className="text-xl" />
