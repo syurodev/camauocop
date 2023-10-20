@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { Button, Card, CardBody, CardHeader, Divider, Input, Spinner } from "@nextui-org/react";
+import { Button, Card, CardBody, CardHeader, Divider, Input, Select, SelectItem, Selection, Spinner } from "@nextui-org/react";
 import { useSession } from 'next-auth/react';
 
 import DeliveryCard from '@/components/card/DeliveryCard';
@@ -24,6 +24,7 @@ const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
   const [wardId, setWardId] = React.useState<string>("0")
   const [next, setNext] = React.useState<boolean>(false)
   const [code, setCode] = React.useState<number>(0)
+  const [typeValue, setTypeValue] = React.useState<Selection>(new Set([]));
 
   const { data: session, update } = useSession()
 
@@ -39,6 +40,7 @@ const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
 
   const onSubmit = (data: IUserRegisterShopZodSchema) => {
     data.auth = id
+    console.log(data)
     const fetchApi = async () => {
       if (code === 4011) {
         setNext(true)
@@ -129,6 +131,39 @@ const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
             //   )
             // }
             />
+
+            <Select
+              isRequired
+              label="Chọn loại cửa hàng"
+              variant="bordered"
+              placeholder="Chọn loại cửa hàng"
+              selectedKeys={typeValue}
+              className="max-w-full"
+              onSelectionChange={setTypeValue}
+              {...register("type")}
+            >
+              <SelectItem key={"personal"} value={"personal"}>
+                Cá nhân
+              </SelectItem>
+              <SelectItem key={"enterprise"} value={"enterprise"}>
+                Doanh nghiệp
+              </SelectItem>
+            </Select>
+
+            {
+              Array.from(typeValue)[0] === "enterprise" && (
+                <Input
+                  isRequired
+                  type="number"
+                  label="Mã số thuế"
+                  placeholder="Nhập mã số thuế"
+                  {...register("tax")}
+                  isInvalid={!!errors.tax}
+                  errorMessage={errors.tax?.message}
+                  onChange={e => setValue("tax", e.target.value)}
+                />
+              )
+            }
           </CardBody>
         </Card>
 

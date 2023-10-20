@@ -16,8 +16,10 @@ export interface IShop extends Document {
     GHN_ward_code?: string;
   }];
   name: string;
+  type: ShopType;
   status: ShopStatus;
   delivery: string[]
+  tax?: string;
 }
 
 const ShopSchema: Schema = new Schema(
@@ -26,6 +28,8 @@ const ShopSchema: Schema = new Schema(
     name: { type: String, required: true },
     status: { type: String, required: true, default: "active" },
     delivery: [{ type: String, required: true }],
+    type: { type: String, required: true, default: "personal" },
+    tax: { type: String },
     address: [{
       province: {
         type: String, required: true

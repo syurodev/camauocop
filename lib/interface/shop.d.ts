@@ -66,6 +66,7 @@ type IShopsResponse = {
 }
 
 type ShopStatus = "active" | "block"
+type ShopType = "personal" | "enterprise"
 
 type MonthlyRevenue = {
   [month: number]: number;

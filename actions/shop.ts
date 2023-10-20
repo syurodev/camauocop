@@ -81,6 +81,17 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
       }
     }
 
+    if (data.type === "enterprise") {
+      const existingFax = await Shop.findOne({ tax: data?.tax! });
+
+      if (existingFax) {
+        return {
+          code: 400,
+          message: "Mã số thuế đã được sử dụng"
+        }
+      }
+    }
+
     const address = `${data.apartment}, ${data.ward}, ${data.district}, ${data.province}`
 
     const resGHN = await fetch("https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shop/register", {
@@ -114,7 +125,9 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
           GHN_ward_code: ward_code
         }],
         name: data.name,
-        delivery: data.delivery
+        delivery: data.delivery,
+        type: data.type,
+        tax: data.tax,
       })
 
       await newShop.save()

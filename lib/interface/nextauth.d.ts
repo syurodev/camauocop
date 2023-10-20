@@ -35,9 +35,10 @@ declare module "next-auth" {
       role: string,
       username: string,
       accessToken: string,
+      _id: string,
       shopId?: string,
       shopStatus?: ShopStatus,
-      _id: string,
+      shopType?: ShopType,
     }
   }
 }
