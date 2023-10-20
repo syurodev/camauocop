@@ -11,6 +11,7 @@ import { useSession } from 'next-auth/react';
 import DeliveryCard from '@/components/card/DeliveryCard';
 import { IUserRegisterShopZodSchema, UserRegisterShopZodSchema } from '@/lib/zodSchema/shop';
 import { shopRegister } from '@/actions/shop';
+import { ShopType } from "@/lib/constant/ShopType"
 
 type IProps = {
   id: string,
@@ -142,12 +143,13 @@ const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
               onSelectionChange={setTypeValue}
               {...register("type")}
             >
-              <SelectItem key={"personal"} value={"personal"}>
-                Cá nhân
-              </SelectItem>
-              <SelectItem key={"enterprise"} value={"enterprise"}>
-                Doanh nghiệp
-              </SelectItem>
+              {
+                ShopType.map(item => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))
+              }
             </Select>
 
             {
