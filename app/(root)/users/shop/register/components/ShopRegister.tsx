@@ -7,11 +7,14 @@ import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { Button, Card, CardBody, CardHeader, Divider, Input, Select, SelectItem, Selection, Spinner } from "@nextui-org/react";
 import { useSession } from 'next-auth/react';
+import { useDispatch } from 'react-redux';
 
 import DeliveryCard from '@/components/card/DeliveryCard';
 import { IUserRegisterShopZodSchema, UserRegisterShopZodSchema } from '@/lib/zodSchema/shop';
 import { shopRegister } from '@/actions/shop';
 import { ShopType } from "@/lib/constant/ShopType"
+import { setSession } from '@/redux/features/session-slice';
+import { Session } from 'next-auth';
 
 type IProps = {
   id: string,
@@ -20,6 +23,7 @@ type IProps = {
 
 const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
   const router = useRouter()
+  const dispatch = useDispatch()
   const [provinceId, setProvinceId] = React.useState<number>(0)
   const [districtId, setDistrictId] = React.useState<number>(0)
   const [wardId, setWardId] = React.useState<string>("0")
@@ -61,13 +65,13 @@ const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
       }
 
       if (res && res.code === 200) {
-        await update({
+        dispatch(setSession({
           ...session,
           user: {
             ...session?.user,
             role: "shop"
           }
-        })
+        } as Session))
         toast.success(res.message)
         router.push(`/shop/${res.data}`)
       } else {
@@ -173,6 +177,7 @@ const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
         <DeliveryCard
           selectionMode='multiple'
           showList={true}
+          provinceDefault="Cà Mau"
           label='Địa chỉ lấy hàng và đơn vị vận chuyển'
           registerApartment={{ ...register("apartment") }}
           registerDelivery={{ ...register("delivery") }}

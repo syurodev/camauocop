@@ -8,6 +8,7 @@ import "@/app/globals.css";
 import Providers from "@/components/providers/session-provider";
 import NavbarComponent from "@/components/layout/NavbarComponent";
 import { ReduxProvider } from "@/redux/provider";
+import SearchComponent from "@/components/layout/SearchComponent";
 
 const noto = Noto_Sans({
   subsets: ["vietnamese"],
@@ -38,7 +39,8 @@ export default function RootLayout({
             >
               <ReduxProvider>
                 <NavbarComponent />
-                <main className="max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8">
+                <main className="max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8 pb-5">
+                  <SearchComponent />
                   {children}
                 </main>
                 <Toaster

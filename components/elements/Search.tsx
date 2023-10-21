@@ -9,8 +9,11 @@ import TippyHeadless from "@tippyjs/react/headless";
 import useDebounce from '@/lib/hooks/useDebounce'
 import { ProductData, ProductTypeData, SearchResponse, ShopData, search } from '@/actions/features'
 
+type IProps = {
+  width: number
+}
 
-const Search: React.FC = () => {
+const Search: React.FC<IProps> = ({ width }) => {
   const router = useRouter()
   const [inputValue, setInputValue] = useState<string>("")
   const [searching, setSearching] = useState<boolean>(false)
@@ -55,8 +58,13 @@ const Search: React.FC = () => {
     } else {
       setShowSearchBox(false)
     }
+
+    if (width <= 0) {
+      setShowSearchBox(false)
+    }
   }, [
-    inputValue
+    inputValue,
+    width
   ])
 
   return (
@@ -67,7 +75,7 @@ const Search: React.FC = () => {
         appendTo={() => document.body}
         visible={showSearchBox}
         render={(attrs) => (
-          <div {...attrs} className='w-[600px] shadow-sm bg-default-200 dark:bg-default backdrop-saturate-200 backdrop-blur-xl rounded-large transition-all duration-250'>
+          <div {...attrs} style={{ width: width }} className={`shadow-sm bg-default/70 dark:bg-default/80 backdrop-saturate-200 backdrop-blur-3xl rounded-large transition-all duration-250`}>
             <div className="flex p-3 flex-col gap-3">
               <div>
                 <p>
@@ -225,7 +233,7 @@ const Search: React.FC = () => {
         )}
         onClickOutside={() => setShowSearchBox(false)}
       >
-        <div className='w-full max-w-600px relative'>
+        <div className='w-full relative'>
           <Input
             radius="lg"
             classNames={{

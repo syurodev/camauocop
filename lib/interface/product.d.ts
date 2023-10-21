@@ -34,6 +34,7 @@ type IProductDetail = {
   shopId: string;
   shopInfo: {
     delivery: string[]
+    status: ShopStatus
     shop_id: {
       GHN?: number;
       GHTK?: string | number;

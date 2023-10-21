@@ -25,10 +25,10 @@ const Recommectdation: React.FC<Props> = ({ id }) => {
   }, [id]);
 
   return (
-    <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4 xl:gap-5">
+    <div className="min-w-[240px] grid items-center sm:grid-cols-2 grid-cols-2 md:!flex md:!flex-col gap-3">
       {isLoading ? (
-        Array.from({ length: 6 }).map((_, index) => (
-          <Card shadow="sm" key={index}>
+        Array.from({ length: 4 }).map((_, index) => (
+          <Card shadow="sm" key={index} className="w-full">
             <Skeleton isLoaded={!isLoading} className="rounded-lg">
               <CardBody className="overflow-visible p-0">
                 <div className="w-full h-[140px]"></div>

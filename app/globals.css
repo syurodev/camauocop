@@ -7,6 +7,7 @@ body,
 :root {
   height: 100%;
   box-sizing: border-box;
+  scrollbar-gutter: stable;
 }
 
 h1 {
@@ -43,23 +44,24 @@ h6 {
   font-style: normal;
 }
 
-/* 
+
 ::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-50/25 rounded-md
+  @apply bg-inherit rounded-md
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-500 rounded-md
+  @apply bg-[#11181d]/90 dark:bg-slate-50/25 rounded-md transition-all duration-250
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
-} */
+  @apply bg-[#11181d] dark:bg-slate-50/10
+}
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

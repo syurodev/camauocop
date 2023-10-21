@@ -175,7 +175,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
       const products = await Product.find(query)
         .populate({
           path: "shopId",
-          select: "name _id phone delivery image shop_id address",
+          select: "name _id phone delivery status image shop_id address",
           populate: {
             path: "auth",
             select: "username phone _id",
@@ -207,6 +207,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
             address: product.shopId.address,
             shop_id: product.shopId.shop_id,
             name: product.shopId.name,
+            status: product.shopId.status,
             phone: product.shopId.auth.phone,
             image: product.shopId.image || "",
           },
@@ -217,7 +218,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
       const product = await Product.findById(query)
         .populate({
           path: "shopId",
-          select: "name _id phone delivery shop_id address",
+          select: "name _id phone delivery status shop_id address",
           populate: {
             path: "auth",
             select: "username phone image _id",
@@ -259,6 +260,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
         shopInfo: {
           delivery: product.shopId.delivery,
           address: product.shopId.address,
+          status: product.shopId.status,
           shop_id: product.shopId.shop_id,
           name: product.shopId.name,
           phone: product.shopId.auth.phone,

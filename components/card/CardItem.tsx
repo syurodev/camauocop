@@ -40,6 +40,7 @@ const CardItem: React.FC<CardItemProps> = ({
                 shadow="sm"
                 key={data._id}
                 isPressable
+                className="w-full"
               >
                 <CardBody className="overflow-visible p-0 relative">
                   <Image
@@ -118,6 +119,7 @@ const CardItem: React.FC<CardItemProps> = ({
             shadow="sm"
             key={data._id}
             isPressable
+            className="w-full"
             onPress={() => router.push(`/products/product/${data._id}`)}
           >
             <CardBody className="overflow-visible p-0 relative">

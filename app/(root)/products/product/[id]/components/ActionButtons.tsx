@@ -150,7 +150,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
         <Tooltip content={`${!session ? "Đăng nhập" : session.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Thêm vào giỏ hàng"}`}>
           <Button
             isIconOnly
-            isDisabled={addToCartLoading || session?.user.shopId === products?.shopId}
+            isDisabled={addToCartLoading || session?.user.shopId === products?.shopId || products?.shopInfo.status === "block"}
             variant="flat"
             color={isProductInCart ? "success" : "default"}
             radius="full"
@@ -192,7 +192,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
             variant="solid"
             radius="full"
             color="success"
-            isDisabled={session?.user.shopId === products?.shopId}
+            isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo.status === "block"}
             startContent={<AiOutlineDollarCircle className="text-xl" />}
             onPress={handleBuyButtomClick}
           >

@@ -109,7 +109,7 @@ export const createVectorsFromDocs = async () => {
 export const calcSimilarities = async () => {
   const docVectors = await createVectorsFromDocs();
   // number of results that you want to return.
-  const MAX_SIMILAR = 6;
+  const MAX_SIMILAR = 4;
   // min cosine similarity score that should be returned.
   const MIN_SCORE = 0.2;
   const data: { [key: string]: any[] } = {};

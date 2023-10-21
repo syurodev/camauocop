@@ -80,14 +80,17 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
           </div>
         </div>
 
-        <ShopInfo data={JSON.stringify(data)} />
+        <div className="flex flex-col gap-5 md:!flex-row md:!justify-between">
+          <div className="flex flex-col gap-5 md:!mr-5 w-full">
+            <ShopInfo data={JSON.stringify(data)} />
 
-        <div className="flex flex-col">
-          <div className="mt-5">
-            <h2>Mô tả sản phẩm</h2>
-            <RenderDescription description={data?.productDescription} />
+            <div className="w-full">
+              <h2>Mô tả sản phẩm</h2>
+              <RenderDescription description={data?.productDescription} />
+            </div>
           </div>
-          <div className="mt-5">
+
+          <div className="flex flex-col gap-3">
             <h2>Gợi ý</h2>
             <Recommectdation id={params.id} />
           </div>

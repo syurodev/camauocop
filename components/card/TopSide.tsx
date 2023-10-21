@@ -1,8 +1,11 @@
 "use client"
-import { Avatar, Card, Tooltip } from '@nextui-org/react'
+import { useAppSelector } from '@/redux/store'
+import { Avatar, Button, Card, Tooltip } from '@nextui-org/react'
+import { Session } from 'next-auth'
 import React from 'react'
 import { BiUserCircle, BiPhoneCall } from "react-icons/bi"
 import { MdOutlineLocationOn } from "react-icons/md"
+import { RiSettings3Line } from "react-icons/ri"
 
 type IProps = {
   info: string
@@ -11,9 +14,11 @@ type IProps = {
 const TopSide: React.FC<IProps> = ({ info }) => {
   const data: IShopInfo = JSON.parse(info)
 
+  const session: Session | null = useAppSelector(state => state.sessionReducer.value)
+
   return (
     <section className='mt-4'>
-      <Card shadow='sm' className='p-3'>
+      <Card shadow='sm' className='p-3 relative'>
         <div className='flex flex-row gap-2'>
           <Avatar
             className="transition-transform w-20 h-20 text-large"
@@ -43,6 +48,22 @@ const TopSide: React.FC<IProps> = ({ info }) => {
             </Tooltip>
           </div>
         </div>
+
+        {
+          session && session.user.shopId === data._id && (
+            <Tooltip content="Cài đặt cửa hàng">
+              <Button
+                isIconOnly
+                variant='ghost'
+                size='sm'
+                className="border-none absolute top-3 right-3 z-30"
+                radius='full'
+              >
+                <RiSettings3Line className="text-xl" />
+              </Button>
+            </Tooltip>
+          )
+        }
       </Card>
     </section>
   )

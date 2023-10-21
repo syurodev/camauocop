@@ -1,16 +1,20 @@
 "use client"
 import React from 'react'
-import { Button, Card, CardBody, Tooltip, Input, CardHeader, Avatar, Divider, Select, SelectItem, Spinner } from '@nextui-org/react'
+import { Button, Card, CardBody, Tooltip, Input, CardHeader, Avatar, Divider, Select, SelectItem, Spinner, Skeleton } from '@nextui-org/react'
 import { MdOutlineLocationOn } from "react-icons/md"
 import { BsListNested } from "react-icons/bs"
 import toast from "react-hot-toast";
 
 import { getCurrentLocation, getGHNDistrict, getGHNProvince, getGHNWard } from '@/actions/address'
 import { UseFormRegisterReturn } from 'react-hook-form'
+import { findDistrict, findProvince, findWard } from '@/lib/address'
 
 type IProps = {
   selectionMode: "multiple" | "single" | "none"
   label: string
+  provinceDefault?: string
+  districtDefault?: string
+  wardDefault?: string
   showList?: boolean
   registerApartment?: UseFormRegisterReturn<"apartment">
   registerDelivery?: UseFormRegisterReturn<"delivery">
@@ -28,6 +32,9 @@ type IProps = {
 const DeliveryCard: React.FC<IProps> = ({
   selectionMode = "single",
   label,
+  provinceDefault,
+  districtDefault,
+  wardDefault,
   showList = false,
   registerApartment,
   registerDelivery,
@@ -62,10 +69,16 @@ const DeliveryCard: React.FC<IProps> = ({
   const [wardSelected, setWardSelected] = React.useState<Set<any>>(new Set([]))
   const [isGeolocationAvailable, setIsGeolocationAvailable] = React.useState<boolean>(true);
   const [isGeolocationLoading, setIsGeolocationLoading] = React.useState<boolean>(false);
+  const [provinceLoading, setProvinceLoading] = React.useState<boolean>(true);
+  const [districtsLoading, setDistrictsLoading] = React.useState<boolean>(true);
+  const [wardLoading, setWardLoading] = React.useState<boolean>(true);
 
+  //Province fetching
   React.useEffect(() => {
     const fetchApi = async () => {
+      setProvinceLoading(true)
       const data: GHNApiProvinceResponse = await getGHNProvince()
+      setProvinceLoading(false)
       if (data.code === 500) {
         toast.error(data.message);
         return
@@ -78,10 +91,26 @@ const DeliveryCard: React.FC<IProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  //Province selection
+  React.useEffect(() => {
+    if (provinceDefault && provinces.data.length > 0) {
+      setValue("province", provinceDefault)
+      const foundProvince = findProvince(provinceDefault, provinces)
+      if (foundProvince) {
+        setProvinceId(foundProvince.ProvinceID)
+        setProvinceSelected(new Set([foundProvince.ProvinceID.toString()]))
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provinces, provinceDefault])
+
+  //District fetching
   React.useEffect(() => {
     const fetchApi = async () => {
       if (Array.from(provinceSelected)[0]) {
+        setDistrictsLoading(true)
         const data: GHNApiDistrictResponse = await getGHNDistrict(+Array.from(provinceSelected)[0])
+        setDistrictsLoading(false)
         if (data.code === 500) {
           toast.error(data.message);
           return
@@ -94,10 +123,27 @@ const DeliveryCard: React.FC<IProps> = ({
     fetchApi()
   }, [provinceSelected])
 
+  //District selection
+  React.useEffect(() => {
+    if (districtDefault && districts.data.length > 0) {
+      setValue("district", districtDefault)
+      const foundDistrict = findDistrict(districtDefault, districts)
+      if (foundDistrict) {
+        setProvinceSelected(new Set([foundDistrict.DistrictID.toString()]))
+        setDistrictId(foundDistrict.DistrictID)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [districts, districtDefault])
+
+
+  //Ward fetching
   React.useEffect(() => {
     const fetchApi = async () => {
       if (Array.from(districtSelected)[0]) {
+        setWardLoading(true)
         const data: GHNApiWardResponse = await getGHNWard(+Array.from(districtSelected)[0])
+        setWardLoading(false)
         if (data.code === 500) {
           toast.error(data.message);
           return
@@ -109,6 +155,19 @@ const DeliveryCard: React.FC<IProps> = ({
     }
     fetchApi()
   }, [districtSelected])
+
+  //Ward selection
+  React.useEffect(() => {
+    if (wardDefault && wards.data.length > 0) {
+      setValue("ward", wardDefault)
+      const foundWard = findWard(wardDefault, wards)
+      if (foundWard) {
+        setWardSelected(new Set([foundWard.WardCode]))
+        setWardId(foundWard.WardCode)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wards, wardDefault]);
 
   const handleAutoLocation = async () => {
     if ("geolocation" in navigator) {
@@ -250,95 +309,113 @@ const DeliveryCard: React.FC<IProps> = ({
           {/* )} */}
         </Select>
 
-        <Select
-          isRequired
-          label="Chọn Tỉnh/Thành phố"
-          placeholder="Chọn Tỉnh/Thành phố"
-          className="max-w-full"
-          isDisabled={provinces?.data.length === 0}
-          selectionMode='single'
-          selectedKeys={provinceSelected}
-          {...registerProvince}
-          isInvalid={!!errors.province}
-          errorMessage={errors.province?.message}
-          onChange={(e) => {
-            setDistrictSelected(new Set([]))
-            setWardSelected(new Set([]))
-            setProvinceSelected(new Set([e.target.value]))
-            setProvinceId(+e.target.value || 0)
-            const selectedProvinceName: ProvinceGHNData | undefined = provinces.data.find(province => province.ProvinceID === +e.target.value)
-            const provinceName = selectedProvinceName ? selectedProvinceName.ProvinceName : "";
-            setValue("province", provinceName)
-          }
-          }
-        >
-          {provinces && provinces?.data && provinces?.data?.map((province) => {
-            return (
-              <SelectItem key={province.ProvinceID} value={province.ProvinceID}>
-                {province.ProvinceName}
-              </SelectItem>
-            )
-          })}
-        </Select>
+        {
+          provinceLoading ? (
+            <Skeleton className="h-14 w-full rounded-lg" />
+          ) : (
+            <Select
+              isRequired
+              label="Chọn Tỉnh/Thành phố"
+              placeholder="Chọn Tỉnh/Thành phố"
+              className="max-w-full"
+              isDisabled={provinces?.data.length === 0}
+              selectionMode='single'
+              selectedKeys={provinceSelected}
+              {...registerProvince}
+              isInvalid={!!errors.province}
+              errorMessage={errors.province?.message}
+              onChange={(e) => {
+                setDistrictSelected(new Set([]))
+                setWardSelected(new Set([]))
+                setProvinceSelected(new Set([e.target.value]))
+                setProvinceId(+e.target.value || 0)
+                const selectedProvinceName: ProvinceGHNData | undefined = provinces.data.find(province => province.ProvinceID === +e.target.value)
+                const provinceName = selectedProvinceName ? selectedProvinceName.ProvinceName : "";
+                setValue("province", provinceName)
+              }
+              }
+            >
+              {provinces && provinces?.data && provinces?.data?.map((province) => {
+                return (
+                  <SelectItem key={province.ProvinceID} value={province.ProvinceID}>
+                    {province.ProvinceName}
+                  </SelectItem>
+                )
+              })}
+            </Select>
+          )
+        }
 
-        <Select
-          isRequired
-          label="Chọn Quận/Huyện"
-          placeholder="Chọn Quận/Huyện"
-          className="max-w-full"
-          isDisabled={districts?.data.length === 0}
-          selectionMode='single'
-          selectedKeys={districtSelected}
-          {...registerDistrict}
-          isInvalid={!!errors.district}
-          errorMessage={errors.district?.message}
-          onChange={(e) => {
-            setWardSelected(new Set([]))
-            setDistrictSelected(new Set([e.target.value]))
-            setDistrictId(+e.target.value)
-            const selectedDistrictName = districts.data.find(district => district.DistrictID === +e.target.value)
-            const districtName = selectedDistrictName ? selectedDistrictName.DistrictName : "";
-            setValue("district", districtName)
-          }
-          }
-        >
-          {districts && districts?.data && districts?.data?.map((district) => {
-            return (
-              <SelectItem key={district.DistrictID} value={district.DistrictID}>
-                {district.DistrictName}
-              </SelectItem>
-            )
-          })}
-        </Select>
+        {
+          districtsLoading ? (
+            <Skeleton className="h-14 w-full rounded-lg" />
+          ) : (
+            <Select
+              isRequired
+              label="Chọn Quận/Huyện"
+              placeholder="Chọn Quận/Huyện"
+              className="max-w-full"
+              isDisabled={districts?.data.length === 0}
+              selectionMode='single'
+              selectedKeys={districtSelected}
+              {...registerDistrict}
+              isInvalid={!!errors.district}
+              errorMessage={errors.district?.message}
+              onChange={(e) => {
+                setWardSelected(new Set([]))
+                setDistrictSelected(new Set([e.target.value]))
+                setDistrictId(+e.target.value)
+                const selectedDistrictName = districts.data.find(district => district.DistrictID === +e.target.value)
+                const districtName = selectedDistrictName ? selectedDistrictName.DistrictName : "";
+                setValue("district", districtName)
+              }
+              }
+            >
+              {districts && districts?.data && districts?.data?.map((district) => {
+                return (
+                  <SelectItem key={district.DistrictID} value={district.DistrictID}>
+                    {district.DistrictName}
+                  </SelectItem>
+                )
+              })}
+            </Select>
+          )
+        }
 
-        <Select
-          isRequired
-          label="Chọn Phường/Xã"
-          placeholder="Chọn Phường/Xã"
-          className="max-w-full"
-          isDisabled={wards?.data.length === 0}
-          selectionMode='single'
-          selectedKeys={wardSelected}
-          {...registerWard}
-          isInvalid={!!errors.ward}
-          errorMessage={errors.ward?.message}
-          onChange={(e) => {
-            setWardSelected(new Set([e.target.value]))
-            setWardId(e.target.value)
-            const selectedWardName = wards.data.find(ward => ward.WardCode === e.target.value)
-            const wardName = selectedWardName ? selectedWardName.WardName : "";
-            setValue("ward", wardName)
-          }
-          }
-        >
-          {wards && wards?.data && wards?.data?.map((province) => {
-            return (
-              <SelectItem key={province.WardCode} value={province.WardCode}>
-                {province.WardName}
-              </SelectItem>
-            )
-          })}
-        </Select>
+        {
+          wardLoading ? (
+            <Skeleton className="h-14 w-full rounded-lg" />
+          ) : (
+            <Select
+              isRequired
+              label="Chọn Phường/Xã"
+              placeholder="Chọn Phường/Xã"
+              className="max-w-full"
+              isDisabled={wards?.data.length === 0}
+              selectionMode='single'
+              selectedKeys={wardSelected}
+              {...registerWard}
+              isInvalid={!!errors.ward}
+              errorMessage={errors.ward?.message}
+              onChange={(e) => {
+                setWardSelected(new Set([e.target.value]))
+                setWardId(e.target.value)
+                const selectedWardName = wards.data.find(ward => ward.WardCode === e.target.value)
+                const wardName = selectedWardName ? selectedWardName.WardName : "";
+                setValue("ward", wardName)
+              }
+              }
+            >
+              {wards && wards?.data && wards?.data?.map((province) => {
+                return (
+                  <SelectItem key={province.WardCode} value={province.WardCode}>
+                    {province.WardName}
+                  </SelectItem>
+                )
+              })}
+            </Select>
+          )
+        }
 
         <Input
           isRequired

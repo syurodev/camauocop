@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Navbar,
@@ -24,7 +24,6 @@ import {
 } from "react-icons/ai";
 import { Session } from "next-auth";
 import { useDispatch } from "react-redux";
-import { BiSearch } from "react-icons/bi"
 
 import { ModeToggle } from "@/components/ModeToggle";
 import UserMenu from "@/components/elements/UserMenu";
@@ -44,22 +43,41 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
   const [notifications, setNotifications] = useState<INotification[] | []>([]);
   const [notificationsNumber, setNotificationsNumber] = useState<number>(0);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [openSearchInput, setOpenSearchInput] = useState<boolean>(false)
+  const parentDivRef = useRef<HTMLDivElement | null>(null);
+  const [parentDivSize, setParentDivSize] = useState(0);
 
-  const session: Session = JSON.parse(sessionData)
+  useEffect(() => {
+    const handleResize = () => {
+      if (parentDivRef.current) {
+        const width = parentDivRef.current.offsetWidth;
+        setParentDivSize(width);
+      }
+    };
+
+    // Đăng ký sự kiện resize
+    window.addEventListener('resize', handleResize);
+
+    handleResize();
+    // Khi component unmount, hủy đăng ký sự kiện resize
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [parentDivRef]);
+
+  const userSession: Session = JSON.parse(sessionData)
 
   const dispatch = useDispatch<AppDispatch>()
 
   useEffect(() => {
-    dispatch(setSession(session))
+    dispatch(setSession(userSession))
 
     const fetchNotifications = async () => {
-      const res: INotificationResponse = await getNotifications(session?.user._id!, notifications.length)
+      const res: INotificationResponse = await getNotifications(userSession?.user._id!, notifications.length)
       setNotifications(res.data)
     }
 
     const fetchCratItems = async () => {
-      const res = await getCartItems(session?.user._id, session?.user.accessToken)
+      const res = await getCartItems(userSession?.user._id, userSession?.user.accessToken)
       if (res.code === 200 && res.data) {
         const data = JSON.parse(res.data)
         dispatch(setCartItems(data?.products!))
@@ -73,7 +91,8 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionData])
 
-  const cartItems = useAppSelector((state) => state?.cartReducer?.value)
+  const cartItems = useAppSelector((state) => state?.cartReducer.value)
+  const session = useAppSelector((state) => state?.sessionReducer?.value)
 
   const countUnreadNotifications = (notifications: INotification[]): number => {
     const unreadNotifications = notifications.filter((notification) => notification.status === 'unread');
@@ -102,22 +121,20 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
 
   return (
     <>
-
       <Navbar maxWidth="2xl">
-        <NavbarBrand className="flex items-center h-full gap-2 flex-1">
+        <NavbarBrand style={{ flex: 1 }} className="flex items-center h-full gap-2 w-fit">
           <Link href={"/"} className="font-bold">
             SeaMarketHub
           </Link>
         </NavbarBrand>
 
-        <NavbarContent className="hidden md:!flex flex-[2]">
-          <div className="relative w-[600px]">
-            <Search />
+        <NavbarContent style={{ flex: 2 }} className="hidden md:!flex">
+          <div ref={parentDivRef} className="relative w-full">
+            <Search width={parentDivSize} />
           </div>
-
         </NavbarContent>
 
-        <NavbarContent justify="end" className="flex items-center gap-2 flex-1">
+        <NavbarContent style={{ flex: 1 }} justify="end" className="flex items-center gap-2">
           <ModeToggle className="!hidden lg:!flex" />
           {
             session?.user && (
