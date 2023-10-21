@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Card, CardBody, CardFooter, Image, Skeleton } from "@nextui-org/react";
+import { Card, CardBody, CardFooter, Skeleton } from "@nextui-org/react";
 
 import { getRecommentdation } from "@/actions/recommendation";
 import CardItem from "@/components/card/CardItem";

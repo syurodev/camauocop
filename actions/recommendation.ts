@@ -175,19 +175,7 @@ export const getSimilarProducts = async (
   const productIds = productSimilarList.map((item) => item.id);
   try {
     const products = await Product.find({ _id: { $in: productIds } })
-      .populate({
-        path: 'shopId',
-        select: 'name ',
-        populate: {
-          path: "auth",
-          select: "username email image",
-        }
-      })
-      .populate({
-        path: "productType",
-        select: "name",
-      })
-      .select("name images price");
+      .select("name images retailPrice");
 
     if (products && products.length > 0) {
       // Format the data
@@ -208,20 +196,14 @@ export const getSimilarProducts = async (
         (product): {
           _id: string;
           productName: string;
-          productTypeName: string;
-          sellerName: string;
-          sellerAvatar: string;
           productImages: string[];
           productPrice: number;
         } => {
           return {
             _id: product._id?.toString(),
             productName: product.name,
-            productTypeName: product.productType?.name,
-            sellerName: product.shopId?.name,
-            sellerAvatar: product.shopId?.auth.image,
             productImages: product.images,
-            productPrice: product.price,
+            productPrice: product.retailPrice,
           };
         }
       );

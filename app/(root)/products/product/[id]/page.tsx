@@ -44,7 +44,7 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
       <></>
     ) : (
       <article
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 mt-2"
       >
         <div className="flex flex-col lg:!flex-row gap-5">
           <SlideShow images={data?.productImages || []} />

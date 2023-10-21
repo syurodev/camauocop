@@ -1,9 +1,8 @@
 "use client"
 import { Avatar, Card, Tooltip } from '@nextui-org/react'
 import React from 'react'
-import { BiUserCircle } from "react-icons/bi"
+import { BiUserCircle, BiPhoneCall } from "react-icons/bi"
 import { MdOutlineLocationOn } from "react-icons/md"
-import { AiOutlinePhone } from "react-icons/ai"
 
 type IProps = {
   info: string
@@ -23,13 +22,13 @@ const TopSide: React.FC<IProps> = ({ info }) => {
           <div>
             <p className='text-xl font-semibold'>{data.name}</p>
             <Tooltip content="Chủ sở hữu">
-              <div className='flex flex-col md:flex-row md:gap-3 md:items-center'>
+              <div className='flex flex-col md:!flex-row md:!gap-3 md:!items-center'>
                 <div className='flex flex-row items-center gap-1'>
                   <BiUserCircle />
                   <span>{data.auth.username || data.auth.email}</span>
                 </div>
                 <div className='flex flex-row items-center gap-1'>
-                  <AiOutlinePhone />
+                  <BiPhoneCall />
                   <span>{data.auth.phone}</span>
                 </div>
               </div>

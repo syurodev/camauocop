@@ -8,7 +8,6 @@ import "@/app/globals.css";
 import Providers from "@/components/providers/session-provider";
 import NavbarComponent from "@/components/layout/NavbarComponent";
 import { ReduxProvider } from "@/redux/provider";
-// import { SocketProvider } from "@/components/providers/socket-provider";
 
 const noto = Noto_Sans({
   subsets: ["vietnamese"],
@@ -38,7 +37,6 @@ export default function RootLayout({
               enableSystem={false}
             >
               <ReduxProvider>
-                {/* <SocketProvider> */}
                 <NavbarComponent />
                 <main className="max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8">
                   {children}
@@ -47,7 +45,6 @@ export default function RootLayout({
                   position="bottom-right"
                   reverseOrder={false}
                 />
-                {/* </SocketProvider> */}
               </ReduxProvider>
             </ThemeProvider>
           </NextProviders>

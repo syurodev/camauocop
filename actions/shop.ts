@@ -61,7 +61,8 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
       if (matchingPhones.length > 0) {
         return {
           code: 401,
-          message: "Số điện thoại đã được sử dụng"
+          message: "Số điện thoại đã được sử dụng",
+          data: null
         }
       } else {
         if (matchingUser.phone) {
@@ -71,7 +72,8 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
             } else {
               return {
                 code: 4011,
-                message: "Bạn đang sử dụng một số điện thoại khác."
+                message: "Bạn đang sử dụng một số điện thoại khác.",
+                data: null
               }
             }
           }
@@ -87,7 +89,8 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
       if (existingFax) {
         return {
           code: 400,
-          message: "Mã số thuế đã được sử dụng"
+          message: "Mã số thuế đã được sử dụng",
+          data: null
         }
       }
     }
@@ -125,6 +128,7 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
           GHN_ward_code: ward_code
         }],
         name: data.name,
+        image: "",
         delivery: data.delivery,
         type: data.type,
         tax: data.tax,
@@ -136,19 +140,22 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
 
       return {
         code: 200,
-        message: "Đăng ký cửa hàng thành công"
+        message: "Đăng ký cửa hàng thành công",
+        data: newShop._id.toString()
       }
     } else {
       return {
         code: 500,
-        message: "Lỗi đăng ký cửa hàng với giao hàng nhanh"
+        message: "Lỗi đăng ký cửa hàng với giao hàng nhanh",
+        data: null
       }
     }
   } catch (error) {
     console.log(error)
     return {
       code: 500,
-      message: "Lỗi hệ thống, vui lòng thử lại"
+      message: "Lỗi hệ thống, vui lòng thử lại",
+      data: null
     }
   }
 }
@@ -158,7 +165,7 @@ export const getShopInfo = async (id: string): Promise<ShopInfoResponse> => {
     const shop = await Shop.findById(id)
       .populate({
         path: 'auth',
-        select: '_id username email phone image'
+        select: '_id username email phone'
       })
       .exec();
 
@@ -180,6 +187,7 @@ export const getShopInfo = async (id: string): Promise<ShopInfoResponse> => {
     const shopInfo: IShopInfo = {
       _id: shop._id.toString(),
       name: shop.name,
+      image: shop.image,
       address: shop.address,
       delivery: shop.delivery,
       auth: {

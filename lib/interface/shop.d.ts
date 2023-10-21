@@ -1,6 +1,7 @@
 type IShopInfo = {
   _id: string;
   name: string;
+  image: string;
   address: [{
     province: string;
     district: string;

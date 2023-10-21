@@ -24,7 +24,6 @@ const ChangeOrderStatus: React.FC<IProps> = ({
   orderId
 }) => {
   const [value, setValue] = React.useState<Selection>(new Set([]));
-  console.log(Array.from(value)[0])
   const dispatch = useDispatch()
   const session = useAppSelector(state => state.sessionReducer.value)
 
@@ -46,7 +45,6 @@ const ChangeOrderStatus: React.FC<IProps> = ({
     <Modal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      isDismissable={false}
       placement="center"
       backdrop="blur"
     >

@@ -111,17 +111,18 @@ export async function addProductType(data: IAddProductTypeZodSchema) {
 
 export async function getProducts(
   page: number = 1,
-  shopId?: string
+  shopId?: string,
+  deleted: boolean = false
 ): Promise<IProductsResponse> {
   try {
     await connectToDB();
     const limit = 20;
     const skip = (page - 1) * limit;
 
-    let query = { deleted: false };
+    let query: any = { deleted: deleted };
 
     if (shopId) {
-      query = { deleted: false };
+      query = { ...query, shopId: shopId };
     }
 
     const totalProducts = await Product.countDocuments(query);
@@ -174,10 +175,10 @@ export async function getProductDetail(_id: string | string[], userId?: string):
       const products = await Product.find(query)
         .populate({
           path: "shopId",
-          select: "name _id phone delivery shop_id address",
+          select: "name _id phone delivery image shop_id address",
           populate: {
             path: "auth",
-            select: "username phone image _id",
+            select: "username phone _id",
           },
         })
         .populate({
@@ -198,11 +199,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
           productImages: product.images,
           productCreatedAt: product.createdAt,
           productDeletedAt: product.deleteAt,
-          shopName: product.shopId.username || "block user",
           shopId: product.shopId._id.toString() || "",
-          sellerId: product.shopId.auth._id.toString() || "",
-          sellerName: product.shopId.auth.username || "block user",
-          sellerAvatar: product.shopId.auth.image || "",
           productTypeName: product.productType.name.toString(),
           productTypeId: product.productType._id.toString(),
           shopInfo: {
@@ -210,7 +207,8 @@ export async function getProductDetail(_id: string | string[], userId?: string):
             address: product.shopId.address,
             shop_id: product.shopId.shop_id,
             name: product.shopId.name,
-            phone: product.shopId.auth.phone
+            phone: product.shopId.auth.phone,
+            image: product.shopId.image || "",
           },
         };
       });
@@ -255,11 +253,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
         productImages: product.images,
         productCreatedAt: product.createdAt,
         productDeletedAt: product.deleteAt,
-        shopName: product.shopId.username || "block user",
         shopId: product.shopId._id.toString() || "",
-        sellerId: product.shopId.auth._id.toString() || "",
-        sellerName: product.shopId.auth.username || "block user",
-        sellerAvatar: product.shopId.auth.image || "",
         productTypeName: product.productType.name.toString(),
         productTypeId: product.productType._id.toString(),
         shopInfo: {
@@ -267,7 +261,8 @@ export async function getProductDetail(_id: string | string[], userId?: string):
           address: product.shopId.address,
           shop_id: product.shopId.shop_id,
           name: product.shopId.name,
-          phone: product.shopId.auth.phone
+          phone: product.shopId.auth.phone,
+          image: product.shopId.image
         },
         isFavorite
       };

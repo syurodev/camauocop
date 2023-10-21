@@ -68,6 +68,7 @@ type IOrder = {
   shopId: {
     _id: string,
     name: string,
+    image: string,
     auth: {
       phone: string,
     }
@@ -111,6 +112,7 @@ type IOrders = {
   buyerEmail?: string,
   shopId: string
   shopName: string
+  shopImage: string
   shopPhone: string
   totalAmount: number,
   status: OrderStatus,

@@ -11,7 +11,7 @@ type IProps = {
 
 const ShopInfo: React.FC<IProps> = ({ data }) => {
   const router = useRouter()
-  const shopInfo = JSON.parse(data)
+  const shopInfo: IProductDetail = JSON.parse(data)
 
   return (
     shopInfo ? (
@@ -21,7 +21,7 @@ const ShopInfo: React.FC<IProps> = ({ data }) => {
           name={shopInfo.shopInfo.name}
           description={shopInfo.shopInfo.phone}
           avatarProps={{
-            src: shopInfo.sellerAvatar
+            src: shopInfo?.shopInfo.image
           }}
           onClick={() => router.push(`/shop/${shopInfo.shopId}`)}
         />

@@ -104,7 +104,11 @@ const RenderDescription: React.FC<IDescription> = ({ description }) => {
       {description && description?.content && description?.content.length > 0 && description?.content.map((item: any, index: number) => {
         switch (item.type) {
           case 'paragraph':
-            return <ParagraphComponent key={index} content={item.content} />;
+            if (item.content) {
+              return <ParagraphComponent key={index} content={item.content} />;
+            } else {
+              return <br />;
+            }
           case 'heading':
             return <HeadingComponent key={index} content={item} />;
           default:

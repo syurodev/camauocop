@@ -24,6 +24,7 @@ const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
   const [districtId, setDistrictId] = React.useState<number>(0)
   const [wardId, setWardId] = React.useState<string>("0")
   const [next, setNext] = React.useState<boolean>(false)
+  const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false)
   const [code, setCode] = React.useState<number>(0)
   const [typeValue, setTypeValue] = React.useState<Selection>(new Set([]));
 
@@ -34,25 +35,25 @@ const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
     handleSubmit,
     getValues,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<IUserRegisterShopZodSchema>({
     resolver: zodResolver(UserRegisterShopZodSchema),
   });
 
   const onSubmit = (data: IUserRegisterShopZodSchema) => {
     data.auth = id
-    console.log(data)
     const fetchApi = async () => {
       if (code === 4011) {
         setNext(true)
       }
+      setIsSubmitting(true)
       const res = await shopRegister({
         data,
         district_id: districtId,
         ward_code: wardId,
         next
       })
-
+      setIsSubmitting(false)
       if (res && res.code === 4011) {
         setCode(4011)
         toast.error(`${res.message} Nếu muốn tiếp tục hãy nhấn Đăng ký một lần nữa.
@@ -68,7 +69,7 @@ const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
           }
         })
         toast.success(res.message)
-        router.push("/")
+        router.push(`/shop/${res.data}`)
       } else {
         toast.error(res.message)
       }

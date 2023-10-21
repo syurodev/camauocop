@@ -16,9 +16,9 @@ export const getShops = async (accessToken: string) => {
         .sort({ createdAt: -1 })
         .populate({
           path: "auth",
-          select: "_id username image email"
+          select: "_id username email"
         })
-        .select("_id name status address")
+        .select("_id name status image address")
 
       if (shops.length > 0) {
         const formatShops: IShopsResponse[] = shops.map(item => {
@@ -29,7 +29,7 @@ export const getShops = async (accessToken: string) => {
             address: item.address[0].province,
             authId: item.auth._id.toString(),
             username: item.auth.username || item.auth.email,
-            image: item.auth.image
+            image: item.image
           }
         })
 

@@ -31,7 +31,6 @@ type IProductDetail = {
   productImages: string[];
   productCreatedAt: Date;
   productDeletedAt?: Date;
-  shopName: string;
   shopId: string;
   shopInfo: {
     delivery: string[]
@@ -49,10 +48,8 @@ type IProductDetail = {
     }];
     name: string
     phone: string;
+    image: string;
   }
-  sellerName: string;
-  sellerId: string;
-  sellerAvatar: string;
   productTypeName: string;
   productTypeId: string;
   isFavorite?: boolean

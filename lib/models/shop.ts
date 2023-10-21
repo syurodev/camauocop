@@ -19,6 +19,7 @@ export interface IShop extends Document {
   type: ShopType;
   status: ShopStatus;
   delivery: string[]
+  image?: string;
   tax?: string;
 }
 
@@ -26,6 +27,7 @@ const ShopSchema: Schema = new Schema(
   {
     auth: { type: Schema.Types.ObjectId, ref: User, required: true },
     name: { type: String, required: true },
+    image: { type: String, default: "" },
     status: { type: String, required: true, default: "active" },
     delivery: [{ type: String, required: true }],
     type: { type: String, required: true, default: "personal" },

@@ -188,7 +188,7 @@ export const getOrders = async ({
         })
         .populate({
           path: 'shopId',
-          select: 'name',
+          select: 'name image',
           populate: {
             path: 'auth',
             select: 'phone'
@@ -214,6 +214,7 @@ export const getOrders = async ({
             shopId: order.shopId._id.toString(),
             shopPhone: order.shopId.auth.phone,
             shopName: order.shopId.name,
+            shopImage: order.shopId.image,
             orderDateConvert: order.orderDate!.toISOString(),
             totalAmount: order.totalAmount,
             status: order.orderStatus,
@@ -359,7 +360,6 @@ export const approveOrder = async (token: string, id: string, data: IDeliveryOrd
       if (order) {
         const GHNRes: GHNOrderDataResponse = await GHNCreateOrder(data, shop_id)
 
-        console.log(GHNRes)
         if (GHNRes.code === 200) {
           order.shippingCode = GHNRes.data?.order_code
           order.orderStatus = "processed"

@@ -42,7 +42,6 @@ const DeleteConfirmModal: React.FC<IProps> = ({
     <Modal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      isDismissable={false}
       placement="center"
       backdrop="blur"
     >
