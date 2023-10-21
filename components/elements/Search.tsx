@@ -2,7 +2,7 @@
 import { memo, useEffect, useRef, useState } from 'react'
 import { Button, Card, CardBody, Divider, Image, Input, Link, Skeleton, User } from '@nextui-org/react'
 import { BiSearch, BiLink } from "react-icons/bi"
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import TippyHeadless from "@tippyjs/react/headless";
 
@@ -138,7 +138,7 @@ const Search: React.FC<IProps> = ({ width }) => {
                                     isPressable
                                     className='p-2 w-full'
                                     onPress={() => {
-                                      router.push(`shop/${item._id}`)
+                                      router.push(`/shop/${item._id}`)
                                     }}
                                   >
                                     <User
@@ -196,7 +196,7 @@ const Search: React.FC<IProps> = ({ width }) => {
                                     isHoverable
                                     className='p-2 w-full'
                                     onPress={() => {
-                                      router.push(`products/product/${item._id}`)
+                                      router.push(`/products/product/${item._id}`)
                                     }}
                                   >
                                     <User
