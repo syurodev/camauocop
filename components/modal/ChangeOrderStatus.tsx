@@ -63,7 +63,7 @@ const ChangeOrderStatus: React.FC<IProps> = ({
                 placeholder="Chọn trạng thái đơn hàng"
                 selectedKeys={value}
                 className="max-w-full"
-                disabledKeys={orderStatus === 'delivered' ? ["shipped", "delivered"] : [""]}
+                disabledKeys={orderStatus === 'shipped' ? ["shipped"] : orderStatus === 'delivered' ? ["shipped", "delivered"] : [""]}
                 onSelectionChange={setValue}
               >
                 {OrderStatus.map((status) => (

@@ -20,11 +20,12 @@ import {
   Selection,
   ChipProps,
   SortDescriptor,
-  Tooltip
+  Tooltip,
+  useDisclosure
 } from "@nextui-org/react";
 import { AiOutlineSearch, AiOutlineEye, AiOutlineEdit } from "react-icons/ai"
 import { BsThreeDotsVertical } from "react-icons/bs"
-import { MdOutlineDelete } from "react-icons/md"
+// import { MdOutlineDelete } from "react-icons/md"
 import { useDispatch } from "react-redux";
 
 import { capitalize } from "@/lib/utils";
@@ -32,6 +33,7 @@ import { columns } from "@/lib/constant/ShopsTableColumns"
 import { useAppSelector } from "@/redux/store";
 import { getShops } from "@/actions/admin";
 import { setShops } from "@/redux/features/shops-slice";
+import AdminSettingShop from "@/components/modal/AdminSettingShop";
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   active: "success",
@@ -60,6 +62,8 @@ export default function Shops() {
   });
   const dispatch = useDispatch()
   const [page, setPage] = React.useState(1);
+  const [shopSelectedId, setShopSelectedId] = React.useState<string>("");
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   const session = useAppSelector((state) => state.sessionReducer.value)
 
@@ -158,25 +162,42 @@ export default function Shops() {
         return (
           <div className="relative flex items-center gap-2">
             <Tooltip content="Xem chi tiết">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <AiOutlineEye />
-              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                radius="full"
+                isIconOnly
+                className="border-none"
+              >
+                <AiOutlineEye className="text-lg" />
+              </Button>
             </Tooltip>
             <Tooltip content="Chỉnh sửa cửa hảng">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <AiOutlineEdit />
-              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                radius="full"
+                isIconOnly
+                className="border-none"
+                onPress={() => {
+                  setShopSelectedId(shop._id)
+                  onOpen()
+                }}
+              >
+                <AiOutlineEdit className="text-lg" />
+              </Button>
             </Tooltip>
-            <Tooltip color="danger" content="Xoá cửa hảng">
+            {/* <Tooltip color="danger" content="Xoá cửa hảng">
               <span className="text-lg text-danger cursor-pointer active:opacity-50">
                 <MdOutlineDelete />
               </span>
-            </Tooltip>
+            </Tooltip> */}
           </div>
         );
       default:
         return cellValue;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
@@ -307,44 +328,57 @@ export default function Shops() {
   );
 
   return (
-    <Table
-      isCompact
-      // removeWrapper
-      aria-label="Các shop trên hệ thống"
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
-      checkboxesProps={{
-        classNames: {
-          wrapper: "after:bg-foreground after:text-background text-background",
-        },
-      }}
-      classNames={classNames}
-      selectedKeys={selectedKeys}
-      // selectionMode="multiple"
-      sortDescriptor={sortDescriptor}
-      topContent={topContent}
-      topContentPlacement="outside"
-      onSelectionChange={setSelectedKeys}
-      onSortChange={setSortDescriptor}
-    >
-      <TableHeader columns={columns}>
-        {(column) => (
-          <TableColumn
-            key={column.uid}
-            align={column.uid === "actions" ? "center" : "start"}
-            allowsSorting={column.sortable}
-          >
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody isLoading={isLoading} emptyContent={"Không tìm thấy cửa hàng"} items={sortedItems}>
-        {(item) => (
-          <TableRow key={item._id} >
-            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+    <>
+      <Table
+        isCompact
+        isStriped
+        aria-label="Các shop trên hệ thống"
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        checkboxesProps={{
+          classNames: {
+            wrapper: "after:bg-foreground after:text-background text-background",
+          },
+        }}
+        classNames={classNames}
+        selectedKeys={selectedKeys}
+        // selectionMode="multiple"
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement="outside"
+        onSelectionChange={setSelectedKeys}
+        onSortChange={setSortDescriptor}
+      >
+        <TableHeader columns={columns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              align={column.uid === "actions" ? "center" : "start"}
+              allowsSorting={column.sortable}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody isLoading={isLoading} emptyContent={"Không tìm thấy cửa hàng"} items={sortedItems}>
+          {(item) => (
+            <TableRow key={item._id} >
+              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      {
+        isOpen && (
+          <AdminSettingShop
+            isOpen={isOpen}
+            onClose={onClose}
+            onOpenChange={onOpenChange}
+            shopId={shopSelectedId}
+          />
+        )
+      }
+    </>
   );
 }

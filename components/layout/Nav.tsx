@@ -194,28 +194,32 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
             {session?.user ? (
               <>
                 {/* Giỏ hàng */}
-                <Tooltip content="Giỏ hàng">
-                  <Button
-                    variant={"ghost"}
-                    isIconOnly
-                    radius="full"
-                    className="border-none text-xl"
-                    onClick={() => router.push(`/users/cart/${session.user._id}`)}
+                {
+                  session.user.role !== "admin" && (
+                    <Tooltip content="Giỏ hàng">
+                      <Button
+                        variant={"ghost"}
+                        isIconOnly
+                        radius="full"
+                        className="border-none text-xl"
+                        onClick={() => router.push(`/users/cart/${session.user._id}`)}
 
-                  >
-                    <Badge
-                      as="span"
-                      content={cartItems?.length || 0}
-                      shape="circle"
-                      color="success"
-                      className={`${cartItems?.length || 0 > 0 ? "flex" : "hidden"}`}
-                    >
-                      <AiOutlineShoppingCart />
-                    </Badge>
-                  </Button>
-                </Tooltip>
+                      >
+                        <Badge
+                          as="span"
+                          content={cartItems?.length || 0}
+                          shape="circle"
+                          color="success"
+                          className={`${cartItems?.length || 0 > 0 ? "flex" : "hidden"}`}
+                        >
+                          <AiOutlineShoppingCart />
+                        </Badge>
+                      </Button>
+                    </Tooltip>
+                  )
+                }
                 {/* Thêm hàng */}
-                {session?.user?.role !== "individual" && (
+                {session?.user?.role !== "individual" && session?.user?.role !== "admin" && (
                   <Tooltip content="Thêm hàng">
                     <Button
                       variant={"ghost"}

@@ -109,7 +109,13 @@ export const createOrder = async (data: IOrderZodSchema) => {
 
     await order.save()
 
-    const feePercentage = 0.01; // 1%
+    const shopAuth: IShop | null = await Shop.findById({ _id: data.shopId })
+
+    if (!shopAuth) {
+      throw new Error(`Shop with ID ${data.shopId} not found.`);
+    }
+
+    const feePercentage = shopAuth.fee / 100;
     const feeAmount = order.totalAmount * feePercentage;
     const roundedFeeAmount = Math.floor(feeAmount);
 
@@ -121,11 +127,6 @@ export const createOrder = async (data: IOrderZodSchema) => {
 
     await newFee.save()
 
-    const shopAuth: IShop | null = await Shop.findById({ _id: data.shopId })
-
-    if (!shopAuth) {
-      throw new Error(`Shop with ID ${data.shopId} not found.`);
-    }
 
     // Sau khi lưu đơn hàng thành công, bạn có thể tạo một thông báo
     const notificationData = {

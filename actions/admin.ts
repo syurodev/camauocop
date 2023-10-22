@@ -1,9 +1,16 @@
 "use server"
 
 import Fee, { IFee } from "@/lib/models/fee"
-import Shop from "@/lib/models/shop"
+import Shop, { IShop } from "@/lib/models/shop"
 import User from "@/lib/models/users"
 import { connectToDB, verifyJwtToken } from "@/lib/utils"
+
+export type ShopSettingData = {
+  fee: number;
+  status: ShopStatus;
+  type: ShopType;
+  tax: string;
+}
 
 export const getShops = async (accessToken: string) => {
   try {
@@ -26,7 +33,7 @@ export const getShops = async (accessToken: string) => {
             _id: item._id.toString(),
             name: item.name,
             status: item.status,
-            address: item.address[0].province,
+            address: `${item.address[0].ward}, ${item.address[0].district}`,
             authId: item.auth._id.toString(),
             username: item.auth.username || item.auth.email,
             image: item.image
@@ -186,3 +193,96 @@ export const countUsersByLast5Months = async (accessToken: string) => {
     }
   }
 };
+
+export const getShopSettingData = async (shopId: string, accessToken: string) => {
+  try {
+    const token = verifyJwtToken(accessToken);
+
+    if (!!token) {
+      const shopData: IShop | null = await Shop.findById(shopId);
+
+      if (shopData) {
+        const result: ShopSettingData = {
+          fee: shopData.fee,
+          status: shopData.status,
+          type: shopData.type,
+          tax: shopData.tax || ""
+        }
+
+        return {
+          code: 200,
+          message: "successfully",
+          data: result
+        }
+      } else {
+        return {
+          code: 400,
+          message: "Không tìm thấy cửa hàng",
+          data: null
+        }
+      }
+    } else {
+      return {
+        code: 400,
+        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại",
+        data: null
+      }
+    }
+
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại",
+      data: null
+    }
+  }
+}
+
+export const updateShopSetting = async (shopId: string, accessToken: string, data: ShopSettingData) => {
+  try {
+
+    const token = verifyJwtToken(accessToken);
+
+    if (!!token) {
+      const shopData: IShop | null = await Shop.findById(shopId);
+
+      if (shopData) {
+        const shop = await Shop.findByIdAndUpdate(shopId, {
+          fee: data.fee,
+          status: data.status,
+          type: data.type,
+          tax: data.tax
+        })
+
+        if (shop) {
+          return {
+            code: 200,
+            message: "Thay đổi cài đặt cửa hàng thành công",
+          }
+        } else {
+          return {
+            code: 400,
+            message: "Thay đổi cài đặt cửa hàng thất bại, vui lòng thử lại",
+          }
+        }
+      } else {
+        return {
+          code: 400,
+          message: "Không tìm thấy cửa hàng",
+        }
+      }
+    } else {
+      return {
+        code: 400,
+        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại",
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại",
+    }
+  }
+}

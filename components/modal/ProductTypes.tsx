@@ -12,7 +12,7 @@ import {
   useDisclosure,
   Input,
 } from "@nextui-org/react";
-import { addProductType, getProductTypes } from "@/actions/products";
+import { addProductType } from "@/actions/products";
 import { AiOutlinePlus } from "react-icons/ai";
 
 type IProductTypeModel = {

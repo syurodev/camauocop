@@ -2,16 +2,30 @@
 
 import React from "react";
 import { TbInfoCircle } from "react-icons/tb"
-import { Popover, PopoverTrigger, PopoverContent, Button } from "@nextui-org/react";
+import { Popover, PopoverTrigger, PopoverContent, Button, Spinner } from "@nextui-org/react";
 
 import AddProductForm from "@/components/form/AddProductForm";
+import { getShopFee } from "@/actions/shop";
+import { useAppSelector } from "@/redux/store";
+import { Session } from "next-auth";
 
-type IProps = {
-  sessionData: string
-}
+const AddProductWrapper: React.FC = () => {
+  const [fee, setFee] = React.useState<number>(0)
+  const [feeLoading, setFeeLoading] = React.useState<boolean>(true)
 
-const AddProductWrapper: React.FC<IProps> = ({ sessionData }) => {
-  const session = JSON.parse(sessionData)
+  const session: Session | null = useAppSelector((state) => state.sessionReducer.value)
+
+  React.useEffect(() => {
+    const fetchShopFee = async () => {
+      const res = await getShopFee(session?.user.shopId!)
+      setFeeLoading(false)
+
+      if (res.code === 200) {
+        setFee(res?.data!)
+      }
+    }
+    fetchShopFee()
+  }, [session])
 
   return (
     <>
@@ -24,8 +38,14 @@ const AddProductWrapper: React.FC<IProps> = ({ sessionData }) => {
 
         <Popover placement="bottom">
           <PopoverTrigger>
-            <Button variant="ghost" isIconOnly className="border-none">
-              <TbInfoCircle className="text-xl" />
+            <Button variant="ghost" isIconOnly isDisabled={feeLoading} className="border-none">
+              {
+                feeLoading ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <TbInfoCircle className="text-xl" />
+                )
+              }
             </Button>
           </PopoverTrigger>
           <PopoverContent>
@@ -33,7 +53,7 @@ const AddProductWrapper: React.FC<IProps> = ({ sessionData }) => {
               <p className="text-small pointer-events-none select-none">
                 Chúng tôi sẻ thu
                 <span className="ms-1 font-bold text-primary">
-                  1% giá trị mỗi đơn hàng
+                  {`${fee > 0 ? `${fee}%` : "một phần trăm nhỏ"}`} giá trị trên mỗi đơn hàng thành công của bạn
                 </span>
               </p>
             </div>

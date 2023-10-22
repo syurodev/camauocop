@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { connectToDB, verifyJwtToken } from "@/lib/utils";
 import { IUserRegisterShopZodSchema } from "@/lib/zodSchema/shop";
 import User, { IUser } from "@/lib/models/users";
-import Shop from "@/lib/models/shop";
+import Shop, { IShop } from "@/lib/models/shop";
 import Order, { IOrderSchema } from '@/lib/models/orders';
 import { convertWeight } from '@/lib/convertWeight';
 import ProductType from '@/lib/models/productTypes';
@@ -155,6 +155,33 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
     return {
       code: 500,
       message: "Lỗi hệ thống, vui lòng thử lại",
+      data: null
+    }
+  }
+}
+
+export const getShopFee = async (shopId: string) => {
+  try {
+    const shopData: IShop | null = await Shop.findById(shopId);
+
+    if (shopData) {
+      return {
+        code: 200,
+        message: "successfully",
+        data: shopData.fee
+      }
+    } else {
+      return {
+        code: 404,
+        message: "Không tìm thấy cửa hàng",
+        data: null
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại",
       data: null
     }
   }

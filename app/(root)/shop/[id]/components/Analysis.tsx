@@ -97,7 +97,7 @@ const Analysis: React.FC<IProps> = ({ shopId, accessToken }) => {
   }, [shopId, accessToken])
   return (
     <div className='flex flex-col gap-5 justify-center'>
-      <div className='flex flex-col gap-5 md:!flex-row justify-between w-full'>
+      <div className='flex flex-col gap-5 md:!flex-row justify-between items-center w-full'>
         {
           topProductLoading ? (
             <Skeleton className="flex rounded-full w-[500px] h-[500px]" />

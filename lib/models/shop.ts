@@ -16,6 +16,7 @@ export interface IShop extends Document {
     GHN_ward_code?: string;
   }];
   name: string;
+  fee: number;
   type: ShopType;
   status: ShopStatus;
   delivery: string[]
@@ -27,6 +28,7 @@ const ShopSchema: Schema = new Schema(
   {
     auth: { type: Schema.Types.ObjectId, ref: User, required: true },
     name: { type: String, required: true },
+    fee: { type: Number, default: 5 },
     image: { type: String, default: "" },
     status: { type: String, required: true, default: "active" },
     delivery: [{ type: String, required: true }],

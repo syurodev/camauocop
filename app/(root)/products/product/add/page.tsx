@@ -8,15 +8,13 @@ const AddProductPage: React.FC = async () => {
   const session: Session | null = await getServerSession(authOptions)
   let sessionData
 
-  if (session) {
-    sessionData = JSON.stringify(session)
-  } else {
+  if (!session) {
     redirect("/login")
   }
 
   return (
     <div>
-      <AddProductWrapper sessionData={sessionData} />
+      <AddProductWrapper />
     </div>
   )
 }

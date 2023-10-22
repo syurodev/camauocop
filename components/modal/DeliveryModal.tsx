@@ -63,7 +63,7 @@ const DeliveryModal: React.FC<IProps> = ({
   const [requiredNoteSelected, setRequiredNoteSelected] = React.useState(new Set(["CHOXEMHANGKHONGTHU"]))
 
   const onSubmit = async (data: IDeliveryOrderSchema) => {
-    // setIsLoading(true)
+    setIsLoading(true)
     data.to_name = orderDetail?.buyerId!.username || orderDetail?.buyerId!.email || ""
     data.to_address = `${orderDetail.apartment} - ${orderDetail.ward} - ${orderDetail.district} - ${orderDetail.province}`
     data.service_type_id = 2
