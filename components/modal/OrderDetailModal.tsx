@@ -2,10 +2,10 @@
 import React from 'react'
 import { Avatar, Button, Card, CardBody, CardFooter, CardHeader, Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Skeleton, useDisclosure } from '@nextui-org/react'
 import toast from 'react-hot-toast';
-import { BsTelephone } from "react-icons/bs"
 import Link from 'next/link';
 import { TbTruckDelivery } from "react-icons/tb"
 import { RiMoneyDollarCircleLine } from "react-icons/ri"
+import { BiPhoneCall } from "react-icons/bi"
 
 import SlideShow from '@/components/elements/SlideShow';
 import { formattedPriceWithUnit } from '@/lib/formattedPriceWithUnit';
@@ -205,7 +205,7 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                         )
                       }
                       <div className='flex flex-row items-center gap-1 w-[80%]'>
-                        <BsTelephone />
+                        <BiPhoneCall />
                         {
                           isLoading ? (
                             <Skeleton className="h-4 w-4/5 rounded-lg" />

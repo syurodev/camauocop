@@ -14,21 +14,23 @@ type IProps = {
   isOpen: boolean;
   onClose: () => void;
   onOpenChange: () => void;
-  orderId: string
+  orderId: string,
+  orderStatus: OrderStatus
 }
 
 const ChangeOrderStatus: React.FC<IProps> = ({
   isOpen,
   onClose,
   onOpenChange,
-  orderId
+  orderId,
+  orderStatus
 }) => {
   const [value, setValue] = React.useState<Selection>(new Set([]));
   const dispatch = useDispatch()
   const session = useAppSelector(state => state.sessionReducer.value)
 
   const handleChangeOrderStatus = async () => {
-    const res = await changeOrderStatus(session?.user.accessToken!, orderId, Array.from(value)[0] as OrderStatus)
+    const res = await changeOrderStatus(session?.user.accessToken!, orderId, Array.from(value)[0] as OrderStatus, orderStatus)
     if (res.code === 200) {
       toast.success(res.message)
       dispatch(updateOrderStatus({
@@ -61,6 +63,7 @@ const ChangeOrderStatus: React.FC<IProps> = ({
                 placeholder="Chọn trạng thái đơn hàng"
                 selectedKeys={value}
                 className="max-w-full"
+                disabledKeys={orderStatus === 'delivered' ? ["shipped", "delivered"] : [""]}
                 onSelectionChange={setValue}
               >
                 {OrderStatus.map((status) => (

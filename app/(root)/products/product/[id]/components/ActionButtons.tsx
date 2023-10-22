@@ -35,7 +35,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
   const session: Session = JSON.parse(user)
   const dispatch = useDispatch<AppDispatch>()
 
-  const [products, setProducts] = React.useState<IProductDetail | null>(JSON.parse(data) || null)
+  const [products, setProducts] = React.useState<Partial<IProductDetail> | null>(JSON.parse(data) || null)
 
   const [favorited, setFavorited] = React.useState<boolean>(products?.isFavorite || false);
   const [favoriteLoading, setFavoriteLoading] = React.useState<boolean>(false);
@@ -46,7 +46,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
 
   React.useEffect(() => {
     if (products) {
-      dispatch(setProductsDetail(Array(products)))
+      dispatch(setProductsDetail(Array(products as IProductDetail)))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [products])
@@ -60,7 +60,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
     setFavoriteLoading(false)
 
     if (res.code === 200) {
-      const updatedProducts = products;
+      const updatedProducts = { ...products };
       if (updatedProducts) {
         const updatedProduct = updatedProducts;
         updatedProduct.isFavorite = !favorited;
@@ -96,7 +96,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
       toast.success(res.message)
       dispatch(pushCartItem({
         productId: products?._id!,
-        addedDate: new Date
+        addedDate: new Date().toISOString()
       }))
     } else if (res.code === 202) {
       toast.success(res.message)
@@ -150,7 +150,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
         <Tooltip content={`${!session ? "Đăng nhập" : session.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Thêm vào giỏ hàng"}`}>
           <Button
             isIconOnly
-            isDisabled={addToCartLoading || session?.user.shopId === products?.shopId || products?.shopInfo.status === "block"}
+            isDisabled={addToCartLoading || session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block"}
             variant="flat"
             color={isProductInCart ? "success" : "default"}
             radius="full"
@@ -192,7 +192,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
             variant="solid"
             radius="full"
             color="success"
-            isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo.status === "block"}
+            isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block"}
             startContent={<AiOutlineDollarCircle className="text-xl" />}
             onPress={handleBuyButtomClick}
           >

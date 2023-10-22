@@ -75,6 +75,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
   const dispatch = useDispatch()
   const [page, setPage] = React.useState(1);
   const [orderSelected, setOrderSelected] = React.useState<string>("")
+  const [orderSelectedStatus, setOrderSelectedStatus] = React.useState<OrderStatus>("processed")
   const { isOpen: isOpenOrderDetail, onOpen: onOpenOrderDetail, onOpenChange: onOpenChangeOrderDetail, onClose: onCloseOrderDetail } = useDisclosure();
   const { isOpen: isOpenChangeStatus, onOpen: onOpenChangeStatus, onOpenChange: onOpenChangeChangeStatus, onClose: onCloseChangeStatus } = useDisclosure();
 
@@ -200,6 +201,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
                   className="border-none"
                   onPress={() => {
                     setOrderSelected(order._id)
+                    setOrderSelectedStatus(order.status)
                     onOpenChangeStatus()
                   }}
                 >
@@ -427,6 +429,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
             onClose={onCloseChangeStatus}
             onOpenChange={onOpenChangeChangeStatus}
             orderId={orderSelected}
+            orderStatus={orderSelectedStatus}
           />
         )
       }

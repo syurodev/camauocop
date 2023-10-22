@@ -4,7 +4,7 @@ import { convertToKg } from "@/lib/convertToKg";
 import Fee, { IFee } from "@/lib/models/fee";
 import Notification, { INotification } from "@/lib/models/notification";
 import Order from "@/lib/models/orders"
-import Product from "@/lib/models/products";
+import Product, { IProduct } from "@/lib/models/products";
 import Shop, { IShop } from "@/lib/models/shop";
 import { connectToDB, verifyJwtToken } from "@/lib/utils";
 import { IDeliveryOrderSchema, IOrderZodSchema } from "@/lib/zodSchema/order"
@@ -408,19 +408,69 @@ export const approveOrder = async (token: string, id: string, data: IDeliveryOrd
   }
 }
 
-export const changeOrderStatus = async (accessToken: string, orderId: string, newStatus: OrderStatus) => {
+export const changeOrderStatus = async (accessToken: string, orderId: string, newStatus: OrderStatus, oldStatus: OrderStatus) => {
   try {
     const token = verifyJwtToken(accessToken)
 
     if (!!token) {
-      const order = await Order.findByIdAndUpdate({ _id: orderId }, { orderStatus: newStatus })
+      const order: IOrder | null = await Order.findById({ _id: orderId })
 
       if (order) {
+        const products = order.products.map(item => {
+          let weight = item.weight * item.quantity
+          if (item.unit !== "kg") {
+            weight = convertToKg(item.weight * item.quantity, item.unit)
+          }
+          return {
+            _id: item.productId,
+            weight: weight,
+          }
+        })
+
+        if (products.length > 0) {
+          products.map(async product => {
+            const productData: IProduct | null = await Product.findById(product._id)
+
+            if (productData) {
+              let sold = productData.sold
+              let quantity = productData.quantity
+
+              if (newStatus === "delivered") {
+                sold = sold + product.weight
+              } else if (newStatus === "canceled" && oldStatus === "delivered") {
+                sold = sold - product.weight
+              }
+
+              if (newStatus === "canceled") {
+                quantity = quantity + product.weight
+              }
+
+              await Product.findByIdAndUpdate(product._id, { sold: sold, quantity: quantity })
+            } else {
+              return {
+                code: 404,
+                message: "Không tìm thấy sản phẩm"
+              }
+            }
+          })
+        } else {
+          return {
+            code: 404,
+            message: "Không có danh sách sản phẩm"
+          }
+        }
+
         if (newStatus === "delivered") {
           await Fee.findOneAndUpdate({ order_id: orderId }, { status: "collected" })
+
         } else if (newStatus === "canceled") {
+          if (oldStatus === "delivered") {
+
+          }
           await Fee.findOneAndUpdate({ order_id: orderId }, { status: "canceled" })
         }
+
+        await Order.findByIdAndUpdate({ _id: orderId }, { orderStatus: newStatus })
 
         const notificationData = {
           userId: order.buyerId,

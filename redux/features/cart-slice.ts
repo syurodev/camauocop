@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 type IProductInCart = {
   productId: string,
-  addedDate: Date
+  addedDate: string
 }
 
 type InitialState = {

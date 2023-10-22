@@ -2,14 +2,14 @@
 import React from 'react'
 import { Button, Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Input, Spinner } from '@nextui-org/react';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
+import { useForm } from 'react-hook-form';
 
 import { approveOrder } from '@/actions/order';
-import { useForm } from 'react-hook-form';
 import { DeliveryOrderSchema, IDeliveryOrderSchema } from '@/lib/zodSchema/order';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { GHNRequireNote, paymentType } from '@/lib/constant/GHNConstants';
 import { calculateTotalWeight } from '@/lib/calculateTotalWeight';
-import toast from 'react-hot-toast';
 import { useAppSelector } from '@/redux/store';
 import { updateOrderStatus } from '@/redux/features/orders.slice';
 
@@ -59,9 +59,11 @@ const DeliveryModal: React.FC<IProps> = ({
   const dispatch = useDispatch()
   const session = useAppSelector(state => state.sessionReducer.value)
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [paymentTypeSelected, setPaymentTypeSelected] = React.useState(new Set(["1"]))
+  const [requiredNoteSelected, setRequiredNoteSelected] = React.useState(new Set(["CHOXEMHANGKHONGTHU"]))
 
   const onSubmit = async (data: IDeliveryOrderSchema) => {
-    setIsLoading(true)
+    // setIsLoading(true)
     data.to_name = orderDetail?.buyerId!.username || orderDetail?.buyerId!.email || ""
     data.to_address = `${orderDetail.apartment} - ${orderDetail.ward} - ${orderDetail.district} - ${orderDetail.province}`
     data.service_type_id = 2
@@ -154,6 +156,11 @@ const DeliveryModal: React.FC<IProps> = ({
                     {...register("required_note")}
                     isInvalid={!!errors.required_note}
                     errorMessage={errors.required_note?.message}
+                    selectedKeys={requiredNoteSelected}
+                    onSelectionChange={(e) => {
+                      const value = Array.from(e)[0]
+                      setRequiredNoteSelected(new Set([value.toString()]))
+                    }}
                   >
                     {(item) => <SelectItem key={item.value}>{item.label}</SelectItem>}
                   </Select>
@@ -167,6 +174,11 @@ const DeliveryModal: React.FC<IProps> = ({
                     {...register("payment_type_id")}
                     isInvalid={!!errors.payment_type_id}
                     errorMessage={errors?.payment_type_id?.message || ""}
+                    selectedKeys={paymentTypeSelected}
+                    onSelectionChange={(e) => {
+                      const value = Array.from(e)[0]
+                      setPaymentTypeSelected(new Set([value.toString()]))
+                    }}
                   >
                     {(item) => <SelectItem key={item.value}>{item.label}</SelectItem>}
                   </Select>

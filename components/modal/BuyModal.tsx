@@ -115,6 +115,15 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
       ...prevProductWeightState,
       [productId]: weight,
     }));
+
+    setValue(`products.${index}.weight`, 0)
+    setValue(`products.${index}.price`, 0)
+    // setValue(`products.${index}.price`, calculateProductPrice(product, true, weight, selectedUnits[product?._id!]) || 0)
+
+    setProductWeight((prewWeight) => ({
+      ...prewWeight,
+      [productId]: 0,
+    }))
   };
 
   // const calculateProductPrice = (product: IProductDetail, retail: boolean, quantity: number, unit: WeightUnit) => {
@@ -178,6 +187,25 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
     productPrice: number,
   ) => {
     const inputWeight = e.target.value
+    //TODO: Giới hạn sản phẩm mua lẻ (kg)
+    const limit = 50
+
+    if (+inputWeight >= convertWeight(limit, "kg", selectedUnits[product?._id!])) {
+      setValue(`products.${index}.weight`, convertWeight(limit, "kg", selectedUnits[product?._id!]))
+      setValue(`products.${index}.price`, +formattedPriceWithUnit(
+        productPrice,
+        selectedUnits[product?._id!],
+        convertWeight(limit, "kg", selectedUnits[product?._id!]),
+        true
+      ))
+      // setValue(`products.${index}.price`, calculateProductPrice(product, true, weight, selectedUnits[product?._id!]) || 0)
+
+      setProductWeight((prewWeight) => ({
+        ...prewWeight,
+        [product?._id!]: +limit,
+      }))
+      return
+    }
 
     if (+inputWeight >= weight) {
       setValue(`products.${index}.weight`, weight)
@@ -488,6 +516,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                                       isRequired
                                       type="number"
                                       label="Số lượng"
+                                      description="Tối đa 50kg"
                                       isInvalid={!!errors.products?.[index]?.weight}
                                       errorMessage={errors.products?.[index]?.weight?.message}
                                       {...register(`products.${index}.weight`)}
