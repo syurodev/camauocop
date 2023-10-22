@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Spinner } from '@nextui-org/react';
 import { Session } from 'next-auth';
+import { useDispatch } from 'react-redux';
 
 import { getShopSettingData, updateShopSetting } from '@/actions/admin';
 import { useAppSelector } from '@/redux/store';
@@ -11,6 +12,7 @@ import { ShopType } from '@/lib/constant/ShopType';
 import { useForm } from 'react-hook-form';
 import { AdminShopSettingSchema, IAdminShopSettingSchema } from '@/lib/zodSchema/adminShopSetting';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { updateShop } from '@/redux/features/shops-slice';
 
 type IProps = {
   isOpen: boolean;
@@ -43,6 +45,7 @@ const AdminSettingShop: React.FC<IProps> = ({
   const [shopTax, setShopTax] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [shopStatus, setShopStatus] = useState(new Set([""]))
+  const dispatch = useDispatch()
 
   const {
     register,
@@ -96,6 +99,12 @@ const AdminSettingShop: React.FC<IProps> = ({
     setIsSubmitting(false)
     if (res.code === 200) {
       toast.success(res.message)
+      dispatch(updateShop({
+        shopId: shopId,
+        fee: data.fee,
+        status: data.status as ShopStatus,
+        type: data.type as ShopType
+      }))
       onClose()
     } else {
       toast.error(res.message)
@@ -189,6 +198,8 @@ const AdminSettingShop: React.FC<IProps> = ({
                           isRequired
                           type="number"
                           label="Mã số thuế"
+                          minLength={10}
+                          maxLength={10}
                           className="max-w-full"
                           {...register("tax")}
                           isInvalid={!!errors.tax}

@@ -25,7 +25,7 @@ export const getShops = async (accessToken: string) => {
           path: "auth",
           select: "_id username email"
         })
-        .select("_id name status image address")
+        .select("_id name status image address fee type")
 
       if (shops.length > 0) {
         const formatShops: IShopsResponse[] = shops.map(item => {
@@ -36,7 +36,9 @@ export const getShops = async (accessToken: string) => {
             address: `${item.address[0].ward}, ${item.address[0].district}`,
             authId: item.auth._id.toString(),
             username: item.auth.username || item.auth.email,
-            image: item.image
+            image: item.image,
+            fee: item.fee,
+            type: item.type
           }
         })
 

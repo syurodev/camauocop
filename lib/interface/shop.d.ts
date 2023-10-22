@@ -62,6 +62,8 @@ type IShopsResponse = {
   address: string
   authId: string,
   username: string,
+  fee: number,
+  type: ShopType,
   image: string
   [key: string]: any;
 }

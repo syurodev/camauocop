@@ -51,16 +51,15 @@ h6 {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-inherit rounded-md
+  @apply bg-transparent rounded-lg
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-[#11181d]/90 dark:bg-slate-50/25 rounded-md transition-all duration-250
+  @apply rounded-lg bg-[#adb5bd]/80
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
-  @apply bg-[#11181d] dark:bg-slate-50/10
+  @apply rounded-lg bg-[#adb5bd];
 }
 
 input::-webkit-outer-spin-button,

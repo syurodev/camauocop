@@ -45,7 +45,7 @@ const statusOptions = [
   { name: "Bị khoá", uid: "block" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["Shops", "Địa chỉ", "Trạng thái", "Thao tác"];
+const INITIAL_VISIBLE_COLUMNS = ["Shops", "Loại", "Phí dịch vụ", "Địa chỉ", "Trạng thái", "Thao tác"];
 
 // type User = typeof users[0];
 
@@ -145,10 +145,23 @@ export default function Shops() {
             {shop.name}
           </User>
         );
+      case "type":
+        return (
+          <Chip className="capitalize" color={cellValue === "personal" ? "secondary" : "primary"} size="sm" variant="flat">
+            {cellValue === "personal" ? "Cá nhân" : "Doanh nghiệp"}
+          </Chip>
+        );
+      case "fee":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-small capitalize text-primary">{cellValue}</p>
+            {/* <p className="text-bold text-tiny capitalize text-default-500">{shop.address}</p> */}
+          </div>
+        );
       case "address":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{cellValue}</p>
+            <p className="text-bold text-small capitalize whitespace-nowrap">{cellValue}</p>
             {/* <p className="text-bold text-tiny capitalize text-default-500">{shop.address}</p> */}
           </div>
         );

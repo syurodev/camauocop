@@ -17,8 +17,23 @@ export const shops = createSlice({
         value: action.payload
       }
     },
+    updateShop: (state, action: PayloadAction<{ shopId: string; fee: number, status: ShopStatus, type: ShopType }>) => {
+      const {
+        shopId,
+        fee,
+        status,
+        type
+      } = action.payload;
+      const shopToUpdate = state.value.find(shop => shop._id === shopId);
+
+      if (shopToUpdate) {
+        shopToUpdate.status = status;
+        shopToUpdate.fee = fee;
+        shopToUpdate.type = type;
+      }
+    },
   }
 })
 
-export const { setShops } = shops.actions
+export const { setShops, updateShop } = shops.actions
 export default shops.reducer
