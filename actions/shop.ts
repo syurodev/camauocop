@@ -15,10 +15,16 @@ type IProps = {
   data: IUserRegisterShopZodSchema,
   district_id: number,
   ward_code: string,
-  next?: boolean
 }
 
-export const shopRegister = async ({ data, district_id, ward_code, next = false }: IProps) => {
+export type IShopSettingData = {
+  phone: string;
+  name: string;
+  type: ShopType;
+  tax: string;
+}
+
+export const shopRegister = async ({ data, district_id, ward_code }: IProps) => {
   try {
     await connectToDB();
     const shopExisting = await Shop.findOne({ auth: data.auth })
@@ -30,56 +36,44 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
       }
     }
 
-    const matchingUser: IUser | null = await User.findOne({ _id: data.auth });
+    // const matchingUser: IUser | null = await User.findOne({ _id: data.auth });
 
-    if (matchingUser) {
-      const newAddress = {
-        province: data.province,
-        district: data.district,
-        ward: data.ward,
-        apartment: data.apartment,
-      }
+    // if (matchingUser) {
+    //   const newAddress = {
+    //     province: data.province,
+    //     district: data.district,
+    //     ward: data.ward,
+    //     apartment: data.apartment,
+    //   }
 
-      if (matchingUser.address && matchingUser.address.length > 0) {
-        const isUnique = matchingUser.address.every(existingAddress =>
-          _.isEqual(newAddress, existingAddress)
-        );
+    //   if (matchingUser.address && matchingUser.address.length > 0) {
+    //     const isUnique = matchingUser.address.every(existingAddress =>
+    //       _.isEqual(newAddress, existingAddress)
+    //     );
 
-        if (isUnique) {
-          matchingUser.address?.push(newAddress);
-          await User.findByIdAndUpdate(data.auth, { address: matchingUser.address });
-        }
-      } else {
-        await User.findByIdAndUpdate(data.auth, { $push: { address: newAddress } });
-      }
+    //     if (isUnique) {
+    //       matchingUser.address?.push(newAddress);
+    //       await User.findByIdAndUpdate(data.auth, { address: matchingUser.address });
+    //     }
+    //   } else {
+    //     await User.findByIdAndUpdate(data.auth, { $push: { address: newAddress } });
+    //   }
+    // }
 
-      const matchingPhones = await User.find({
-        phone: data.phone,
-        _id: { $ne: data.auth },
-      })
+    const matchingUserPhones = await User.findOne({
+      phone: data.phone,
+      _id: { $ne: data.auth },
+    })
 
-      if (matchingPhones.length > 0) {
-        return {
-          code: 401,
-          message: "Số điện thoại đã được sử dụng",
-          data: null
-        }
-      } else {
-        if (matchingUser.phone) {
-          if (matchingUser.phone !== data.phone) {
-            if (next) {
-              await User.findByIdAndUpdate(data.auth, { $set: { phone: data.phone } });
-            } else {
-              return {
-                code: 4011,
-                message: "Bạn đang sử dụng một số điện thoại khác.",
-                data: null
-              }
-            }
-          }
-        } else {
-          await User.findByIdAndUpdate(data.auth, { $set: { phone: data.phone } });
-        }
+    const matchingShopPhones = await Shop.findOne({
+      phone: data.phone,
+    })
+
+    if (matchingUserPhones || matchingShopPhones) {
+      return {
+        code: 401,
+        message: "Số điện thoại đã được sử dụng",
+        data: null
       }
     }
 
@@ -131,6 +125,7 @@ export const shopRegister = async ({ data, district_id, ward_code, next = false 
         image: "",
         delivery: data.delivery,
         type: data.type,
+        phone: data.phone,
         tax: data.tax,
       })
 
@@ -192,7 +187,11 @@ export const getShopInfo = async (id: string): Promise<ShopInfoResponse> => {
     const shop = await Shop.findById(id)
       .populate({
         path: 'auth',
-        select: '_id username email phone'
+        select: '_id image'
+      })
+      .populate({
+        path: 'staffs.staffId',
+        select: '_id image',
       })
       .exec();
 
@@ -210,20 +209,23 @@ export const getShopInfo = async (id: string): Promise<ShopInfoResponse> => {
     // Tính tổng doanh thu từ các đơn hàng
     const totalRevenue = orders.reduce((acc, order) => acc + order.totalAmount, 0);
 
-    // Extract relevant information from the shop
+    const staffsData = shop.staffs.map((staff: { _id: string, image: string }) => ({
+      avatar: staff.image,
+      _id: staff._id.toString(),
+    }));
+
     const shopInfo: IShopInfo = {
       _id: shop._id.toString(),
       name: shop.name,
       image: shop.image,
       address: shop.address,
       delivery: shop.delivery,
+      phone: shop.phone,
       auth: {
-        username: shop.auth.username,
-        email: shop.auth.email,
-        phone: shop.auth.phone,
         avatar: shop.auth.image,
         _id: shop.auth._id.toString()
       },
+      staffs: staffsData,
       totalRevenue,
       totalOrders: orders.length,
     };
@@ -483,4 +485,153 @@ export const topSellingProductTypes = async (shopId: string, accessToken: string
     }
   }
 
+}
+
+export const changeShopImage = async (shopId: string, accessToken: string, image: string) => {
+  try {
+    const token = verifyJwtToken(accessToken)
+
+    if (!!token) {
+      await connectToDB()
+
+      const shop = await Shop.findByIdAndUpdate(shopId, { image: image })
+
+      if (shop) {
+        return {
+          code: 200,
+          message: "Thay đổi ảnh đại diện cửa hàng thành công"
+        }
+      } else {
+        return {
+          code: 400,
+          message: "Thay đổi ảnh đại diện thất bại, vui lòng thử lại"
+        }
+      }
+
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại"
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại"
+    }
+  }
+}
+
+export const getShopDataSetting = async (accessToken: string, shopId: string) => {
+  try {
+    const token = verifyJwtToken(accessToken)
+
+    if (!!token) {
+      const shop = await Shop.findById(shopId)
+        .select("phone name type tax")
+
+      if (shop) {
+        const result: IShopSettingData = {
+          phone: shop.phone,
+          name: shop.name,
+          type: shop.type,
+          tax: shop.tax,
+        }
+        return {
+          code: 200,
+          message: "successfully",
+          data: result
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không tìm thấy thông tin cửa hàng",
+          data: null
+        }
+      }
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại",
+        data: null
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại",
+      data: null
+    }
+  }
+}
+
+export const changeShopSetting = async (accessToken: string, shopId: string, userId: string, data: IShopSettingData) => {
+  try {
+    const token = verifyJwtToken(accessToken)
+
+    if (!!token) {
+      const matchingUserPhones = await User.findOne({
+        phone: data.phone,
+        _id: { $ne: userId },
+      })
+
+      const matchingShopPhones = await Shop.findOne({
+        phone: data.phone,
+      })
+
+      if (matchingUserPhones || matchingShopPhones) {
+        return {
+          code: 401,
+          message: "Số điện thoại đã được sử dụng",
+        }
+      }
+
+      if (data.type === "enterprise") {
+        const matchingTax = await Shop.findOne({
+          tax: data.tax,
+          _id: { $ne: shopId },
+        })
+
+        if (matchingTax) {
+          return {
+            code: 401,
+            message: "Mã số thuế đã được sử dụng",
+          }
+        }
+      }
+
+
+      const shop = await Shop.findByIdAndUpdate(shopId, {
+        phone: data.phone,
+        name: data.name,
+        type: data.type,
+        tax: data.tax
+      })
+
+      if (shop) {
+        return {
+          code: 200,
+          message: "Thay đổi thông tin cửa hàng thành công",
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không tìm thấy thông tin cửa hàng",
+        }
+      }
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại",
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại",
+    }
+  }
 }

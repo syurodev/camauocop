@@ -6,20 +6,19 @@ import Products from './Products';
 import Orders from '@/components/card/Orders';
 import Analysis from './Analysis';
 import { getOrders } from '@/actions/order';
+import { useAppSelector } from '@/redux/store';
 
 type IProps = {
-  id: string,
-  info: string,
-  role: string,
-  accessToken: string,
   shopId: string
 }
 
-const Content: React.FC<IProps> = ({ id, info, role, accessToken, shopId }) => {
+const Content: React.FC<IProps> = ({ shopId }) => {
   const [selected, setSelected] = React.useState<Set<any>>(new Set(["products"]));
   const [orders, setOrders] = React.useState<IOrders[] | []>([])
   const [isOrdersLoading, setIsOrdersLoading] = React.useState<boolean>(false)
-  const data: IShopInfo = JSON.parse(info)
+
+  const data = useAppSelector(state => state.shopInfoReducer.value)
+  const session = useAppSelector(state => state.sessionReducer.value)
 
   React.useEffect(() => {
     const fetchApi = async () => {
@@ -27,8 +26,8 @@ const Content: React.FC<IProps> = ({ id, info, role, accessToken, shopId }) => {
         case "orders":
           setIsOrdersLoading(true)
           const res = await getOrders({
-            id: data._id,
-            accessToken: accessToken,
+            id: data?._id!,
+            accessToken: session?.user.accessToken!,
             role: "shop"
           })
 
@@ -43,9 +42,12 @@ const Content: React.FC<IProps> = ({ id, info, role, accessToken, shopId }) => {
           break;
       }
     }
-    fetchApi()
+
+    if (data || session) {
+      fetchApi()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected])
+  }, [selected, data, session])
 
   return (
     <section>
@@ -58,13 +60,17 @@ const Content: React.FC<IProps> = ({ id, info, role, accessToken, shopId }) => {
         onSelectionChange={(key) => setSelected(new Set([key]))}
       >
         <Tab key="products" title="Sản phẩm">
-          <Products shopId={data._id} shopAuth={id === data.auth._id} />
+          {
+            data && (
+              <Products shopId={data?._id} shopAuth={session?.user._id === data?.auth._id} />
+            )
+          }
         </Tab>
         {
-          role === "shop" && id === data.auth._id && (
+          session?.user.role === "shop" && session?.user._id === data?.auth._id && (
             <Tab key="orders" title="Đơn hàng">
               <Orders
-                role={role}
+                role={session?.user.role}
                 isLoading={isOrdersLoading}
                 orders={orders}
                 shopId={shopId}
@@ -73,9 +79,9 @@ const Content: React.FC<IProps> = ({ id, info, role, accessToken, shopId }) => {
           )
         }
         {
-          role === "shop" && id === data.auth._id && (
+          session?.user.role === "shop" && session?.user._id === data?.auth._id && (
             <Tab key="analysis" title="Thống kê">
-              <Analysis shopId={data._id.toString()} accessToken={accessToken} />
+              <Analysis shopId={shopId} accessToken={session?.user.accessToken} />
             </Tab>
           )
         }

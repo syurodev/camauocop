@@ -176,10 +176,6 @@ export async function getProductDetail(_id: string | string[], userId?: string):
         .populate({
           path: "shopId",
           select: "name _id phone delivery status image shop_id address",
-          populate: {
-            path: "auth",
-            select: "username phone _id",
-          },
         })
         .populate({
           path: "productType",
@@ -208,7 +204,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
             shop_id: product.shopId.shop_id,
             name: product.shopId.name,
             status: product.shopId.status,
-            phone: product.shopId.auth.phone,
+            phone: product.shopId.phone,
             image: product.shopId.image || "",
           },
         };
@@ -218,11 +214,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
       const product = await Product.findById(query)
         .populate({
           path: "shopId",
-          select: "name _id phone delivery status shop_id address",
-          populate: {
-            path: "auth",
-            select: "username phone image _id",
-          },
+          select: "name _id phone delivery status image shop_id address",
         })
         .populate({
           path: "productType",
@@ -263,7 +255,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
           status: product.shopId.status,
           shop_id: product.shopId.shop_id,
           name: product.shopId.name,
-          phone: product.shopId.auth.phone,
+          phone: product.shopId.phone,
           image: product.shopId.image
         },
         isFavorite

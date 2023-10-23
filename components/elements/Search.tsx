@@ -96,6 +96,7 @@ const Search: React.FC<IProps> = ({ width }) => {
                                 showAnchorIcon
                                 href={`/products/${encodeURIComponent(item.name)}`}
                                 anchorIcon={<BiLink />}
+                                className='whitespace-nowrap'
                               >
                                 {item.name}
                               </Link>

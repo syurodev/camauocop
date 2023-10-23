@@ -17,9 +17,14 @@ export interface IShop extends Document {
   }];
   name: string;
   fee: number;
+  phone: string;
   type: ShopType;
   status: ShopStatus;
   delivery: string[]
+  staffs: [{
+    staffId: string,
+    staffStatus: StaffStatus
+  }]
   image?: string;
   tax?: string;
 }
@@ -30,8 +35,20 @@ const ShopSchema: Schema = new Schema(
     name: { type: String, required: true },
     fee: { type: Number, default: 5 },
     image: { type: String, default: "" },
+    phone: { type: String, required: true },
     status: { type: String, required: true, default: "active" },
     delivery: [{ type: String, required: true }],
+    staffs: [{
+      staffId: {
+        type: Schema.Types.ObjectId, ref: User, required: true,
+      },
+      staffStatus: {
+        type: String, default: "pending"
+      },
+      dateJoining: {
+        type: Date, default: new Date
+      },
+    }],
     type: { type: String, required: true, default: "personal" },
     tax: { type: String },
     address: [{

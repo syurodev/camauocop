@@ -10,17 +10,12 @@ type IOrderDetail = {
   shopId: {
     _id: string,
     name: string,
+    avatar: string,
+    phone: string
     shop_id: {
       GHN?: number,
       GHTK?: string
     },
-    auth: {
-      avatar: string,
-      _id: string,
-      username?: string,
-      email?: string,
-      phone?: string
-    }
   },
   products: [{
     productId: string,
@@ -69,9 +64,7 @@ type IOrder = {
     _id: string,
     name: string,
     image: string,
-    auth: {
-      phone: string,
-    }
+    phone: string,
   },
   totalAmount: number,
   orderStatus: 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled',

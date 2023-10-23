@@ -14,7 +14,7 @@ const auth = async () => {
 
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
-  avatarImage: f({ image: { maxFileSize: "2MB", maxFileCount: 1 } })
+  avatarImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
     .middleware(() => auth())
     .onUploadComplete(() => { }),
   productImages: f({ image: { maxFileSize: "8MB", maxFileCount: 6 } })

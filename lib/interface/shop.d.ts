@@ -2,6 +2,7 @@ type IShopInfo = {
   _id: string;
   name: string;
   image: string;
+  phone: string;
   address: [{
     province: string;
     district: string;
@@ -12,12 +13,13 @@ type IShopInfo = {
   }];
   delivery: string[];
   auth: {
-    username: string;
-    email: string;
-    phone: string;
     avatar: string;
     _id: string;
   };
+  staffs: {
+    avatar: string;
+    _id: string;
+  }[];
   totalRevenue: number;
   totalOrders: number;
 }
@@ -70,6 +72,7 @@ type IShopsResponse = {
 
 type ShopStatus = "active" | "block"
 type ShopType = "personal" | "enterprise"
+type StaffStatus = "pending" | "working" | "stopWorking"
 
 type MonthlyRevenue = {
   [month: number]: number;

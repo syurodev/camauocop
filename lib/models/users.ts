@@ -10,7 +10,7 @@ export interface IUser extends Document {
     ward: string;
     apartment: string;
   }];
-  role?: "individual" | "shop" | "business" | "admin";
+  role?: "individual" | "shop" | "staff" | "admin";
   phone?: string;
   provider: string;
   image: string;
@@ -44,7 +44,7 @@ const UserSchema: Schema = new Schema(
     image: { type: String, default: "" },
     role: {
       type: String,
-      enum: ["individual", "shop", "business"],
+      enum: ["individual", "shop", "staff", "admin"],
       required: true,
       default: "individual",
     },

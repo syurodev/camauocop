@@ -1,71 +1,93 @@
 "use client"
-import { useAppSelector } from '@/redux/store'
-import { Avatar, Button, Card, Tooltip } from '@nextui-org/react'
+import React, { useEffect } from 'react'
+import { Avatar, AvatarGroup, Button, Card, Tooltip, useDisclosure } from '@nextui-org/react'
 import { Session } from 'next-auth'
-import React from 'react'
-import { BiUserCircle, BiPhoneCall } from "react-icons/bi"
+import { BiPhoneCall } from "react-icons/bi"
 import { MdOutlineLocationOn } from "react-icons/md"
 import { RiSettings3Line } from "react-icons/ri"
 
-type IProps = {
-  info: string
-}
+import ShopSetting from '../modal/ShopSetting'
+import { useAppSelector } from '@/redux/store'
 
-const TopSide: React.FC<IProps> = ({ info }) => {
-  const data: IShopInfo = JSON.parse(info)
-
+const TopSide: React.FC = () => {
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const session: Session | null = useAppSelector(state => state.sessionReducer.value)
 
+  const data = useAppSelector(state => state.shopInfoReducer.value)
+
   return (
-    <section className='mt-4'>
-      <Card shadow='sm' className='p-3 relative'>
-        <div className='flex flex-row gap-2'>
-          <Avatar
-            className="transition-transform w-20 h-20 text-large"
-            src={data.auth.avatar}
-          />
-          <div>
-            <p className='text-xl font-semibold'>{data.name}</p>
-            <Tooltip content="Chủ sở hữu">
-              <div className='flex flex-col md:!flex-row md:!gap-3 md:!items-center'>
-                <div className='flex flex-row items-center gap-1'>
-                  <BiUserCircle />
-                  <span>{data.auth.username || data.auth.email}</span>
-                </div>
+    data && (
+      <section className='mt-4'>
+        <Card shadow='sm' className='p-3 relative'>
+          <div className='flex flex-row gap-3'>
+            <Avatar
+              className="transition-transform w-20 h-20 text-large"
+              src={data.image || ""}
+            />
+            <div className='flex flex-col items-start justify-start gap-2'>
+              <p className='text-xl font-semibold'>{data.name || "Không tìm thấy cửa hàng"}</p>
+
+              <AvatarGroup size='sm' isBordered max={3} total={data.staffs.length} className='ms-3'>
+                <>
+                  {
+                    data.staffs.length > 0 && data.staffs.map((staff) => {
+                      return (
+                        <Avatar key={staff._id} size='sm' src={staff.avatar} />
+                      )
+                    })
+                  }
+                  <Avatar size='sm' src={data.auth.avatar} color='primary' />
+                </>
+              </AvatarGroup>
+
+              <div className='flex flex-row items-center gap-3'>
                 <div className='flex flex-row items-center gap-1'>
                   <BiPhoneCall />
-                  <span>{data.auth.phone}</span>
+                  <span>{data.phone}</span>
                 </div>
-              </div>
-            </Tooltip>
 
-            <Tooltip
-              content={`${data.address[0].apartment} - ${data.address[0].ward} - ${data.address[0].district} - ${data.address[0].province}`}>
-              <div className='flex flex-row gap-1 items-center'>
-                <MdOutlineLocationOn />
-                <span>{data.address[0].province}</span>
+                <Tooltip
+                  content={`${data.address[0].apartment} - ${data.address[0].ward} - ${data.address[0].district} - ${data.address[0].province}`}>
+                  <div className='flex flex-row gap-1 items-center'>
+                    <MdOutlineLocationOn />
+                    <span>{data.address[0].province}</span>
+                  </div>
+                </Tooltip>
               </div>
-            </Tooltip>
+
+            </div>
           </div>
-        </div>
+
+          {
+            session && session.user.shopId === data._id && (
+              <Tooltip content="Cài đặt cửa hàng">
+                <Button
+                  isIconOnly
+                  variant='ghost'
+                  size='sm'
+                  className="border-none absolute top-3 right-3 z-30"
+                  radius='full'
+                  onPress={onOpen}
+                >
+                  <RiSettings3Line className="text-xl" />
+                </Button>
+              </Tooltip>
+            )
+          }
+        </Card>
 
         {
-          session && session.user.shopId === data._id && (
-            <Tooltip content="Cài đặt cửa hàng">
-              <Button
-                isIconOnly
-                variant='ghost'
-                size='sm'
-                className="border-none absolute top-3 right-3 z-30"
-                radius='full'
-              >
-                <RiSettings3Line className="text-xl" />
-              </Button>
-            </Tooltip>
+          isOpen && (
+            <ShopSetting
+              isOpen={isOpen}
+              onClose={onClose}
+              onOpenChange={onOpenChange}
+              shopId={data._id}
+            />
           )
         }
-      </Card>
-    </section>
+      </section>
+    )
   )
 }
 

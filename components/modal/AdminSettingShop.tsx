@@ -54,7 +54,6 @@ const AdminSettingShop: React.FC<IProps> = ({
     setValue
   } = useForm<IAdminShopSettingSchema>({
     resolver: zodResolver(AdminShopSettingSchema),
-
   })
 
   //GET SHOP INFO
@@ -226,7 +225,7 @@ const AdminSettingShop: React.FC<IProps> = ({
               <Button
                 type='submit'
                 isDisabled={isSubmitting}
-                color={Array.from(shopStatus)[0] === "block" ? "danger" : "primary"}
+                color={Array.from(shopStatus)[0] === "block" ? "danger" : "success"}
               >
                 {
                   isSubmitting && <Spinner size='sm' />

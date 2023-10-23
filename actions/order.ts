@@ -189,11 +189,7 @@ export const getOrders = async ({
         })
         .populate({
           path: 'shopId',
-          select: 'name image',
-          populate: {
-            path: 'auth',
-            select: 'phone'
-          }
+          select: 'name image phone',
         })
         .select("_id buyerId shopId totalAmount orderStatus orderDate delivery products");
 
@@ -213,7 +209,7 @@ export const getOrders = async ({
             buyerPhone: order.buyerId.phone,
             buyerEmail: order.buyerId.email || "",
             shopId: order.shopId._id.toString(),
-            shopPhone: order.shopId.auth.phone,
+            shopPhone: order.shopId.phone,
             shopName: order.shopId.name,
             shopImage: order.shopId.image,
             orderDateConvert: order.orderDate!.toISOString(),
@@ -266,11 +262,7 @@ export const getOrderDetail = async (id: string): Promise<IOrderDetailResponse> 
       })
       .populate({
         path: 'shopId',
-        select: 'name shop_id',
-        populate: {
-          path: "auth",
-          select: "username email image phone",
-        }
+        select: 'name shop_id image phone',
       })
     if (order) {
       const fee = await Fee.findOne({ order_id: order._id })
@@ -287,16 +279,11 @@ export const getOrderDetail = async (id: string): Promise<IOrderDetailResponse> 
         shopId: {
           _id: order.shopId._id.toString(),
           name: order.shopId.name,
+          avatar: order.shopId.image,
+          phone: order.shopId.phone,
           shop_id: {
             GHN: order.shopId.shop_id.GHN,
             GHTK: order.shopId.shop_id.GHTK
-          },
-          auth: {
-            username: order.shopId.auth.username,
-            avatar: order.shopId.auth.image,
-            _id: order.shopId.auth._id.toString(),
-            phone: order.shopId.auth.phone,
-            email: order.shopId.auth.email
           }
         },
         products: order.products.map((product: IProductOrder) => ({

@@ -188,7 +188,7 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                         <Skeleton className="flex rounded-full w-12 h-12" />
                       ) : (
                         <Avatar
-                          src={session?.user.role === "shop" && session?.user.shopId === orderDetail?.shopId._id ? orderDetail?.buyerId.avatar : orderDetail?.shopId.auth.avatar}
+                          src={session?.user.role === "shop" && session?.user.shopId === orderDetail?.shopId._id ? orderDetail?.buyerId.avatar : orderDetail?.shopId.avatar}
                           className='w-12 h-12'
                         />
                       )
@@ -210,7 +210,7 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                           isLoading ? (
                             <Skeleton className="h-4 w-4/5 rounded-lg" />
                           ) : (
-                            <p>{session?.user.role === "shop" ? orderDetail?.buyerId.phone || "Không có" : orderDetail?.shopId.auth.phone || "Không có"}</p>
+                            <p>{session?.user.role === "shop" ? orderDetail?.buyerId.phone || "Không có" : orderDetail?.shopId.phone || "Không có"}</p>
                           )
                         }
                       </div>

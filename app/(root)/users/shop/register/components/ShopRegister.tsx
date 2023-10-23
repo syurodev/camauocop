@@ -27,12 +27,10 @@ const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
   const [provinceId, setProvinceId] = React.useState<number>(0)
   const [districtId, setDistrictId] = React.useState<number>(0)
   const [wardId, setWardId] = React.useState<string>("0")
-  const [next, setNext] = React.useState<boolean>(false)
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false)
-  const [code, setCode] = React.useState<number>(0)
   const [typeValue, setTypeValue] = React.useState<Selection>(new Set([]));
 
-  const { data: session, update } = useSession()
+  const { data: session } = useSession()
 
   const {
     register,
@@ -47,22 +45,13 @@ const ShopRegister: React.FC<IProps> = ({ id, userPhone }) => {
   const onSubmit = (data: IUserRegisterShopZodSchema) => {
     data.auth = id
     const fetchApi = async () => {
-      if (code === 4011) {
-        setNext(true)
-      }
       setIsSubmitting(true)
       const res = await shopRegister({
         data,
         district_id: districtId,
         ward_code: wardId,
-        next
       })
       setIsSubmitting(false)
-      if (res && res.code === 4011) {
-        setCode(4011)
-        toast.error(`${res.message} Nếu muốn tiếp tục hãy nhấn Đăng ký một lần nữa.
-        Lưu ý: khi tiếp tục số điện thoại của bạn sẻ bị thay đổi`)
-      }
 
       if (res && res.code === 200) {
         dispatch(setSession({
