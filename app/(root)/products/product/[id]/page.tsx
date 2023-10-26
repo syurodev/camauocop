@@ -13,6 +13,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { Session } from "next-auth";
 import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
 import ShopInfo from "./components/ShopInfo";
+import Wrapper from "./components/Wrapper";
 
 type Props = {
   params: { id: string };
@@ -44,57 +45,73 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
       <></>
     ) : (
       <article
-        className="flex flex-col gap-4 mt-2"
+        className="flex flex-col lg:!flex-row gap-3 lg:!gap-10"
       >
-        <div className="flex flex-col lg:!flex-row gap-5">
-          <SlideShow images={data?.productImages || []} />
+        <Wrapper>
+          <div
+            className="flex flex-col gap-4 mt-2"
+          >
+            <div className="flex flex-col lg:!flex-row gap-5">
+              <SlideShow images={data?.productImages || []} />
 
-          <div className="lg:w-1/2">
-            <h1 className="font-bold text-4xl uppercase">{data?.productName}</h1>
-            <Link href={`/products/${data?.productTypeName}`} className="text-lg uppercase font-semibold opacity-70">
-              {data?.productTypeName}
-            </Link>
+              <div className="lg:w-1/2">
+                <h1 className="font-bold text-4xl uppercase">{data?.productName}</h1>
+                <Link href={`/products/${data?.productTypeName}`} className="text-lg uppercase font-semibold opacity-70">
+                  {data?.productTypeName}
+                </Link>
 
-            <div className="flex items-center justify-between">
-              <div className="flex text-primary">
-                <AiFillStar />
-                <AiFillStar />
-                <AiFillStar />
-                <AiOutlineStar />
-                <AiOutlineStar />
+                <div className="flex items-center justify-between">
+                  <div className="flex text-primary">
+                    <AiFillStar />
+                    <AiFillStar />
+                    <AiFillStar />
+                    <AiOutlineStar />
+                    <AiOutlineStar />
+                  </div>
+                  <p>1000 đánh giá</p>
+                  <p>{`${data?.productSold}kg đã bán`}</p>
+                </div>
+
+                <h2 className="text-center my-2 font-bold">
+                  {data?.productPrice ?
+                    `Giá bán lẻ: ${formattedPriceWithUnit(data?.productPrice)}`
+                    : "Không có giá bán lẻ"}
+                </h2>
+
+                <p className="text-center">
+                  Số lượng còn lại: {data?.productQuantity}Kg
+                </p>
               </div>
-              <p>1000 đánh giá</p>
-              <p>{`${data?.productSold}kg đã bán`}</p>
+
+              <div className="lg:!hidden">
+                <ActionButtons user={JSON.stringify(session)} data={JSON.stringify(data)} />
+              </div>
             </div>
 
-            <h2 className="text-center my-2 font-bold">
-              {data?.productPrice ?
-                `Giá bán lẻ: ${formattedPriceWithUnit(data?.productPrice)}`
-                : "Không có giá bán lẻ"}
-            </h2>
+            <div className="flex flex-col gap-5 md:!flex-row md:!justify-between">
+              <div className="flex flex-col gap-5 md:!mr-5 w-full">
+                <div className="lg:hidden">
+                  <ShopInfo data={JSON.stringify(data)} />
+                </div>
 
-            <p className="text-center">
-              Số lượng còn lại: {data?.productQuantity}Kg
-            </p>
-            <ActionButtons user={JSON.stringify(session)} data={JSON.stringify(data)} />
-          </div>
-        </div>
+                <div className="w-full">
+                  <h2>Mô tả sản phẩm</h2>
+                  <RenderDescription description={data?.productDescription} />
+                </div>
+              </div>
 
-        <div className="flex flex-col gap-5 md:!flex-row md:!justify-between">
-          <div className="flex flex-col gap-5 md:!mr-5 w-full">
-            <ShopInfo data={JSON.stringify(data)} />
-
-            <div className="w-full">
-              <h2>Mô tả sản phẩm</h2>
-              <RenderDescription description={data?.productDescription} />
+              <div className="flex flex-col gap-3">
+                <h2>Gợi ý</h2>
+                <Recommectdation id={params.id} />
+              </div>
             </div>
           </div>
+        </Wrapper>
 
-          <div className="flex flex-col gap-3">
-            <h2>Gợi ý</h2>
-            <Recommectdation id={params.id} />
-          </div>
+        <div className="hidden lg:!flex flex-col w-fit">
+          <ActionButtons user={JSON.stringify(session)} data={JSON.stringify(data)} />
         </div>
+
       </article>
     )
   );

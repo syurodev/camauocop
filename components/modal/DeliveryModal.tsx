@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { GHNRequireNote, paymentType } from '@/lib/constant/GHNConstants';
 import { calculateTotalWeight } from '@/lib/calculateTotalWeight';
 import { useAppSelector } from '@/redux/store';
-import { updateOrderStatus } from '@/redux/features/orders.slice';
+import { updateOrderStatus } from '@/redux/features/orders-slice';
 
 type IProps = {
   isOpenDeliveryModal: boolean;

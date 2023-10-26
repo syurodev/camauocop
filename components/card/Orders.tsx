@@ -30,7 +30,7 @@ import { useDispatch } from "react-redux";
 import { capitalize } from "@/lib/utils";
 import { getColumns } from "@/lib/constant/OrderTableColumns"
 import { useAppSelector } from "@/redux/store";
-import { setOrders } from "@/redux/features/orders.slice";
+import { setOrders } from "@/redux/features/orders-slice";
 import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
 import { formatDate } from "@/lib/formatDate";
 import OrderDetailModal from "../modal/OrderDetailModal";

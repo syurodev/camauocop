@@ -6,7 +6,7 @@ import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Selec
 import { OrderStatus } from "@/lib/constant/OrderStatus"
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/store';
-import { updateOrderStatus } from '@/redux/features/orders.slice';
+import { updateOrderStatus } from '@/redux/features/orders-slice';
 import { changeOrderStatus } from '@/actions/order';
 import toast from 'react-hot-toast';
 

@@ -1,21 +1,22 @@
 "use client";
 import React from "react";
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Tooltip, useDisclosure } from "@nextui-org/react";
+import { Avatar, Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger, Tooltip, useDisclosure } from "@nextui-org/react";
 import {
   AiOutlineShoppingCart,
   AiOutlineHeart,
   AiFillHeart,
   AiOutlineDollarCircle,
 } from "react-icons/ai";
-import {
-  BsFillCartCheckFill
-} from "react-icons/bs";
+import { BsFillCartCheckFill } from "react-icons/bs";
+import { BiMessageSquareDots } from "react-icons/bi";
+import { MdOutlineLocationOn } from "react-icons/md"
 import { Session } from "next-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
+import { motion, AnimatePresence } from 'framer-motion'
 
 import BuyModal from "@/components/modal/BuyModal";
 import { updatePhone } from "@/actions/user";
@@ -24,6 +25,7 @@ import { addToCard, setFavorite } from "@/actions/products";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { pushCartItem } from "@/redux/features/cart-slice";
 import { setProductsDetail } from "@/redux/features/products-slice";
+import Comment from "./Comment";
 
 
 type IProps = {
@@ -39,6 +41,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
 
   const [favorited, setFavorited] = React.useState<boolean>(products?.isFavorite || false);
   const [favoriteLoading, setFavoriteLoading] = React.useState<boolean>(false);
+  const [openCommemt, setOpenCommemt] = React.useState<boolean>(false);
   const [addToCartLoading, setAddToCartLoading] = React.useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { isOpen: isOpenPhoneChange, onOpen: onOpenPhoneChange, onOpenChange: onOpenChangePhone, onClose: onClosePhoneChange } = useDisclosure();
@@ -146,7 +149,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
 
   return (
     <>
-      <div className="flex justify-center gap-7 items-center mt-3">
+      <div className="flex lg:!hidden justify-center gap-7 items-center mt-3">
         <Tooltip content={`${!session ? "Đăng nhập" : session.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Thêm vào giỏ hàng"}`}>
           <Button
             isIconOnly
@@ -201,14 +204,164 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
             }
           </Button>
         </Tooltip>
-
-        <BuyModal
-          isOpenBuyModal={isOpen}
-          onOpenChangeBuyModal={onOpenChange}
-          onCloseBuyModal={onClose}
-          session={session}
-        />
       </div>
+
+      <div className="sticky z-10 top-32 right-5 ">
+        {
+          openCommemt ? (
+            <AnimatePresence
+              mode="wait"
+            >
+              <motion.div
+                key="comment"
+                initial={{ width: 0, height: "100%", opacity: 0 }}
+                animate={{ width: "auto", height: "100%", opacity: 1 }}
+                exit={{ width: 0, height: "100%", opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div
+                  className='w-full lg:!w-[350px] lg:min-h-[calc(100vh-70px)] lg:border-s-1 p-2 -mt-14 relative'
+                >
+                  <Comment openCommemt={openCommemt} setOpenCommemt={setOpenCommemt} productId={products?._id!} />
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          ) : (
+            <AnimatePresence
+              mode="wait"
+            >
+              <motion.div
+                key="actionButton"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "auto", opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="hidden lg:!flex flex-col gap-3 w-fit"
+              >
+                <Popover showArrow placement="left">
+                  <PopoverTrigger>
+                    <Avatar as={"button"} src={products?.shopInfo?.image} />
+                  </PopoverTrigger>
+                  <PopoverContent className="flex flex-col justify-start items-start p-3">
+                    <p>
+                      <span className="font-semibold text-lg">
+                        {
+                          products?.shopInfo?.name
+                        }
+                      </span>
+
+                      <span
+                        className="ps-2"
+                      >
+                        {
+                          products?.shopInfo?.phone
+                        }
+                      </span>
+
+                    </p>
+                    <p className="flex flex-row gap-1 items-center">
+                      <MdOutlineLocationOn />
+                      {
+                        `${products?.shopInfo?.address[0].apartment} - ${products?.shopInfo?.address[0].ward} - ${products?.shopInfo?.address[0].district}`
+                      }
+                    </p>
+
+                    <Button
+                      size="sm"
+                      className="border-none mt-2"
+                      color="success"
+                      onPress={() => router.push(`/shop/${products?.shopId}`)}
+                    >
+                      Truy cập
+                    </Button>
+                  </PopoverContent>
+                </Popover>
+
+                <Tooltip
+                  content={`${!session ? "Đăng nhập" : session.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Thêm vào giỏ hàng"}`}
+                  placement="left"
+                >
+                  <Button
+                    isIconOnly
+                    isDisabled={addToCartLoading || session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block"}
+                    variant="flat"
+                    color={isProductInCart ? "success" : "default"}
+                    radius="full"
+                    onPress={handleAddToCart}
+                  >
+                    {
+                      isProductInCart ? (
+                        <BsFillCartCheckFill className="text-xl" />
+                      ) : (
+                        <AiOutlineShoppingCart className="text-xl" />
+                      )
+                    }
+                  </Button>
+                </Tooltip>
+
+                <Tooltip
+                  content={`${!session ? "Đăng nhập" : session?.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : favorited
+                    ? "Xoá khỏi danh sách yêu thích"
+                    : "Thêm vào danh sách yêu thích"}`}
+                  placement="left"
+                >
+                  <Button
+                    isIconOnly
+                    variant="flat"
+                    color={favorited ? "danger" : "default"}
+                    radius="full"
+                    isDisabled={favoriteLoading || session?.user.shopId === products?.shopId}
+                    onClick={handleFavorited}
+                  >
+                    {favorited ? (
+                      <AiFillHeart className="text-xl text-rose-600" />
+                    ) : (
+                      <AiOutlineHeart className="text-xl" />
+                    )}
+                  </Button>
+                </Tooltip>
+
+                <Tooltip
+                  content={`${!session ? "Đăng nhập" : session?.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Mua ngay"}`}
+                  placement="left"
+                >
+                  <Button
+                    variant="solid"
+                    radius="full"
+                    color="success"
+                    isIconOnly
+                    isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block"}
+                    onPress={handleBuyButtomClick}
+                  >
+                    <AiOutlineDollarCircle className="text-xl" />
+                  </Button>
+                </Tooltip>
+
+                <Tooltip
+                  content={`${!session ? "Đăng nhập" : "Bình luận"}`}
+                  placement="left"
+                >
+                  <Button
+                    isIconOnly
+                    variant="flat"
+                    radius="full"
+                    onPress={() => setOpenCommemt(true)}
+                  >
+                    <BiMessageSquareDots className="text-xl" />
+                  </Button>
+                </Tooltip>
+              </motion.div>
+            </AnimatePresence>
+          )
+        }
+      </div>
+
+      <BuyModal
+        isOpenBuyModal={isOpen}
+        onOpenChangeBuyModal={onOpenChange}
+        onCloseBuyModal={onClose}
+        session={session}
+      />
 
       <Modal
         isOpen={isOpenPhoneChange}

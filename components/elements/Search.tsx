@@ -1,10 +1,10 @@
 "use client"
-import { memo, useEffect, useRef, useState } from 'react'
-import { Button, Card, CardBody, Divider, Image, Input, Link, Skeleton, User } from '@nextui-org/react'
+import { memo, useEffect, useState } from 'react'
+import { Button, Card, Divider, Input, Link, Skeleton, User } from '@nextui-org/react'
 import { BiSearch, BiLink } from "react-icons/bi"
-import { redirect, useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import TippyHeadless from "@tippyjs/react/headless";
+import { motion } from 'framer-motion'
 
 import useDebounce from '@/lib/hooks/useDebounce'
 import { ProductData, ProductTypeData, SearchResponse, ShopData, search } from '@/actions/features'
@@ -75,7 +75,16 @@ const Search: React.FC<IProps> = ({ width }) => {
         appendTo={() => document.body}
         visible={showSearchBox}
         render={(attrs) => (
-          <div {...attrs} style={{ width: width }} className={`shadow-sm bg-default/70 dark:bg-default/80 backdrop-saturate-200 backdrop-blur-3xl rounded-large transition-all duration-250`}>
+
+          <motion.div
+            {...attrs}
+            // style={{ width: width }} 
+            key="searchBox"
+            initial={{ width: width, height: 0, opacity: 0 }}
+            animate={{ width: width, height: "auto", opacity: 1 }}
+            exit={{ width: width, height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className={`shadow-sm bg-[#f1f1f2]/70 dark:bg-default/80 backdrop-saturate-200 backdrop-blur-3xl rounded-large`}>
             <div className="flex p-3 flex-col gap-3">
               <div>
                 <p>
@@ -83,7 +92,7 @@ const Search: React.FC<IProps> = ({ width }) => {
                 </p>
                 {
                   searching ? (
-                    <Skeleton className="h-7 w-full rounded-lg" />
+                    <Skeleton className="h-[16px] w-full rounded-lg" />
                   ) : (
                     productTypes.length > 0 ? (
                       <div className='flex items-center gap-2 mt-1'>
@@ -125,7 +134,7 @@ const Search: React.FC<IProps> = ({ width }) => {
                 </p>
                 {
                   searching ? (
-                    <Skeleton className="h-14 w-full rounded-lg" />
+                    <Skeleton className="h-[16px] w-full rounded-lg" />
                   ) : (
                     <div>
                       {
@@ -140,6 +149,8 @@ const Search: React.FC<IProps> = ({ width }) => {
                                     className='p-2 w-full'
                                     onPress={() => {
                                       router.push(`/shop/${item._id}`)
+                                      setInputValue("")
+                                      setShowSearchBox(false)
                                     }}
                                   >
                                     <User
@@ -182,7 +193,7 @@ const Search: React.FC<IProps> = ({ width }) => {
                 </div>
                 {
                   searching ? (
-                    <Skeleton className="h-14 w-full rounded-lg" />
+                    <Skeleton className="h-[16px] w-full rounded-lg" />
                   ) : (
                     <div>
                       {
@@ -198,6 +209,8 @@ const Search: React.FC<IProps> = ({ width }) => {
                                     className='p-2 w-full'
                                     onPress={() => {
                                       router.push(`/products/product/${item._id}`)
+                                      setInputValue("")
+                                      setShowSearchBox(false)
                                     }}
                                   >
                                     <User
@@ -230,7 +243,7 @@ const Search: React.FC<IProps> = ({ width }) => {
                 }
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
         onClickOutside={() => setShowSearchBox(false)}
       >

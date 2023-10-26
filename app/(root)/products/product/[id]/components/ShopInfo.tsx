@@ -27,8 +27,8 @@ const ShopInfo: React.FC<IProps> = ({ data }) => {
         />
 
         <div className='flex flex-row items-center gap-1 text-small'>
+          <span>{`${shopInfo.shopInfo.address[0].district} - ${shopInfo.shopInfo.address[0].province}`}</span>
           <MdOutlineLocationOn />
-          <span>{shopInfo.shopInfo.address[0].province}</span>
         </div>
       </div>
     ) : (<></>)
