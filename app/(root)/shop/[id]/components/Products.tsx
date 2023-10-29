@@ -16,7 +16,7 @@ const Products: React.FC<IProps> = ({ shopId, shopAuth }) => {
   React.useEffect(() => {
     const fetchApi = async () => {
       setIsLoading(true)
-      const data = await getProducts(1, shopId)
+      const data = await getProducts(1, 12, shopId)
       setProducts(data.products)
       setIsLoading(false)
     }

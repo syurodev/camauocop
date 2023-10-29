@@ -112,7 +112,7 @@ export async function addProductType(data: IAddProductTypeZodSchema) {
 
 export async function getProducts(
   page: number = 1,
-  limitItems: number = 6,
+  limitItems: number = 12,
   shopId?: string,
   deleted: boolean = false,
 ): Promise<IProductsResponse> {
