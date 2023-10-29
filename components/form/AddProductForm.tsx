@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button, Input, Select, SelectItem, Switch, cn, Spinner, Card, CardHeader, CardBody, Divider } from "@nextui-org/react";
+import { Button, Input, Select, SelectItem, Switch, cn, Spinner, Card, CardHeader, CardBody, Divider, Link } from "@nextui-org/react";
 import toast from "react-hot-toast";
 import { Session } from "next-auth";
 
@@ -16,7 +16,7 @@ import {
 } from "@/lib/zodSchema/products";
 import ProductTypes from "../modal/ProductTypes";
 import { unit } from "@/lib/constant/unit";
-import Tiptap from "../Editor";
+import Tiptap from "../elements/Editor";
 import { IProduct } from "@/lib/models/products";
 
 type AddProductFormProps = {
@@ -30,6 +30,7 @@ type AddProductFormProps = {
 const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, productId, onClose, productData }) => {
   const [productTypes, setProductTypes] = useState<IAddProductTypes[]>([]);
   const [retail, setRetail] = useState<boolean>(true);
+  const [specialty, setSpecialty] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [priceInputFormated, setPriceInputFormated] = useState<string>("");
 
@@ -56,6 +57,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, 
         }],
       retailPrice: productData?.retailPrice || 0,
       retail: productData?.retail || true,
+      specialty: productData?.specialty || false,
       images: productData?.images || [],
       quantity: productData?.quantity || 0,
       unit: "kg",
@@ -74,6 +76,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, 
   React.useEffect(() => {
     if (productData) {
       setRetail(productData?.retail)
+      setSpecialty(productData?.specialty)
     }
   }, [productData])
 
@@ -91,6 +94,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, 
       data = {
         ...data,
         shopId: session?.user.shopId,
+        specialty: specialty
       };
       if (edit && productId) {
         const res = await editProduct(productId, data, session.user.accessToken);
@@ -139,8 +143,13 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, 
   };
 
   const handleRetail = (isSelected: boolean) => {
-    setValue("retail", isSelected)
+    setValue("specialty", isSelected)
     setRetail(isSelected)
+  }
+
+  const handleSpecialty = (isSelected: boolean) => {
+    setValue("specialty", isSelected)
+    setSpecialty(isSelected)
   }
 
   return (
@@ -157,6 +166,63 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, 
             isInvalid={!!errors.name}
             errorMessage={errors.name && errors.name.message}
           />
+
+          <Switch
+            classNames={{
+              base: cn(
+                "inline-flex flex-row-reverse !w-full !max-w-full bg-content1 hover:bg-content2 items-center",
+                "justify-between cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
+                "data-[selected=true]:border-primary",
+              ),
+              wrapper: "p-0 h-4 overflow-visible",
+              thumb: cn("w-6 h-6 border-2 shadow-lg",
+                "group-data-[hover=true]:border-primary",
+                //selected
+                "group-data-[selected=true]:ml-6",
+                // pressed
+                "group-data-[pressed=true]:w-7",
+                "group-data-[selected]:group-data-[pressed]:ml-4",
+              ),
+            }}
+            defaultSelected={specialty}
+            onValueChange={handleSpecialty}
+          >
+            <div className="flex flex-col gap-1">
+              <p className="text-medium">Đặc sản</p>
+              <p className="text-tiny text-default-400">
+                <span>Sản phẩm đặc sản sẻ được hiển thị ở trang OCOP. </span>
+                {
+                  specialty && <>
+                    <br />
+                    <span className="font-semibold">
+                      Vui lòng đặt tên sản phẩm có chứa tên của đặc sản.
+                    </span>
+                    <br />
+                    <span className="!text-primary font-semibold">
+                      Ví dụ:
+                      <span className="font-bold"> Cá kèo </span>
+                      tươi ngon
+                    </span>
+                    <br />
+                    <span className="font-semibold text-danger">
+                      Lưu lý nếu đặt tên sai cách sản phẩm của bạn có thể sẻ không được hiện trong trang OCOP
+                    </span>
+                    <br />
+                    <Link
+                      isExternal
+                      showAnchorIcon
+                      color="success"
+                      size="sm"
+                      href={"/specialty"}
+                    >
+                      Xem tên đặc sản tại đây
+                    </Link>
+                  </>
+                }
+              </p>
+            </div>
+          </Switch>
+
 
           {/* Loại sản phẩm */}
           <div className="flex items-center">

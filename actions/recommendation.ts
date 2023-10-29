@@ -1,9 +1,6 @@
 "use server";
 import natural from "natural";
 import Vector from "vector-object";
-// import Cart, { ICartSchema } from "@/lib/models/carts";
-// import Favorite, { IFavoriteSchema } from "@/lib/models/favorites";
-// import Order, { IOrderSchema } from "@/lib/models/orders";
 import Product, { IProduct } from "@/lib/models/products";
 import { ObjectId } from "mongodb";
 
@@ -175,35 +172,23 @@ export const getSimilarProducts = async (
   const productIds = productSimilarList.map((item) => item.id);
   try {
     const products = await Product.find({ _id: { $in: productIds } })
-      .select("name images retailPrice");
+      .select("name images retailPrice specialty");
 
     if (products && products.length > 0) {
-      // Format the data
-      // _id: { toString: () => string };
-      //     name: string;
-      //     productType: { name: string };
-      //     shopId: { 
-      //       name: string;
-      //       auth: {
-      //         username:string
-      //         email:string
-      //         image:string
-      //       }
-      //     };
-      //     images: string[];
-      //     price: number;
       const formattedProducts = products.map(
         (product): {
           _id: string;
           productName: string;
           productImages: string[];
           productPrice: number;
+          specialty: boolean;
         } => {
           return {
             _id: product._id?.toString(),
             productName: product.name,
             productImages: product.images,
             productPrice: product.retailPrice,
+            specialty: product.specialty,
           };
         }
       );

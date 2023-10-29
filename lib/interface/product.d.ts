@@ -3,6 +3,7 @@ type IProducts = {
   productName: string;
   productImages: string[];
   productPrice: number;
+  specialty: boolean;
 };
 
 type IProductsResponse = {
@@ -27,6 +28,7 @@ type IProductDetail = {
   packageOptions: ProductPack[];
   productPrice: number;
   productSold: number;
+  specialty: boolean;
   productQuantity: number;
   productImages: string[];
   productCreatedAt: Date;

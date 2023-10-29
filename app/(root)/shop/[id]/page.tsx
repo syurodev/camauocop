@@ -4,7 +4,7 @@ import { Session, getServerSession } from 'next-auth';
 import { getShopInfo } from '@/actions/shop';
 import TopSide from '@/components/card/TopSide';
 import Content from './components/Content';
-import { authOptions } from '@/app/api/auth/[...nextauth]/options';
+// import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import Wrapper from './components/Wrapper';
 
 type Props = {

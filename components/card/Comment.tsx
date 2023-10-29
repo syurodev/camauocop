@@ -1,16 +1,23 @@
 import React from 'react'
 import { Avatar, Image, useDisclosure } from '@nextui-org/react'
+import { motion } from 'framer-motion'
+
 import ImageView from '../modal/ImageView'
 
 type IProps = {
   data: CommentResponse
+  index: number
 }
 
-const CommentItem: React.FC<IProps> = ({ data }) => {
+const CommentItem: React.FC<IProps> = ({ data, index }) => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   return (
-    <>
+    <motion.div
+      initial={{ y: 10, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.3, delay: index / 10 }}
+    >
       <div className='flex flex-row gap-3 items-start'>
         <Avatar
           src={data.userImage}
@@ -55,7 +62,7 @@ const CommentItem: React.FC<IProps> = ({ data }) => {
         />
       }
 
-    </>
+    </motion.div>
   )
 }
 

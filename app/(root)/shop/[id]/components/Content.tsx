@@ -7,6 +7,7 @@ import Orders from '@/components/card/Orders';
 import Analysis from './Analysis';
 import { getOrders } from '@/actions/order';
 import { useAppSelector } from '@/redux/store';
+import Advertisement from './Advertisement';
 
 type IProps = {
   shopId: string
@@ -78,6 +79,13 @@ const Content: React.FC<IProps> = ({ shopId }) => {
             </Tab>
           )
         }
+        {/* {
+          session?.user.role === "shop" && session?.user._id === data?.auth._id && (
+            <Tab key="advertisement" title="Quảng cáo">
+              <Advertisement />
+            </Tab>
+          )
+        } */}
         {
           session?.user.role === "shop" && session?.user._id === data?.auth._id && (
             <Tab key="analysis" title="Thống kê">

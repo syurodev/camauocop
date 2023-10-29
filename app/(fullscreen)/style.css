@@ -1,0 +1,12 @@
+html,
+body,
+:root {
+  height: 100%;
+  box-sizing: border-box;
+  scrollbar-gutter: auto !important;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}

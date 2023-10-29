@@ -18,6 +18,7 @@ type Product = {
   _id: ObjectId;
   name: string;
   retailPrice: number;
+  specialty: boolean;
   images: string[];
 };
 
@@ -111,12 +112,13 @@ export async function addProductType(data: IAddProductTypeZodSchema) {
 
 export async function getProducts(
   page: number = 1,
+  limitItems: number = 6,
   shopId?: string,
-  deleted: boolean = false
+  deleted: boolean = false,
 ): Promise<IProductsResponse> {
   try {
     await connectToDB();
-    const limit = 20;
+    const limit = limitItems;
     const skip = (page - 1) * limit;
 
     let query: any = { deleted: deleted };
@@ -129,10 +131,10 @@ export async function getProducts(
     const totalPages = Math.ceil(totalProducts / limit);
 
     const products: Product[] = await Product.find(query)
-      .sort({ createdAt: -1 }) // sort by newest
-      .skip(skip) // skip products for pagination
-      .limit(limit) // limit to 20 products per page
-      .select("name images retailPrice"); // select name, images, and price of the product
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("name images retailPrice specialty");
 
     if (products && products.length > 0) {
       // Format the data
@@ -143,6 +145,7 @@ export async function getProducts(
             productName: product.name,
             productImages: product.images,
             productPrice: product.retailPrice,
+            specialty: product.specialty,
           };
         }
       );
@@ -195,6 +198,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
           productImages: product.images,
           productCreatedAt: product.createdAt,
           productDeletedAt: product.deleteAt,
+          specialty: product.specialty,
           shopId: product.shopId._id.toString() || "",
           productTypeName: product.productType.name.toString(),
           productTypeId: product.productType._id.toString(),
@@ -243,6 +247,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
         productPrice: product.retailPrice,
         productSold: product.sold || 0,
         productQuantity: product.quantity,
+        specialty: product.specialty,
         productImages: product.images,
         productCreatedAt: product.createdAt,
         productDeletedAt: product.deleteAt,
@@ -272,7 +277,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
 
 export async function searchProducts(
   slug: string,
-  page: number
+  page: number,
 ): Promise<IProductsResponse> {
   try {
     await connectToDB();
@@ -299,7 +304,7 @@ export async function searchProducts(
       .sort({ sold: -1 })
       .skip(skip)
       .limit(limit)
-      .select("name images price");
+      .select("name images price specialty");
 
     if (products && products.length > 0) {
       // Format the data
@@ -310,6 +315,7 @@ export async function searchProducts(
             productName: product.name,
             productImages: product.images,
             productPrice: product.retailPrice,
+            specialty: product.specialty,
           };
         }
       );
@@ -535,5 +541,61 @@ export async function addToCard(productId: string, userId: string, accessToken: 
       code: 500,
       message: "Lỗi hệ thống vui lòng thử lại"
     }
+  }
+}
+
+export async function getProductsSpecialty(
+  slug: string,
+  page: number = 1,
+  limitItems: number = 24,
+) {
+  try {
+    await connectToDB();
+    const limit = limitItems;
+    const skip = (page - 1) * limit;
+
+    let query: any = { deleted: false, specialty: true };
+
+    if (slug) {
+      query = { ...query, name: { $regex: slug, $options: "i" } };
+    }
+
+    const totalProducts = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const products: Product[] = await Product.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("name images retailPrice specialty");
+
+    if (products && products.length > 0) {
+      // Format the data
+      const formattedProducts = products.map(
+        (product: Product): IProducts => {
+          return {
+            _id: product._id?.toString(),
+            productName: product.name,
+            productImages: product.images,
+            productPrice: product.retailPrice,
+            specialty: product.specialty
+          };
+        }
+      );
+      return {
+        products: formattedProducts,
+        totalPages,
+      };
+    } else {
+      return {
+        products: [],
+        totalPages: 0,
+      };
+    }
+  } catch (error) {
+    return {
+      products: [],
+      totalPages: 0,
+    };
   }
 }

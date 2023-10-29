@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Button, Card, CardBody, CardFooter, Image, useDisclosure, Popover, PopoverTrigger, PopoverContent } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import { HiSparkles } from "react-icons/hi2"
 
 import { formattedPriceWithUnit } from "@/lib/formattedPriceWithUnit";
 import EditProductModal from "@/components/modal/EditProductModal";
@@ -24,6 +25,7 @@ const CardItem: React.FC<CardItemProps> = ({
   const { isOpen: isOpenDelete, onOpen: onOpenDelete, onOpenChange: onOpenChangeDelete, onClose: onCloseDelete } = useDisclosure();
   const [isOpenPopover, setIsOpenPopover] = React.useState(false);
 
+  console.log(data)
   return (
     <>
       {
@@ -119,7 +121,7 @@ const CardItem: React.FC<CardItemProps> = ({
             shadow="sm"
             key={data._id}
             isPressable
-            className="w-full"
+            className="w-full relative"
             onPress={() => router.push(`/products/product/${data._id}`)}
           >
             <CardBody className="overflow-visible p-0 relative">
@@ -132,6 +134,14 @@ const CardItem: React.FC<CardItemProps> = ({
                 className="w-full object-cover h-[140px]"
                 src={data.productImages[0]}
               />
+
+              {
+                data.specialty && (
+                  <div className="absolute bottom-[-12px] left-1/2 -translate-x-1/2 z-50 shadow-md rounded-full">
+                    <HiSparkles className="text-2xl" />
+                  </div>
+                )
+              }
             </CardBody>
 
             <CardFooter className="flex flex-col text-small justify-between">

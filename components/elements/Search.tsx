@@ -49,7 +49,10 @@ const Search: React.FC<IProps> = ({ width }) => {
         }
       }
     };
-    fetchApi();
+    if (inputValue) {
+      fetchApi();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounced]);
 
   useEffect(() => {

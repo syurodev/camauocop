@@ -67,7 +67,7 @@ export const search = async (value: string): Promise<SearchResponse> => {
 
     if (productTypes.length > 0) {
       formattedProductTypes = productTypes.map((type) => ({
-        _id: type._id,
+        _id: type._id.toString(),
         name: type.name,
       }));
     }

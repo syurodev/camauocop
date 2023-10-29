@@ -2,15 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { Button, Card, CardBody, CardFooter, Skeleton } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
+
 import CardItem from "./card/CardItem";
 import { getProducts } from "@/actions/products";
-import { Card, CardBody, CardFooter, Skeleton } from "@nextui-org/react";
 
 type INews = {
   className?: string;
 };
 
 const News: React.FC<INews> = ({ className }) => {
+  const router = useRouter()
   const [news, setNews] = useState<IProducts[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -25,19 +28,32 @@ const News: React.FC<INews> = ({ className }) => {
   }, []);
 
   return (
-    <section className={`p-5 w-full ${className || ""} `}>
-      <motion.h3
-        className="w-full text-left font-bold text-2xl"
-        initial={{ y: 0, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.6 }}
+    <section className={`w-full ${className || ""} `}>
+      <div
+        className="flex flex-row items-center"
       >
-        SẢN PHẨM MỚI
-      </motion.h3>
+        <motion.h3
+          className="w-full text-left font-bold text-2xl"
+          initial={{ y: 0, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          SẢN PHẨM MỚI
+        </motion.h3>
+
+        <Button
+          size="sm"
+          variant="flat"
+          className="border-none"
+          onPress={() => router.push(`/products/news`)}
+        >
+          Xem thêm
+        </Button>
+      </div>
 
       <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4 xl:gap-5">
         {isLoading
-          ? Array.from({ length: 24 }).map((_, index) => (
+          ? Array.from({ length: 6 }).map((_, index) => (
             <Card shadow="sm" key={index}>
               <Skeleton isLoaded={!isLoading} className="rounded-lg">
                 <CardBody className="overflow-visible p-0">

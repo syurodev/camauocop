@@ -29,6 +29,7 @@ export const AddProductZodSchema = z.object({
   ),
   retailPrice: z.optional(z.coerce.number()),
   retail: z.boolean(),
+  specialty: z.boolean(),
   unit: z.string().nonempty("Vui lòng chọn đơn vị tính"),
 });
 export type IAddProductZodSchema = z.infer<typeof AddProductZodSchema>;

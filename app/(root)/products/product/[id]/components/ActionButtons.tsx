@@ -30,13 +30,11 @@ import Comment from "./Comment";
 
 type IProps = {
   data: string
-  user: string
 }
 
-const ActionButtons: React.FC<IProps> = ({ user, data }) => {
-  const session: Session = JSON.parse(user)
+const ActionButtons: React.FC<IProps> = ({ data }) => {
   const dispatch = useDispatch<AppDispatch>()
-
+  const session = useAppSelector(state => state.sessionReducer.value)
   const [products, setProducts] = React.useState<Partial<IProductDetail> | null>(JSON.parse(data) || null)
 
   const [favorited, setFavorited] = React.useState<boolean>(products?.isFavorite || false);
@@ -59,7 +57,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
       router.push("/login")
     }
     setFavoriteLoading(true)
-    const res = await setFavorite(session.user._id, products?._id!, session.user.accessToken)
+    const res = await setFavorite(session?.user._id!, products?._id!, session?.user.accessToken!)
     setFavoriteLoading(false)
 
     if (res.code === 200) {
@@ -92,7 +90,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
       router.push("/login")
     }
     setAddToCartLoading(true)
-    const res = await addToCard(products?._id!, session.user._id, session.user.accessToken)
+    const res = await addToCard(products?._id!, session?.user?._id!, session?.user?.accessToken!)
     setAddToCartLoading(false)
 
     if (res.code === 200) {
@@ -131,7 +129,7 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
 
   const onSubmit = async (data: IPhoneSchema) => {
     console.log(data)
-    const res = await updatePhone(data.phone, session.user._id, session.user.accessToken)
+    const res = await updatePhone(data.phone, session?.user?._id!, session?.user?.accessToken!)
 
     if (res.code === 200) {
       toast.success(`${res.message}. "Trang web sẽ tự động tải lại"`)
@@ -356,12 +354,16 @@ const ActionButtons: React.FC<IProps> = ({ user, data }) => {
         }
       </div>
 
-      <BuyModal
-        isOpenBuyModal={isOpen}
-        onOpenChangeBuyModal={onOpenChange}
-        onCloseBuyModal={onClose}
-        session={session}
-      />
+      {
+        session && (
+          <BuyModal
+            isOpenBuyModal={isOpen}
+            onOpenChangeBuyModal={onOpenChange}
+            onCloseBuyModal={onClose}
+            session={session}
+          />
+        )
+      }
 
       <Modal
         isOpen={isOpenPhoneChange}

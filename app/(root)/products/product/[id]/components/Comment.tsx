@@ -1,12 +1,13 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import { Button, Image, Spinner, Textarea } from '@nextui-org/react'
+import { Button, Image, Skeleton, Spinner, Textarea } from '@nextui-org/react'
 import { MdClose } from "react-icons/md"
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useDispatch } from 'react-redux'
+import { motion } from 'framer-motion'
 
 import { UploadButton } from '@/lib/uploadthing'
 import { useAppSelector } from '@/redux/store'
@@ -95,13 +96,35 @@ const Comment: React.FC<IProps> = ({ setOpenCommemt, productId, openCommemt = tr
     >
       <div className='w-[90%] relative lg:!h-[calc(100vh-300px)] overflow-scroll flex flex-col gap-3'>
         {
-          comments && comments.length > 0 ? (
-            comments.map(comment => {
-              return <CommentItem key={comment._id} data={comment} />
+          commentsLoading ? (
+            Array.from({ length: 10 }).map((_, index) => {
+              return (
+                <motion.div
+                  key={index}
+                  className="max-w-[300px] w-full flex items-center gap-3"
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -10, opacity: 0 }}
+                  transition={{ duration: 0.3, delay: index / 10 }}
+                >
+                  <div>
+                    <Skeleton className="flex rounded-full w-12 h-12" />
+                  </div>
+                  <div className="w-full flex flex-col gap-2">
+                    <Skeleton className="h-3 w-3/5 rounded-lg" />
+                    <Skeleton className="h-3 w-4/5 rounded-lg" />
+                  </div>
+                </motion.div>
+              )
             })
-          ) : (
-            <span>Không có bình luận</span>
-          )
+          ) :
+            comments && comments.length > 0 ? (
+              comments.map((comment, index) => {
+                return <CommentItem key={comment._id} data={comment} index={index} />
+              })
+            ) : (
+              <span>Không có bình luận</span>
+            )
         }
       </div>
       <form
