@@ -1,9 +1,14 @@
 "use server";
 import Product from "@/lib/models/products";
 
-export async function getTopProductType() {
+export interface ProductTypesResponse {
+  totalSold: number,
+  typeName: string
+}
+
+export async function getProductTypes() {
   try {
-    const data = await Product.aggregate([
+    const data: ProductTypesResponse[] = await Product.aggregate([
       {
         $lookup: {
           from: "producttypes",
@@ -31,17 +36,25 @@ export async function getTopProductType() {
           totalSold: 1,
         },
       },
-      {
-        $limit: 10,
-      },
     ]);
+
     if (data.length > 0) {
-      return data;
+      return {
+        code: 200,
+        data: data
+      };
     } else {
-      return [];
+
+      return {
+        code: 400,
+        data: []
+      };
     }
   } catch (error) {
     console.log(error);
-    return [];
+    return {
+      code: 500,
+      data: []
+    };
   }
 }

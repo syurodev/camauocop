@@ -25,7 +25,7 @@ const Categories: React.FC = () => {
 
       <div
         // className="flex flex-row whitespace-nowrap gap-3 items-start justify-start"
-        className="grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4 xl:gap-5"
+        className="grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4 xl:gap-5"
       >
         {
           categories.slice(0, 4).map(category => {

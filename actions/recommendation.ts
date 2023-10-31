@@ -20,6 +20,22 @@ type Product = {
   images: string[];
 };
 
+type ProductQuery = {
+  _id: ObjectId;
+  name: string;
+  retailPrice: number;
+  specialty: boolean;
+  images: string[];
+  packageOptions: {
+    unit: string;
+    weight: number;
+    price: number;
+    length: number;
+    width: number;
+    height: number;
+  }[];
+};
+
 type ProductDataItem = {
   _id: string;
   content: string;
@@ -171,8 +187,8 @@ export const getSimilarProducts = async (
 
   const productIds = productSimilarList.map((item) => item.id);
   try {
-    const products = await Product.find({ _id: { $in: productIds } })
-      .select("name images retailPrice specialty");
+    const products: ProductQuery[] = await Product.find({ _id: { $in: productIds } })
+      .select("name images retailPrice specialty packageOptions");
 
     if (products && products.length > 0) {
       const formattedProducts = products.map(
@@ -183,11 +199,18 @@ export const getSimilarProducts = async (
           productPrice: number;
           specialty: boolean;
         } => {
+          let productPrice = product.retailPrice;
+          if (!productPrice || productPrice === 0) {
+            const minPrice = Math.min(
+              ...product.packageOptions.map((option) => option.price)
+            );
+            productPrice = minPrice;
+          }
           return {
             _id: product._id?.toString(),
             productName: product.name,
             productImages: product.images,
-            productPrice: product.retailPrice,
+            productPrice: productPrice,
             specialty: product.specialty,
           };
         }

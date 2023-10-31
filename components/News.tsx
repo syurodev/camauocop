@@ -51,7 +51,7 @@ const News: React.FC<INews> = ({ className }) => {
         </Button>
       </div>
 
-      <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4 xl:gap-5">
+      <div className="mt-5 grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4 xl:gap-5">
         {isLoading
           ? Array.from({ length: 6 }).map((_, index) => (
             <Card shadow="sm" key={index}>

@@ -1,6 +1,6 @@
 "use client"
 import { memo, useEffect, useState } from 'react'
-import { Button, Card, Divider, Input, Link, Skeleton, User } from '@nextui-org/react'
+import { Button, Card, Chip, Divider, Input, Link, Skeleton, User } from '@nextui-org/react'
 import { BiSearch, BiLink } from "react-icons/bi"
 import { useRouter } from 'next/navigation'
 import TippyHeadless from "@tippyjs/react/headless";
@@ -209,7 +209,7 @@ const Search: React.FC<IProps> = ({ width }) => {
                                     key={item._id}
                                     isPressable
                                     isHoverable
-                                    className='p-2 w-full'
+                                    className='p-2 w-full flex flex-row items-start gap-3'
                                     onPress={() => {
                                       router.push(`/products/product/${item._id}`)
                                       setInputValue("")
@@ -225,6 +225,10 @@ const Search: React.FC<IProps> = ({ width }) => {
                                       }}
                                       className='cursor-pointer'
                                     />
+                                    {
+                                      item.specialty && <Chip color="success" size='sm' variant="flat">Đặc sản</Chip>
+
+                                    }
                                   </Card>
                                 )
                               })

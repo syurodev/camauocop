@@ -20,16 +20,26 @@ type Product = {
   retailPrice: number;
   specialty: boolean;
   images: string[];
+  packageOptions: {
+    unit: string;
+    weight: number;
+    price: number;
+    length: number;
+    width: number;
+    height: number;
+  }[];
 };
 
-export async function addProduct(data: IAddProductZodSchema) {
+export async function addProduct(data: string) {
   try {
     await connectToDB();
+    const req: IAddProductZodSchema = JSON.parse(data);
 
-    const product = new Product(data);
-    const quantity = convertToKg(product.quantity, data.unit)
+    const product = new Product(req);
+    const quantity = convertToKg(product.quantity, req.unit)
     product.quantity = quantity
 
+    console.log("product", product)
     await product.save();
     return {
       code: 200,
@@ -134,17 +144,25 @@ export async function getProducts(
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select("name images retailPrice specialty");
+      .select("name images retailPrice specialty packageOptions");
 
     if (products && products.length > 0) {
       // Format the data
       const formattedProducts = products.map(
         (product: Product): IProducts => {
+          let productPrice = product.retailPrice;
+          if (!productPrice || productPrice === 0) {
+            const minPrice = Math.min(
+              ...product.packageOptions.map((option) => option.price)
+            );
+            productPrice = minPrice;
+          }
+
           return {
             _id: product._id?.toString(),
             productName: product.name,
             productImages: product.images,
-            productPrice: product.retailPrice,
+            productPrice: productPrice,
             specialty: product.specialty,
           };
         }
@@ -278,6 +296,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
 export async function searchProducts(
   slug: string,
   page: number,
+  filter: Filter
 ): Promise<IProductsResponse> {
   try {
     await connectToDB();
@@ -298,23 +317,85 @@ export async function searchProducts(
     const limit = 20;
     const skip = (page - 1) * limit;
 
-    const products: Product[] = await Product.find({
-      productType: { $in: productTypeIds },
-    })
-      .sort({ sold: -1 })
-      .skip(skip)
-      .limit(limit)
-      .select("name images price specialty");
+    const query: any = {
+      $or: [
+        { productType: { $in: productTypeIds } },
+        { name: { $regex: slug, $options: "i" } },
+      ],
+      deleted: false
+    }
+
+    const sortOptions: any = {
+      $sort: { sold: -1 },
+    };
+
+    if (filter.price === "low") {
+      sortOptions.$sort = { minPrice: 1 };
+    } else if (filter.price === "hight") {
+      sortOptions.$sort = { minPrice: -1 };
+    }
+
+    const products: Product[] = await Product.aggregate([
+      {
+        $match: query,
+      },
+      {
+        $addFields: {
+          minPrice: {
+            $min: {
+              $cond: [
+                { $eq: ["$retailPrice", 0] },
+                { $map: { input: "$packageOptions", in: "$$this.price" } },
+                ["$retailPrice"],
+              ],
+            },
+          },
+        },
+      },
+      {
+        $sort: sortOptions.$sort,
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          images: 1,
+          retailPrice: {
+            $cond: [
+              { $eq: ["$retailPrice", 0] },
+              "$minPrice",
+              "$retailPrice",
+            ],
+          },
+          specialty: 1,
+          packageOptions: 1,
+        },
+      },
+    ]);
 
     if (products && products.length > 0) {
       // Format the data
       const formattedProducts = products.map(
         (product: Product): IProducts => {
+          let productPrice = product.retailPrice;
+          if (!productPrice || productPrice === 0) {
+            const minPrice = Math.min(
+              ...product.packageOptions.map((option) => option.price)
+            );
+            productPrice = minPrice;
+          }
+
           return {
             _id: product._id?.toString(),
             productName: product.name,
             productImages: product.images,
-            productPrice: product.retailPrice,
+            productPrice: productPrice,
             specialty: product.specialty,
           };
         }
@@ -548,6 +629,7 @@ export async function getProductsSpecialty(
   slug: string,
   page: number = 1,
   limitItems: number = 24,
+  filter: Filter
 ) {
   try {
     await connectToDB();
@@ -556,32 +638,86 @@ export async function getProductsSpecialty(
 
     let query: any = { deleted: false, specialty: true };
 
-    if (slug) {
+    if (slug && slug !== "all") {
       query = { ...query, name: { $regex: slug, $options: "i" } };
     }
 
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    const products: Product[] = await Product.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .select("name images retailPrice specialty");
+    const sortOptions: any = {
+      $sort: { sold: -1 },
+    };
+
+    if (filter.price === "low") {
+      sortOptions.$sort = { minPrice: 1 };
+    } else if (filter.price === "hight") {
+      sortOptions.$sort = { minPrice: -1 };
+    }
+
+    const products: Product[] = await Product.aggregate([
+      {
+        $match: query,
+      },
+      {
+        $addFields: {
+          minPrice: {
+            $min: {
+              $cond: [
+                { $eq: ["$retailPrice", 0] },
+                { $map: { input: "$packageOptions", in: "$$this.price" } },
+                ["$retailPrice"],
+              ],
+            },
+          },
+        },
+      },
+      {
+        $sort: sortOptions.$sort,
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          images: 1,
+          retailPrice: {
+            $cond: [
+              { $eq: ["$retailPrice", 0] },
+              "$minPrice",
+              "$retailPrice",
+            ],
+          },
+          specialty: 1,
+          packageOptions: 1,
+        },
+      },
+    ]);
 
     if (products && products.length > 0) {
-      // Format the data
-      const formattedProducts = products.map(
-        (product: Product): IProducts => {
-          return {
-            _id: product._id?.toString(),
-            productName: product.name,
-            productImages: product.images,
-            productPrice: product.retailPrice,
-            specialty: product.specialty
-          };
+      const formattedProducts = products.map((product) => {
+        let productPrice = product.retailPrice;
+        if (!productPrice || productPrice === 0) {
+          const minPrice = Math.min(
+            ...product.packageOptions.map((option) => option.price)
+          );
+          productPrice = minPrice;
         }
-      );
+
+        return {
+          _id: product._id.toString(),
+          productName: product.name,
+          productImages: product.images,
+          productPrice: productPrice,
+          specialty: product.specialty,
+        };
+      });
+
       return {
         products: formattedProducts,
         totalPages,

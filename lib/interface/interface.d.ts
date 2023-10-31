@@ -27,3 +27,7 @@ type INotificationResponse = {
   code: number,
   data: INotification[] | []
 }
+
+type Filter = {
+  price?: string;
+}

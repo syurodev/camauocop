@@ -15,6 +15,7 @@ export interface ProductData {
   name: string;
   image: string;
   shopName: string;
+  specialty: boolean;
 }
 
 export interface ShopData {
@@ -87,6 +88,7 @@ export const search = async (value: string): Promise<SearchResponse> => {
         name: product.name,
         shopName: product.shopId.name,
         image: product.images[0],
+        specialty: product.specialty,
       }));
     }
 

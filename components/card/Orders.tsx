@@ -163,7 +163,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
         );
       case "status":
         return (
-          <Chip className="capitalize" color={statusColorMap[order.status]} size="sm" variant="flat">
+          <Chip className="capitalize select-none pointer-events-none" color={statusColorMap[order.status]} size="sm" variant="flat">
             {order.status === "pending" ? "Đang chờ" : order.status === "processed" ? "Đã duyệt" : order.status === "shipped" ? "Đang vận chuyển"
               : order.status === "delivered" ? "Đã giao hàng" : "Bị huỷ"
             }
@@ -252,13 +252,13 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
           />
           <div className="flex gap-3">
             <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
+              <DropdownTrigger>
                 <Button
                   endContent={<BsThreeDotsVertical className="text-small" />}
                   size="sm"
                   variant="flat"
                 >
-                  Status
+                  Trạng thái
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
@@ -276,31 +276,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button
-                  endContent={<BsThreeDotsVertical className="text-small" />}
-                  size="sm"
-                  variant="flat"
-                >
-                  Columns
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode="multiple"
-                onSelectionChange={setVisibleColumns}
-              >
-                {columns.map((column) => (
-                  <DropdownItem key={column.uid} className="capitalize">
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
+
             {/* <Button
               className="bg-foreground text-background"
               endContent={<AiOutlinePlus />}

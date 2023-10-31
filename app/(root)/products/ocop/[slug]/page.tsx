@@ -1,8 +1,9 @@
 "use client";
 import { FC, useEffect, useState } from "react";
 import CardItem from "@/components/card/CardItem";
-import { Card, CardBody, CardFooter, Listbox, ListboxItem, Pagination, Skeleton } from "@nextui-org/react";
+import { Button, Card, CardBody, CardFooter, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Listbox, ListboxItem, Pagination, Skeleton } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import { BsThreeDotsVertical } from "react-icons/bs"
 import { motion, AnimatePresence } from "framer-motion";
 
 import { getProductsSpecialty } from "@/actions/products";
@@ -16,22 +17,25 @@ type IProps = {
 
 const ProductsOCOPPage: FC<IProps> = ({ params }) => {
   const router = useRouter()
+  const slug = decodeURIComponent(params.slug);
   const [data, setData] = useState<IProductsResponse>();
   const [page, setPage] = useState<number>(1);
+  const [filter, setFilter] = useState<Filter>({
+    price: "",
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
-      const slug = decodeURIComponent(params.slug);
-      const response = await getProductsSpecialty(slug, page);
+      const response = await getProductsSpecialty(slug || "all", page, 12, filter);
       setData(response);
       setIsLoading(false)
     };
 
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.slug]);
+  }, [params.slug, filter]);
 
   return (
     <div className="flex flex-row items-start gap-3">
@@ -57,6 +61,51 @@ const ProductsOCOPPage: FC<IProps> = ({ params }) => {
         exit={{ width: "100%", height: 0, opacity: 0 }}
         transition={{ duration: 0.3 }}
       >
+        <div className="w-full flex justify-start">
+          <h2>{`Kết quả của: ${slug === "all" ? "Đặc sản" : slug}`}</h2>
+        </div>
+        {/* SORT */}
+        <div className="w-full flex justify-end gap-3">
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                endContent={<BsThreeDotsVertical className="text-small" />}
+                size="sm"
+                variant="flat"
+              >
+                Mức giá
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu
+              disallowEmptySelection
+              aria-label="Price Filter"
+              closeOnSelect={false}
+              // selectedKeys={priceFilter}
+              selectionMode="single"
+              // onSelectionChange={setPriceFilter}
+              onAction={(key) => {
+                setFilter(prev => {
+                  return {
+                    ...prev,
+                    price: key.toString(),
+                  }
+                })
+              }}
+            >
+              <DropdownItem
+                key={"hight"}
+              >
+                Từ cao tới thấp
+              </DropdownItem>
+              <DropdownItem
+                key={"low"}
+              >
+                Từ thấp tới cao
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </div>
+
         <AnimatePresence mode="wait">
           <div className="mt-5 w-full grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4 xl:gap-5">
             {

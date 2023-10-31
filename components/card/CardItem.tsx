@@ -25,7 +25,6 @@ const CardItem: React.FC<CardItemProps> = ({
   const { isOpen: isOpenDelete, onOpen: onOpenDelete, onOpenChange: onOpenChangeDelete, onClose: onCloseDelete } = useDisclosure();
   const [isOpenPopover, setIsOpenPopover] = React.useState(false);
 
-  console.log(data)
   return (
     <>
       {

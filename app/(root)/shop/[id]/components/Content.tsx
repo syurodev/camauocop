@@ -79,13 +79,13 @@ const Content: React.FC<IProps> = ({ shopId }) => {
             </Tab>
           )
         }
-        {/* {
+        {
           session?.user.role === "shop" && session?.user._id === data?.auth._id && (
             <Tab key="advertisement" title="Quảng cáo">
-              <Advertisement />
+              <Advertisement shopId={shopId} />
             </Tab>
           )
-        } */}
+        }
         {
           session?.user.role === "shop" && session?.user._id === data?.auth._id && (
             <Tab key="analysis" title="Thống kê">

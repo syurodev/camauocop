@@ -106,7 +106,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, 
         }
       } else {
         setIsLoading(true)
-        const res = await addProduct(data);
+        const res = await addProduct(JSON.stringify(data));
         setIsLoading(false)
         if (res.code === 200) {
           toast.success(res.message);
