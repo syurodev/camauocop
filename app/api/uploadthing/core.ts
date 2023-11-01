@@ -23,7 +23,7 @@ export const ourFileRouter = {
   commentImages: f({ image: { maxFileSize: "8MB", maxFileCount: 3 } })
     .middleware(() => auth())
     .onUploadComplete(() => { }),
-  advertisementImage: f({ image: { maxFileSize: "16MB", maxFileCount: 1 } })
+  advertisementImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
     .middleware(() => auth())
     .onUploadComplete(() => { })
 } satisfies FileRouter;

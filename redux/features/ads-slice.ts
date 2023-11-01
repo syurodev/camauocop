@@ -19,9 +19,18 @@ export const ads = createSlice({
     },
     pushAd: (state, action: PayloadAction<Ads>) => {
       state.value && state.value.push(action.payload);
-    }
+    },
+    updateAdsStatus: (state, action: PayloadAction<{ adsId: string; newStatus: AdvertisementStatus, note: string }>) => {
+      const { adsId, newStatus, note } = action.payload;
+      const adsToUpdate = state.value.find(ads => ads._id === adsId);
+
+      if (adsToUpdate) {
+        adsToUpdate.status = newStatus;
+        adsToUpdate.note = note;
+      }
+    },
   }
 })
 
-export const { setAds, pushAd } = ads.actions
+export const { setAds, pushAd, updateAdsStatus } = ads.actions
 export default ads.reducer

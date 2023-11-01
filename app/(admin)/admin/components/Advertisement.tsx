@@ -8,14 +8,14 @@ import toast from 'react-hot-toast';
 
 import { useAppSelector } from '@/redux/store';
 import { AdvertisementColums } from '@/lib/constant/AdvertisementColum';
-import { createAdvertisement, getAdvertisement } from '@/actions/advertisement';
-import { pushAd, setAds } from '@/redux/features/ads-slice';
+import { changeAdvertisementStatus, createAdvertisement, getAdvertisement } from '@/actions/advertisement';
+import { pushAd, setAds, updateAdsStatus } from '@/redux/features/ads-slice';
 import { formatDate } from '@/lib/formatDate';
 import { capitalize } from "@/lib/utils";
 import { UploadButton, UploadDropzone } from '@/lib/uploadthing';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { AdvertisementSchema, IAdvertisementSchema } from '@/lib/zodSchema/advertisementSchema';
+// import { useForm } from 'react-hook-form';
+// import { zodResolver } from '@hookform/resolvers/zod';
+// import { AdvertisementSchema, IAdvertisementSchema } from '@/lib/zodSchema/advertisementSchema';
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   waiting: "warning",
@@ -35,18 +35,20 @@ const statusOptions = [
 
 const INITIAL_VISIBLE_COLUMNS = ["Hình ảnh", "Ngày đăng ký", "Trạng thái", "Ngày bắt đầu", "Ngày kết thúc", "Thao tác"];
 
-export default function Advertisement({
-  shopId
-}: {
-  shopId: string
-}) {
+export default function Advertisement() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { isOpen: isOpenEdit, onOpen: onOpenEdit, onOpenChange: onOpenChangeEdit, onClose: onCloseEdit } = useDisclosure();
   const [page, setPage] = React.useState(1);
   const [adsImage, setAdsImage] = React.useState("");
   const [filterValue, setFilterValue] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
+
   const [adsSelected, setAdsSelected] = React.useState<string>("")
+  const [statusSelected, setStatusSelected] = React.useState(new Set(["accept"]))
+  const [note, setNote] = React.useState<string>("")
+  const [isSubmitChange, setIsSubmitChange] = React.useState<boolean>(false)
+
   const [isSubmit, setIsSubmit] = React.useState<boolean>(false)
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -58,27 +60,25 @@ export default function Advertisement({
   const dispatch = useDispatch()
   const session = useAppSelector((state) => state.sessionReducer.value)
   const columns = AdvertisementColums
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<IAdvertisementSchema>({
-    defaultValues: {
-      shopId: session?.user.shopId,
-      note: "",
-      type: "home",
-      status: "waiting",
-    },
-    resolver: zodResolver(AdvertisementSchema),
-  })
+  // const {
+  //   register,
+  //   handleSubmit,
+  //   setValue,
+  //   formState: { errors },
+  // } = useForm<IAdvertisementSchema>({
+  //   defaultValues: {
+  //     shopId: session?.user.shopId,
+  //     note: "",
+  //     type: "public",
+  //     status: "public",
+  //   },
+  //   resolver: zodResolver(AdvertisementSchema),
+  // })
 
   //GET DATA
   React.useEffect(() => {
     const fetchApi = async () => {
-      const res = await getAdvertisement({
-        shopId: session?.user.shopId!
-      })
+      const res = await getAdvertisement({})
       if (res.code === 200) {
         dispatch(setAds(res.data!))
       }
@@ -204,8 +204,8 @@ export default function Advertisement({
               </Button>
             </Tooltip> */}
 
-            {/* {
-              session?.user.role === "shop" && session?.user.shopId === order?.shopId && order?.status !== "pending" && (
+            {
+              session?.user.role === "admin" && (
                 <Button
                   isIconOnly
                   size="sm"
@@ -213,15 +213,14 @@ export default function Advertisement({
                   radius="full"
                   className="border-none"
                   onPress={() => {
-                    setOrderSelected(order._id)
-                    setOrderSelectedStatus(order.status)
-                    onOpenChangeStatus()
+                    setAdsSelected(ads._id)
+                    onOpenEdit()
                   }}
                 >
                   <AiOutlineEdit />
                 </Button>
               )
-            } */}
+            }
           </div>
         );
       default:
@@ -229,6 +228,7 @@ export default function Advertisement({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   const onRowsPerPageChange = React.useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setRowsPerPage(Number(e.target.value));
@@ -383,34 +383,53 @@ export default function Advertisement({
     [],
   );
 
-  const onSubmit = async (data: IAdvertisementSchema) => {
-    const startD = new Date(data.startDate).toISOString().substr(0, 10)
-    const currentDate = new Date().toISOString().substr(0, 10)
-    setIsSubmit(true)
+  // console.log(errors)
 
-    const status = function () {
-      if (data.type === "home") {
-        if (startD === currentDate) {
-          return "running"
-        } else {
-          return "accept"
-        }
-      } else {
-        return "waiting"
-      }
-    }
-    const res = await createAdvertisement(session?.user.accessToken!, {
-      ...data,
-      status: status()
-    })
+  // const onSubmit = async (data: IAdvertisementSchema) => {
+  //   const startD = new Date(data.startDate).toISOString().substr(0, 10)
+  //   const currentDate = new Date().toISOString().substr(0, 10)
+  //   setIsSubmit(true)
+
+  //   const status = function () {
+  //     if (startD === currentDate) {
+  //       return "running"
+  //     } else {
+  //       return "accept"
+  //     }
+  //   }
+  //   const res = await createAdvertisement(session?.user.accessToken!, {
+  //     ...data,
+  //     status: status()
+  //   })
+  //   if (res.code === 200) {
+  //     toast.success(res.message)
+  //     dispatch(pushAd(res.data!))
+  //     onClose()
+  //   } else {
+  //     toast.error(res.message)
+  //   }
+  //   setIsSubmit(false)
+  // }
+
+  const handleChangeStatus = async () => {
+    const res = await changeAdvertisementStatus(
+      session?.user.accessToken!,
+      Array.from(statusSelected)[0].toString() as AdvertisementStatus,
+      note,
+      adsSelected
+    )
+
     if (res.code === 200) {
       toast.success(res.message)
-      dispatch(pushAd(res.data!))
-      onClose()
+      onCloseEdit()
+      dispatch(updateAdsStatus({
+        adsId: adsSelected,
+        newStatus: Array.from(statusSelected)[0].toString() as AdvertisementStatus,
+        note,
+      }))
     } else {
       toast.error(res.message)
     }
-    setIsSubmit(false)
   }
 
   return (
@@ -455,7 +474,7 @@ export default function Advertisement({
         </TableBody>
       </Table>
 
-      {
+      {/* {
         isOpen && (
           <Modal
             isOpen={isOpen}
@@ -536,15 +555,12 @@ export default function Advertisement({
                         isRequired
                         label="Loại quảng cáo"
                         placeholder="Chọn loại quảng cáo"
-                        defaultSelectedKeys={["home"]}
+                        defaultSelectedKeys={["public"]}
                         className="max-w-full"
                         {...register("type")}
                         isInvalid={!!errors.type}
                         errorMessage={errors.type?.message}
                       >
-                        <SelectItem key="home" value="home">
-                          Trên trang chủ của shop
-                        </SelectItem>
                         <SelectItem key="public" value="public">
                           Trên trang chủ của hệ thống
                         </SelectItem>
@@ -575,6 +591,66 @@ export default function Advertisement({
                 )}
               </ModalContent>
             </form>
+          </Modal>
+        )
+      } */}
+
+      {
+        isOpenEdit && (
+          <Modal
+            isOpen={isOpenEdit}
+            onOpenChange={onOpenChangeEdit}
+            size='3xl'
+          >
+            <ModalContent>
+              {(onCloseEdit) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">Thêm quảng cáo</ModalHeader>
+                  <ModalBody>
+                    <Select
+                      isRequired
+                      label="Trạng thái quảng cáo"
+                      placeholder="Chọn trạng thái quảng cáo"
+                      defaultSelectedKeys={["accept"]}
+                      className="max-w-full"
+                      selectedKeys={statusSelected}
+                      onSelectionChange={(key) => {
+                        const value = Array.from(key)[0].toString()
+                        setStatusSelected(new Set([value]))
+                      }}
+                    >
+                      <SelectItem key="accept" value="accept">
+                        Chấp thuận
+                      </SelectItem>
+                      <SelectItem key="refused" value="refused">
+                        Từ chối
+                      </SelectItem>
+                    </Select>
+
+                    <Textarea
+                      isRequired={Array.from(statusSelected)[0].toString() === "refused"}
+                      label="Ghi chú"
+                      labelPlacement="inside"
+                      placeholder="Nhập ghi chú của bạn"
+                      className="max-w-full"
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                    />
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button variant="flat" onPress={onCloseEdit}>
+                      Huỷ
+                    </Button>
+                    <Button color="success" isDisabled={isSubmitChange} onPress={handleChangeStatus}>
+                      {
+                        isSubmitChange && <Spinner size='sm' />
+                      }
+                      Thêm
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
           </Modal>
         )
       }

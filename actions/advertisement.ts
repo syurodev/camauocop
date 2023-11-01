@@ -53,44 +53,57 @@ export const createAdvertisement = async (accessToken: string, data: IAdvertisem
   }
 }
 
-export const getAdvertisement = async (accessToken: string, shopId: string) => {
+export const getAdvertisement = async ({
+  shopId,
+  type,
+  status
+}: {
+  shopId?: string
+  type?: AdvertisementType
+  status?: AdvertisementStatus
+}) => {
   try {
-    const token = verifyJwtToken(accessToken)
-    if (!!token) {
-      await connectToDB()
-      const ads: IAdvertisement[] = await Advertisement.find({ shopId: shopId })
+    await connectToDB()
 
-      if (ads.length > 0) {
-        const result: Ads[] = ads.map(ad => {
-          return {
-            _id: ad._id.toString(),
-            image: ad.image,
-            note: ad.note,
-            status: ad.status,
-            type: ad.type,
-            startDate: ad.startDate.toISOString(),
-            endDate: ad.endDate.toISOString(),
-            createdAt: ad.createdAt.toISOString(),
-          }
-        })
+    let query: any = {}
 
+    if (shopId) {
+      query = { ...query, shopId: shopId }
+    }
+
+    if (type) {
+      query = { ...query, type: type }
+    }
+
+    if (status) {
+      query = { ...query, status: status }
+    }
+
+    const ads: IAdvertisement[] = await Advertisement.find(query)
+
+    if (ads.length > 0) {
+      const result: Ads[] = ads.map(ad => {
         return {
-          code: 200,
-          message: "successfully",
-          data: result
+          _id: ad._id.toString(),
+          image: ad.image,
+          note: ad.note,
+          status: ad.status,
+          type: ad.type,
+          startDate: ad.startDate.toISOString(),
+          endDate: ad.endDate.toISOString(),
+          createdAt: ad.createdAt.toISOString(),
         }
-      } else {
-        return {
-          code: 400,
-          message: "Không có quảng cáo",
-          data: null
-        }
+      })
+
+      return {
+        code: 200,
+        message: "successfully",
+        data: result
       }
-
     } else {
       return {
         code: 400,
-        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại",
+        message: "Không có quảng cáo",
         data: null
       }
     }
@@ -100,6 +113,41 @@ export const getAdvertisement = async (accessToken: string, shopId: string) => {
       code: 500,
       message: "Lỗi server vui lòng thử lại",
       data: null
+    }
+  }
+}
+
+export const changeAdvertisementStatus = async (accessToken: string, status: AdvertisementStatus, note: string, id: string) => {
+  try {
+    const token = verifyJwtToken(accessToken)
+    if (!!token) {
+      await connectToDB()
+
+      const ads: IAdvertisement | null = await Advertisement.findByIdAndUpdate({ _id: id }, { status: status, note: note })
+
+      if (ads) {
+        return {
+          code: 200,
+          message: "successfully",
+        }
+      } else {
+        return {
+          code: 400,
+          message: "Cập nhật không thành công vui lòng thử lại",
+        }
+      }
+
+    } else {
+      return {
+        code: 400,
+        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại",
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi server vui lòng thử lại",
     }
   }
 }

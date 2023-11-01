@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Card, Image, CardHeader, CardBody } from "@nextui-org/react";
+import { Card, Image, CardHeader, CardBody, Button } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { GrFormNextLink } from "react-icons/gr"
 
@@ -16,23 +16,36 @@ const Categories: React.FC = () => {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col gap-3">
-      <h3
-        className="w-full text-left font-bold text-2xl"
+    <div className="flex w-full flex-col gap-3">
+      <div
+        className="flex flex-row items-center"
       >
-        OCOP
-      </h3>
+        <h3
+          className="w-full text-left font-bold text-2xl"
+        >
+          OCOP
+        </h3>
+
+        <Button
+          size="sm"
+          variant="flat"
+          className="border-none"
+          onPress={() => router.push(`/specialty`)}
+        >
+          Xem tất cả
+        </Button>
+      </div>
 
       <div
         // className="flex flex-row whitespace-nowrap gap-3 items-start justify-start"
-        className="grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4 xl:gap-5"
+        className="w-full grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3 lg:gap-4 xl:gap-5"
       >
         {
-          categories.slice(0, 4).map(category => {
+          categories.slice(0, 6).map(category => {
             return (
               <Card
                 key={category.id}
-                className="py-4 max-w-[258px]"
+                className="py-4 max-w-[258px] m-auto"
                 isPressable
                 onPress={() => router.push(`/products/ocop/${encodeURIComponent(category.lable)}`)}
               >
@@ -44,30 +57,15 @@ const Categories: React.FC = () => {
                 <CardBody className="overflow-visible py-2">
                   <Image
                     alt="Card background"
-                    className="object-cover rounded-xl w-[270px] h-[200px]"
                     src={category.image}
-                    width={270}
-                    height={200}
+                    width={"100%"}
+                    className="object-cover rounded-xl w-[270px] h-[180px]"
                   />
                 </CardBody>
               </Card>
             )
           })
         }
-
-        <Card
-          className="py-4 max-w-[258px] h-full"
-          isPressable
-          onPress={() => router.push(`/specialty`)}
-        >
-          <CardHeader>
-            <p className="text-tiny uppercase font-bold text-primary">Xem tất cả</p>
-
-          </CardHeader>
-          <CardBody className="overflow-visible py-2 flex items-center justify-center h-full">
-            <GrFormNextLink className="text-4xl" />
-          </CardBody>
-        </Card>
       </div>
 
     </div>
