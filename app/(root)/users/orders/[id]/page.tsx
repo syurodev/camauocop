@@ -22,7 +22,7 @@ const MyOrderPage: React.FC<Props> = async ({ params }: Props) => {
       perPage: 20
     })
     if (res.code === 200) {
-      data = res.data
+      data = JSON.parse(res.data)
     }
   } else {
     redirect("/")
