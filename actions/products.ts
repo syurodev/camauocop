@@ -39,7 +39,6 @@ export async function addProduct(data: string) {
     const quantity = convertToKg(product.quantity, req.unit)
     product.quantity = quantity
 
-    console.log("product", product)
     await product.save();
     return {
       code: 200,

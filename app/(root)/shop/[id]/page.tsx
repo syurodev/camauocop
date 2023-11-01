@@ -18,6 +18,7 @@ const ShopPage: React.FC<Props> = async ({ params }) => {
   if (data.data) {
     info = JSON.stringify(data.data)
   }
+
   return (
     data.data ? (
       <article>

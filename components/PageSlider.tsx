@@ -3,7 +3,7 @@
 import React from 'react'
 import { Button, Card, CardBody, CardHeader, Image, Tooltip } from '@nextui-org/react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { GrFormNext, GrFormPrevious, GrFormNextLink } from "react-icons/gr"
+import { GrFormNextLink } from "react-icons/gr"
 import { BiHomeAlt2 } from "react-icons/bi"
 import { BsGrid } from "react-icons/bs"
 import { CgDetailsMore } from "react-icons/cg"

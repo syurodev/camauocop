@@ -66,7 +66,6 @@ export default function Advertisement({
   } = useForm<IAdvertisementSchema>({
     defaultValues: {
       shopId: session?.user.shopId,
-      image: "",
       note: "",
       type: "home",
       status: "waiting",
@@ -384,12 +383,25 @@ export default function Advertisement({
   );
 
   const onSubmit = async (data: IAdvertisementSchema) => {
+    const startD = new Date(data.startDate).toISOString().substr(0, 10)
+    const currentDate = new Date().toISOString().substr(0, 10)
     setIsSubmit(true)
-    if (data.type === "home") {
-      data.status === "running"
-    }
 
-    const res = await createAdvertisement(session?.user.accessToken!, data)
+    const status = function () {
+      if (data.type === "home") {
+        if (startD === currentDate) {
+          return "running"
+        } else {
+          return "accept"
+        }
+      } else {
+        return "waiting"
+      }
+    }
+    const res = await createAdvertisement(session?.user.accessToken!, {
+      ...data,
+      status: status()
+    })
     if (res.code === 200) {
       toast.success(res.message)
       dispatch(pushAd(res.data!))

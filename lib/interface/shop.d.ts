@@ -2,6 +2,7 @@ type IShopInfo = {
   _id: string;
   name: string;
   image: string;
+  ads: string[];
   phone: string;
   address: [{
     province: string;

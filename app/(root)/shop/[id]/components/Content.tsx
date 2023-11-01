@@ -33,7 +33,8 @@ const Content: React.FC<IProps> = ({ shopId }) => {
           })
 
           if (res.code === 200) {
-            setOrders(res.data)
+            const data = JSON.parse(res.data)
+            setOrders(data)
             setIsOrdersLoading(false)
           } else {
             setIsOrdersLoading(false)

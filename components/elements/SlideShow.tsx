@@ -44,6 +44,7 @@ const SlideShow: React.FC<IProps> = ({ images, w = "w-full lg:w-1/2", h = "h-[60
       <Button
         isIconOnly
         radius="full"
+        color="primary"
         className={`opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-[50%] -translate-x-0 translate-y-[-50%] left-4 z-20 ${images.length <= 1 ? "hidden" : ""}`}
         onClick={prevSlide}
       >
@@ -53,6 +54,7 @@ const SlideShow: React.FC<IProps> = ({ images, w = "w-full lg:w-1/2", h = "h-[60
       <Button
         isIconOnly
         radius="full"
+        color="primary"
         className={`opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-[50%] -translate-x-0 translate-y-[-50%] right-4 z-20 ${images.length <= 1 ? "hidden" : ""}`}
         onClick={nextSlide}
       >
@@ -68,10 +70,9 @@ const SlideShow: React.FC<IProps> = ({ images, w = "w-full lg:w-1/2", h = "h-[60
             src={images[currentIndex]}
             isZoomed
             radius="lg"
-            width={"full"}
-            height={"auto"}
+            height={"100%"}
             alt="product image"
-            className="object-cover h-auto max-h-[600px]"
+            className="object-cover h-auto max-h-[600px] w-full"
           />
         )}
       </div>

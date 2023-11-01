@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 
+import Advertisement, { IAdvertisement } from "@/lib/models/advertisement"
 import { connectToDB, verifyJwtToken } from "@/lib/utils";
 import { IUserRegisterShopZodSchema } from "@/lib/zodSchema/shop";
 import User, { IUser } from "@/lib/models/users";
@@ -214,10 +215,17 @@ export const getShopInfo = async (id: string): Promise<ShopInfoResponse> => {
       _id: staff._id.toString(),
     }));
 
+    const ads = await Advertisement.find({ shopId: id, type: "home", status: "running" })
+
+    const adsResult = ads.map((ad: { _id: string, image: string }) => {
+      return ad.image
+    })
+
     const shopInfo: IShopInfo = {
       _id: shop._id.toString(),
       name: shop.name,
       image: shop.image,
+      ads: adsResult,
       address: shop.address,
       delivery: shop.delivery,
       phone: shop.phone,

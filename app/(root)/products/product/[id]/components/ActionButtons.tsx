@@ -128,7 +128,6 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
   })
 
   const onSubmit = async (data: IPhoneSchema) => {
-    console.log(data)
     const res = await updatePhone(data.phone, session?.user?._id!, session?.user?.accessToken!)
 
     if (res.code === 200) {
@@ -204,7 +203,7 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
         </Tooltip>
       </div>
 
-      <div className="sticky z-10 top-32 right-5 ">
+      <div className="sticky z-10 top-32 right-5 hidden lg:!block">
         {
           openCommemt ? (
             <AnimatePresence

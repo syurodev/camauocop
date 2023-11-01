@@ -118,7 +118,7 @@ type OrderStatus = 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled
 
 type IOrderResponse = {
   code: number,
-  data: IOrders[] | [],
+  data: string,
   totalItems: number,
   totalPages: number,
 }

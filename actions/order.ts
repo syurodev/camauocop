@@ -220,14 +220,14 @@ export const getOrders = async ({
         });
         return {
           code: 200,
-          data: formattedOrders,
+          data: JSON.stringify(formattedOrders),
           totalItems,
           totalPages,
         };
       } else {
         return {
           code: 400,
-          data: [],
+          data: "",
           totalItems: 0,
           totalPages: 0,
         }
@@ -235,7 +235,7 @@ export const getOrders = async ({
     } else {
       return {
         code: 401,
-        data: [],
+        data: "",
         totalItems: 0,
         totalPages: 0,
       }
@@ -244,7 +244,7 @@ export const getOrders = async ({
     console.log(error)
     return {
       code: 400,
-      data: [],
+      data: "",
       totalItems: 0,
       totalPages: 0,
     }
