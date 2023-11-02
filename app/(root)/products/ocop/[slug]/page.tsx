@@ -5,6 +5,7 @@ import { Button, Card, CardBody, CardFooter, Dropdown, DropdownItem, DropdownMen
 import { useRouter } from "next/navigation";
 import { BsThreeDotsVertical } from "react-icons/bs"
 import { motion, AnimatePresence } from "framer-motion";
+import { CiMenuKebab } from "react-icons/ci"
 
 import { getProductsSpecialty } from "@/actions/products";
 import { categories } from '@/lib/constant/CategoriesDefault'
@@ -20,6 +21,7 @@ const ProductsOCOPPage: FC<IProps> = ({ params }) => {
   const slug = decodeURIComponent(params.slug);
   const [data, setData] = useState<IProductsResponse>();
   const [page, setPage] = useState<number>(1);
+  const [showFilter, setShowFilter] = useState<boolean>(false);
   const [filter, setFilter] = useState<Filter>({
     price: "",
   });
@@ -38,8 +40,37 @@ const ProductsOCOPPage: FC<IProps> = ({ params }) => {
   }, [params.slug, filter]);
 
   return (
-    <div className="flex flex-row items-start gap-3">
-      <div>
+    <div className="flex flex-row items-start gap-3 mt-3">
+      <AnimatePresence>
+        {
+          showFilter && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 350, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="sticky lg:hidden"
+            >
+              <Listbox
+                items={categories}
+                aria-label="Danh sách đặc sản"
+                onAction={(key) => router.push(`/products/ocop/${encodeURIComponent(key)}`)}
+              >
+                {(item) => (
+                  <ListboxItem
+                    key={item.lable}
+                  >
+                    {item.lable}
+                  </ListboxItem>
+                )}
+              </Listbox>
+            </motion.div>
+          )
+        }
+
+      </AnimatePresence>
+
+      <div className="hidden lg:!flex">
         <Listbox
           items={categories}
           aria-label="Danh sách đặc sản"
@@ -54,6 +85,7 @@ const ProductsOCOPPage: FC<IProps> = ({ params }) => {
           )}
         </Listbox>
       </div>
+
       <motion.div
         className="flex flex-col items-center gap-4 w-full"
         initial={{ width: "100%", height: 0, opacity: 0 }}
@@ -65,7 +97,17 @@ const ProductsOCOPPage: FC<IProps> = ({ params }) => {
           <h2>{`Kết quả của: ${slug === "all" ? "Đặc sản" : slug}`}</h2>
         </div>
         {/* SORT */}
-        <div className="w-full flex justify-end gap-3">
+        <div className="w-full flex justify-between lg:!justify-end gap-3">
+          <Button
+            isIconOnly
+            size="sm"
+            radius="full"
+            className="lg:hidden"
+            onPress={() => setShowFilter(!showFilter)}
+          >
+            <CiMenuKebab className="text-small" />
+          </Button>
+
           <Dropdown>
             <DropdownTrigger>
               <Button

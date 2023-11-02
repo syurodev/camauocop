@@ -69,7 +69,7 @@ const ProductsPage: FC<IProps> = ({ params }) => {
               animate={{ width: 350, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="sticky z-50 lg:hidden"
+              className="sticky lg:hidden"
             >
               <div className="w-[350px] flex flex-col gap-4">
                 <Button
