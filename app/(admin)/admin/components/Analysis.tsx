@@ -11,7 +11,6 @@ export default function Analysis() {
   const session = useAppSelector((state) => state.sessionReducer.value)
   const [monthRevenueData, setMonthRevenueData] = React.useState<ChartData<"bar", number[], unknown>>()
 
-
   React.useEffect(() => {
     const fetchRevenue = async () => {
       const monthRevenue = await getRevenueForLast5Months(session?.user.accessToken!)
@@ -32,14 +31,13 @@ export default function Analysis() {
       }
     }
 
-    const fetchUserAnalysis = async () => {
-      const res = await countUsersByLast5Months(session?.user.accessToken!)
-      console.log(res)
-    }
+    // const fetchUserAnalysis = async () => {
+    //   const res = await countUsersByLast5Months(session?.user.accessToken!)
+    // }
 
     if (session) {
       fetchRevenue()
-      fetchUserAnalysis()
+      // fetchUserAnalysis()
     }
   }, [session])
 

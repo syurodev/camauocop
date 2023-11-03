@@ -25,6 +25,9 @@ export const ourFileRouter = {
     .onUploadComplete(() => { }),
   advertisementImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
     .middleware(() => auth())
+    .onUploadComplete(() => { }),
+  destinationImage: f({ image: { maxFileSize: "16MB", maxFileCount: 5 } })
+    .middleware(() => auth())
     .onUploadComplete(() => { })
 } satisfies FileRouter;
 

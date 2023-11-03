@@ -2,12 +2,12 @@
 import React from 'react'
 import { Tabs, Tab } from "@nextui-org/react";
 
-import Products from './Products';
+import ShopProducts from '@/components/table/ShopProducts';
 import Orders from '@/components/card/Orders';
 import Analysis from './Analysis';
 import { getOrders } from '@/actions/order';
 import { useAppSelector } from '@/redux/store';
-import Advertisement from './Advertisement';
+import ShopAdvertisement from '@/components/table/ShopAdvertisement';
 
 type IProps = {
   shopId: string
@@ -64,7 +64,7 @@ const Content: React.FC<IProps> = ({ shopId }) => {
         <Tab key="products" title="Sản phẩm">
           {
             data && (
-              <Products shopId={data?._id} shopAuth={session?.user._id === data?.auth._id} />
+              <ShopProducts shopId={data?._id} shopAuth={session?.user._id === data?.auth._id} />
             )
           }
         </Tab>
@@ -83,7 +83,7 @@ const Content: React.FC<IProps> = ({ shopId }) => {
         {
           session?.user.role === "shop" && session?.user._id === data?.auth._id && (
             <Tab key="advertisement" title="Quảng cáo">
-              <Advertisement shopId={shopId} />
+              <ShopAdvertisement shopId={shopId} />
             </Tab>
           )
         }

@@ -21,6 +21,8 @@ import {
   CardBody,
   CardFooter,
   Spinner,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import {
   UserRegisterZodSchema,
@@ -29,6 +31,7 @@ import {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [role, setRole] = useState("individual");
   const [userError, setUserError] = useState("");
   const [isVisiblePass, setIsVisiblePass] = useState(false);
   const [isVisibleRePass, setIsVisibleRePass] = useState(false);
@@ -36,8 +39,13 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    getValues,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<IUserRegisterZodSchema>({
+    defaultValues: {
+      role: "individual"
+    },
     resolver: zodResolver(UserRegisterZodSchema),
   });
 
@@ -80,26 +88,18 @@ export default function RegisterPage() {
         </div>
       </CardHeader>
       <CardBody>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
           <Input
             isClearable
             type="text"
             label="Tên đăng nhập"
             variant="bordered"
             placeholder="Nhập tên đăng nhập của bạn"
-            className="max-w-full mt-4"
+            className="max-w-full "
             {...register("username")}
+            isInvalid={!!errors?.username}
+            errorMessage={errors?.username?.message}
           />
-          {errors.username && (
-            <motion.p
-              className="text-red-500 mb-3"
-              initial={{ y: -50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0 }}
-            >
-              {`${errors.username.message}`}
-            </motion.p>
-          )}
 
           <Input
             isClearable
@@ -107,19 +107,11 @@ export default function RegisterPage() {
             label="Email"
             variant="bordered"
             placeholder="Nhập email của bạn"
-            className="max-w-full mt-4"
+            className="max-w-full "
             {...register("email")}
+            isInvalid={!!errors?.email}
+            errorMessage={errors?.email?.message}
           />
-          {errors.email && (
-            <motion.p
-              className="text-red-500 mb-3"
-              initial={{ y: -50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0 }}
-            >
-              {`${errors.email.message}`}
-            </motion.p>
-          )}
 
           <Input
             label="Mật khẩu"
@@ -139,19 +131,11 @@ export default function RegisterPage() {
               </button>
             }
             type={isVisiblePass ? "text" : "password"}
-            className="max-w-full mt-4"
+            className="max-w-full "
             {...register("password")}
+            isInvalid={!!errors?.password}
+            errorMessage={errors?.password?.message}
           />
-          {errors.password && (
-            <motion.p
-              className="text-red-500 mb-3"
-              initial={{ y: -50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0 }}
-            >
-              {`${errors.password.message}`}
-            </motion.p>
-          )}
 
           <Input
             label="Nhập lại mật khẩu"
@@ -171,21 +155,33 @@ export default function RegisterPage() {
               </button>
             }
             type={isVisibleRePass ? "text" : "password"}
-            className="max-w-full mt-4"
+            className="max-w-full"
             {...register("confirmPassword")}
+            isInvalid={!!errors?.confirmPassword}
+            errorMessage={errors?.confirmPassword?.message}
           />
-          {errors.confirmPassword && (
-            <motion.p
-              className="text-red-500 mb-3"
-              initial={{ y: -50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0 }}
-            >
-              {`${errors.confirmPassword.message}`}
-            </motion.p>
-          )}
 
-          <div className="mt-4 flex flex-col items-center justify-center">
+          <Select
+            label="Chọn loại tài khoản"
+            placeholder="Chọn loại tài khoản"
+            description={role === "partner" ? "Tài khoản đối tác dùng để đăng các tour du lịch không dùng để bán hoặc mua hàng" : "Tài khoản thông thường có thể dùng để bán hoặc mua hàng"}
+            defaultSelectedKeys={["individual"]}
+            className="max-w-full"
+            {...register("role")}
+            onChange={e => {
+              setRole(e.target.value)
+              setValue("role", e.target.value)
+            }}
+          >
+            <SelectItem key={"individual"} value={"individual"}>
+              Thông thường
+            </SelectItem>
+            <SelectItem key={"partner"} value={"partner"}>
+              Đối tác du lịch
+            </SelectItem>
+          </Select>
+
+          <div className=" flex flex-col items-center justify-center">
             {userError && (
               <motion.p
                 className="text-red-500 mb-3"

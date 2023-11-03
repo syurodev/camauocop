@@ -14,7 +14,7 @@ type IProps = {
   accessToken: string
 }
 
-const Analysis: React.FC<IProps> = ({ shopId, accessToken }) => {
+const AdminAdvertisement: React.FC<IProps> = ({ shopId, accessToken }) => {
   const [topProductData, settopProductData] = React.useState<ChartData<"doughnut", number[], unknown>>()
   const [topProductLoading, settopProductLoading] = React.useState<boolean>(false)
 
@@ -125,4 +125,4 @@ const Analysis: React.FC<IProps> = ({ shopId, accessToken }) => {
   )
 }
 
-export default React.memo(Analysis)
+export default React.memo(AdminAdvertisement)

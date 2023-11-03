@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { Image } from '@nextui-org/react';
-import { UseFormSetValue } from 'react-hook-form';
 
 import { UploadDropzone, UploadButton } from '@/lib/uploadthing';
 

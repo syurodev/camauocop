@@ -35,7 +35,7 @@ const statusOptions = [
 
 const INITIAL_VISIBLE_COLUMNS = ["Hình ảnh", "Ngày đăng ký", "Trạng thái", "Ngày bắt đầu", "Ngày kết thúc", "Thao tác"];
 
-export default function Advertisement({
+export default function ShopAdvertisement({
   shopId
 }: {
   shopId: string
@@ -417,7 +417,7 @@ export default function Advertisement({
     <div>
       <Table
         isCompact
-        // removeWrapper
+        isStriped
         aria-label="Bảng quảng cáo"
         bottomContent={bottomContent}
         bottomContentPlacement="outside"

@@ -150,7 +150,7 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
         <Tooltip content={`${!session ? "Đăng nhập" : session.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Thêm vào giỏ hàng"}`}>
           <Button
             isIconOnly
-            isDisabled={addToCartLoading || session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block"}
+            isDisabled={addToCartLoading || session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block" || session?.user.role === "partner" || session?.user.role === "admin"}
             variant="flat"
             color={isProductInCart ? "success" : "default"}
             radius="full"
@@ -176,7 +176,7 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
             variant="flat"
             color={favorited ? "danger" : "default"}
             radius="full"
-            isDisabled={favoriteLoading || session?.user.shopId === products?.shopId}
+            isDisabled={favoriteLoading || session?.user.shopId === products?.shopId || session?.user.role === "partner" || session?.user.role === "admin"}
             onClick={handleFavorited}
           >
             {favorited ? (
@@ -192,7 +192,7 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
             variant="solid"
             radius="full"
             color="success"
-            isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block"}
+            isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block" || session?.user.role === "partner" || session?.user.role === "admin"}
             startContent={<AiOutlineDollarCircle className="text-xl" />}
             onPress={handleBuyButtomClick}
           >
@@ -280,7 +280,7 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
                 >
                   <Button
                     isIconOnly
-                    isDisabled={addToCartLoading || session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block"}
+                    isDisabled={addToCartLoading || session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block" || session?.user.role === "partner" || session?.user.role === "admin"}
                     variant="flat"
                     color={isProductInCart ? "success" : "default"}
                     radius="full"
@@ -307,7 +307,7 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
                     variant="flat"
                     color={favorited ? "danger" : "default"}
                     radius="full"
-                    isDisabled={favoriteLoading || session?.user.shopId === products?.shopId}
+                    isDisabled={favoriteLoading || session?.user.shopId === products?.shopId || session?.user.role === "partner" || session?.user.role === "admin"}
                     onClick={handleFavorited}
                   >
                     {favorited ? (
@@ -327,7 +327,7 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
                     radius="full"
                     color="success"
                     isIconOnly
-                    isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block"}
+                    isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block" || session?.user.role === "partner" || session?.user.role === "admin"}
                     onPress={handleBuyButtomClick}
                   >
                     <AiOutlineDollarCircle className="text-xl" />

@@ -1,21 +1,17 @@
 "use client"
 import React from 'react'
 import { useDispatch } from "react-redux";
-import { Avatar, Button, Chip, ChipProps, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Image, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Pagination, Selection, SortDescriptor, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure, Textarea, Spinner, Select, SelectItem } from '@nextui-org/react';
+import { Avatar, Button, Chip, ChipProps, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Pagination, Selection, SortDescriptor, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure, Textarea, Spinner, Select, SelectItem } from '@nextui-org/react';
 import { BsThreeDotsVertical } from "react-icons/bs"
-import { AiOutlineSearch, AiOutlineEye, AiOutlineEdit, AiOutlinePlus } from "react-icons/ai"
+import { AiOutlineSearch, AiOutlineEdit, AiOutlinePlus } from "react-icons/ai"
 import toast from 'react-hot-toast';
 
 import { useAppSelector } from '@/redux/store';
 import { AdvertisementColums } from '@/lib/constant/AdvertisementColum';
-import { changeAdvertisementStatus, createAdvertisement, getAdvertisement } from '@/actions/advertisement';
-import { pushAd, setAds, updateAdsStatus } from '@/redux/features/ads-slice';
+import { changeAdvertisementStatus, getAdvertisement } from '@/actions/advertisement';
+import { setAds, updateAdsStatus } from '@/redux/features/ads-slice';
 import { formatDate } from '@/lib/formatDate';
 import { capitalize } from "@/lib/utils";
-import { UploadButton, UploadDropzone } from '@/lib/uploadthing';
-// import { useForm } from 'react-hook-form';
-// import { zodResolver } from '@hookform/resolvers/zod';
-// import { AdvertisementSchema, IAdvertisementSchema } from '@/lib/zodSchema/advertisementSchema';
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   waiting: "warning",
@@ -35,11 +31,10 @@ const statusOptions = [
 
 const INITIAL_VISIBLE_COLUMNS = ["Hình ảnh", "Ngày đăng ký", "Trạng thái", "Ngày bắt đầu", "Ngày kết thúc", "Thao tác"];
 
-export default function Advertisement() {
+export default function AdminAdvertisement() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { isOpen: isOpenEdit, onOpen: onOpenEdit, onOpenChange: onOpenChangeEdit, onClose: onCloseEdit } = useDisclosure();
   const [page, setPage] = React.useState(1);
-  const [adsImage, setAdsImage] = React.useState("");
   const [filterValue, setFilterValue] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -228,7 +223,6 @@ export default function Advertisement() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   const onRowsPerPageChange = React.useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setRowsPerPage(Number(e.target.value));
@@ -436,7 +430,7 @@ export default function Advertisement() {
     <div>
       <Table
         isCompact
-        // removeWrapper
+        isStriped
         aria-label="Bảng quảng cáo"
         bottomContent={bottomContent}
         bottomContentPlacement="outside"

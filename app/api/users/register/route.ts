@@ -6,6 +6,7 @@ import { connectToDB } from "@/lib/utils";
 interface RequestBody {
   email: string;
   password: string;
+  role: UserRole;
   username?: string;
   provider?: string;
   image?: string;
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
       provider: body?.provider || "credentials",
       image: body?.image || "",
       email_verified: body?.email_verified || false,
-      role: "individual"
+      role: body?.role
     })
 
     await user.save()

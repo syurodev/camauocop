@@ -32,7 +32,7 @@ declare module "next-auth" {
       phone_verified: boolean,
       image: string,
       provider: string,
-      role: string,
+      role: UserRole,
       username: string,
       accessToken: string,
       _id: string,

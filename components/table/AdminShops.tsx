@@ -49,7 +49,7 @@ const INITIAL_VISIBLE_COLUMNS = ["Shops", "Loại", "Phí dịch vụ", "Địa 
 
 // type User = typeof users[0];
 
-export default function Shops() {
+export default function AdminShops() {
   const [filterValue, setFilterValue] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(true);
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));

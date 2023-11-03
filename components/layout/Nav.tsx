@@ -195,7 +195,7 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
               <>
                 {/* Giỏ hàng */}
                 {
-                  session.user.role !== "admin" && (
+                  session?.user.role !== "admin" && session?.user.role !== "partner" && (
                     <Tooltip content="Giỏ hàng">
                       <Button
                         variant={"ghost"}
@@ -219,7 +219,7 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
                   )
                 }
                 {/* Thêm hàng */}
-                {session?.user?.role !== "individual" && session?.user?.role !== "admin" && (
+                {session?.user?.role === "shop" && (
                   <Tooltip content="Thêm hàng">
                     <Button
                       variant={"ghost"}
@@ -227,6 +227,22 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
                       isIconOnly
                       radius="full"
                       onClick={() => router.push("/products/product/add")}
+                      className="border-none"
+                    >
+                      <AiOutlinePlus className="text-xl" />
+                    </Button>
+                  </Tooltip>
+                )}
+
+                {/* Thêm hàng */}
+                {session?.user?.role === "partner" && (
+                  <Tooltip content="Thêm Tour">
+                    <Button
+                      variant={"ghost"}
+                      isDisabled={session?.user.shopStatus === "block"}
+                      isIconOnly
+                      radius="full"
+                      onClick={() => router.push("/tourisms/tourism/add")}
                       className="border-none"
                     >
                       <AiOutlinePlus className="text-xl" />

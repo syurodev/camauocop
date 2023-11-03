@@ -2,12 +2,14 @@
 import React from 'react'
 import { Tab, Tabs } from '@nextui-org/react'
 import { AiOutlineShop } from "react-icons/ai"
+import { LuPalmtree } from "react-icons/lu"
 import { RiMoneyDollarCircleLine } from "react-icons/ri"
 import { SiGoogleadsense } from "react-icons/si"
 
-import Shops from './Shops'
+import AdminShops from '@/components/table/AdminShops'
 import Analysis from './Analysis'
-import Advertisement from './Advertisement'
+import AdminAdvertisement from '@/components/table/AdminAdvertisement'
+import Tourism from './Tourism'
 
 const AdminContent: React.FC = () => {
   const [selected, setSelected] = React.useState<Set<any>>(new Set(["shops"]));
@@ -28,7 +30,16 @@ const AdminContent: React.FC = () => {
             <span>Quản lý shop</span>
           </div>
         }>
-          <Shops />
+          <AdminShops />
+        </Tab>
+
+        <Tab key="tourism" title={
+          <div className='flex flex-row items-center gap-2'>
+            <LuPalmtree className="text-lg" />
+            <span>Quản lý du lịch</span>
+          </div>
+        }>
+          <Tourism />
         </Tab>
 
         <Tab key="advertisement" title={
@@ -37,7 +48,7 @@ const AdminContent: React.FC = () => {
             <span>Quản lý quảng cáo</span>
           </div>
         }>
-          <Advertisement />
+          <AdminAdvertisement />
         </Tab>
 
         <Tab key="analysis" title={

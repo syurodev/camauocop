@@ -14,7 +14,7 @@ type IProps = {
   shopAuth: boolean
 }
 
-const Products: React.FC<IProps> = ({ shopId, shopAuth }) => {
+const ShopProducts: React.FC<IProps> = ({ shopId, shopAuth }) => {
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [products, setProducts] = React.useState<IProducts[]>([]);
@@ -144,4 +144,4 @@ const Products: React.FC<IProps> = ({ shopId, shopAuth }) => {
   )
 }
 
-export default React.memo(Products)
+export default React.memo(ShopProducts)

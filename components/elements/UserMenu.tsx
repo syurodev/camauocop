@@ -76,7 +76,7 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
 
           <DropdownSection
             showDivider
-            className={`${session?.user.role === "admin" ? "hidden" : "block"}`}
+            className={`${session?.user.role === "admin" || session?.user.role === "partner" ? "hidden" : "block"}`}
           >
             <DropdownItem
               key="my-order"
@@ -87,7 +87,7 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
           </DropdownSection>
 
           <DropdownSection showDivider
-            className={`${session?.user.role !== "individual" && session?.user.role !== "admin" ? "block" : "hidden"}`}
+            className={`${session?.user.role === "shop" || session?.user.role === "staff" ? "block" : "hidden"}`}
           >
             <DropdownItem
               key="my-shop"

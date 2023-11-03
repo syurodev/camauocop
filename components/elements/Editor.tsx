@@ -10,20 +10,11 @@ import { Button, Card, CardBody } from '@nextui-org/react';
 
 interface EditorProps {
   setValue: (
-    name:
-      | "shopId"
-      | "productType"
-      | "name"
-      | "description"
-      | "quantity"
-      | "images"
-      | "retailPrice"
-      | "retail"
-      | "packageOptions",
+    name: any,
     value: any,
     options?: any
   ) => void;
-  getValues: UseFormGetValues<IAddProductZodSchema>,
+  getValues: UseFormGetValues<any>,
   initialValue?: any
 }
 
