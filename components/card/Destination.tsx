@@ -4,14 +4,12 @@ import React from 'react'
 import { useDispatch } from "react-redux"
 import toast from 'react-hot-toast'
 import { AiOutlineSearch, AiOutlineEdit, AiOutlinePlus } from "react-icons/ai"
-import { BsThreeDotsVertical } from "react-icons/bs"
-import { Avatar, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Pagination, Selection, SortDescriptor, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@nextui-org/react'
+import { Avatar, Button, Input, Pagination, Selection, SortDescriptor, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@nextui-org/react'
 
 import { getDestinations } from '@/actions/tourisms'
 import { setDestinations } from '@/redux/features/destination-slice'
 import { useAppSelector } from '@/redux/store'
 import { DestinationColumns } from '@/lib/constant/DestinationColumns'
-import { capitalize } from '@/lib/utils'
 import AddDestination from '../form/AddDestination'
 
 const INITIAL_VISIBLE_COLUMNS = ["Tên", "Hình ảnh", "Mô tả", "Thao tác"];
