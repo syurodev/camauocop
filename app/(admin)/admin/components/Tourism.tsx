@@ -5,9 +5,9 @@ import { MdOutlineTour } from "react-icons/md"
 import { TbLocation } from "react-icons/tb"
 import { AiOutlineCar } from "react-icons/ai"
 
-import Tour from '../../../../components/card/Tour'
-import Destination from '@/components/card/Destination'
-import Transportation from '@/components/card/Transportation'
+import Tour from '@/components/card/Tour'
+import Destination from '@/components/table/Destination'
+import Transportation from '@/components/table/Transportation'
 
 const Tourism: React.FC = () => {
   const [selected, setSelected] = React.useState<Set<any>>(new Set(["tour"]));

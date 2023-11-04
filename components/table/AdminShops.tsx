@@ -25,7 +25,6 @@ import {
 } from "@nextui-org/react";
 import { AiOutlineSearch, AiOutlineEye, AiOutlineEdit } from "react-icons/ai"
 import { BsThreeDotsVertical } from "react-icons/bs"
-// import { MdOutlineDelete } from "react-icons/md"
 import { useDispatch } from "react-redux";
 
 import { capitalize } from "@/lib/utils";
@@ -51,7 +50,6 @@ const INITIAL_VISIBLE_COLUMNS = ["Shops", "Loại", "Phí dịch vụ", "Địa 
 
 export default function AdminShops() {
   const [filterValue, setFilterValue] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(true);
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
@@ -74,7 +72,6 @@ export default function AdminShops() {
       if (res.code === 200 && res.data) {
         dispatch(setShops(JSON.parse(res.data)))
       }
-      setIsLoading(false)
     }
     if (session) {
       fetchShops()
@@ -373,7 +370,7 @@ export default function AdminShops() {
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody isLoading={isLoading} emptyContent={"Không tìm thấy cửa hàng"} items={sortedItems}>
+        <TableBody emptyContent={"Không tìm thấy cửa hàng"} items={sortedItems}>
           {(item) => (
             <TableRow key={item._id} >
               {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}

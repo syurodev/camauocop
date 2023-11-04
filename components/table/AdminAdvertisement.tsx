@@ -176,7 +176,7 @@ export default function AdminAdvertisement() {
         );
       case "note":
         return (
-          <div className="flex flex-col m-w-[300px]">
+          <div className="flex flex-col min-w-[300px]">
             <p className="text-bold text-small capitalize">{cellValue}</p>
             {/* <p className="text-bold text-tiny capitalize text-default-500">{shop.address}</p> */}
           </div>

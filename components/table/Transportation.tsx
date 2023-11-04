@@ -4,17 +4,18 @@ import React from 'react'
 import { useDispatch } from "react-redux"
 import toast from 'react-hot-toast'
 import { AiOutlineSearch, AiOutlineEdit, AiOutlinePlus } from "react-icons/ai"
-import { Avatar, Button, Input, Pagination, Selection, SortDescriptor, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@nextui-org/react'
+import { Avatar, Button, Input, Pagination, Selection, SortDescriptor, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@nextui-org/react'
 
-import { getDestinations } from '@/actions/tourisms'
-import { setDestinations } from '@/redux/features/destination-slice'
+import { getTransportation } from '@/actions/tourisms'
 import { useAppSelector } from '@/redux/store'
-import { DestinationColumns } from '@/lib/constant/DestinationColumns'
+import { TransportationColum } from '@/lib/constant/TransportationColum'
 import AddDestination from '../form/AddDestination'
+import { setTransportations } from '@/redux/features/transportation-slice'
 
-const INITIAL_VISIBLE_COLUMNS = ["Tên", "Hình ảnh", "Mô tả", "Thao tác"];
+const INITIAL_VISIBLE_COLUMNS = ["Tên", "Số tour sử dụng", "Thao tác"];
 
-const Destination: React.FC = () => {
+const Transportation: React.FC = () => {
+
   const dispatch = useDispatch()
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { isOpen: isOpenEdit, onOpen: onOpenEdit, onOpenChange: onOpenChangeEdit, onClose: onCloseEdit } = useDisclosure();
@@ -25,16 +26,16 @@ const Destination: React.FC = () => {
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-    column: "name",
+    column: "count",
     direction: "ascending",
   });
 
   // GET DATA
   React.useEffect(() => {
     const fetchApi = async () => {
-      const res = await getDestinations()
+      const res = await getTransportation()
       if (res.code === 200) {
-        dispatch(setDestinations(res.data!))
+        dispatch(setTransportations(res.data!))
       } else {
         toast.error(res.message)
       }
@@ -43,11 +44,11 @@ const Destination: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const columns = DestinationColumns
+  const columns = TransportationColum
 
-  const destinations: DestinationData[] = useAppSelector(state => state.destinationReducer.value)
+  const transportations: TransportationData[] = useAppSelector(state => state.transportationReducer.value)
   const session = useAppSelector((state) => state.sessionReducer.value)
-  const pages = Math.ceil(destinations.length / rowsPerPage);
+  const pages = Math.ceil(transportations.length / rowsPerPage);
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -59,7 +60,7 @@ const Destination: React.FC = () => {
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredAds = [...destinations];
+    let filteredAds = [...transportations];
 
     if (hasSearchFilter) {
       filteredAds = filteredAds.filter((destination) =>
@@ -68,7 +69,7 @@ const Destination: React.FC = () => {
     }
     return filteredAds;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [destinations, filterValue, statusFilter]);
+  }, [transportations, filterValue, statusFilter]);
 
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -78,45 +79,29 @@ const Destination: React.FC = () => {
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: DestinationData, b: DestinationData) => {
-      const first = a[sortDescriptor.column as keyof DestinationData];
-      const second = b[sortDescriptor.column as keyof DestinationData];
+    return [...items].sort((a: TransportationData, b: TransportationData) => {
+      const first = a[sortDescriptor.column as keyof TransportationData];
+      const second = b[sortDescriptor.column as keyof TransportationData];
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((destination: DestinationData, columnKey: React.Key) => {
-    const cellValue = destination[columnKey as keyof DestinationData];
+  const renderCell = React.useCallback((transportation: TransportationData, columnKey: React.Key) => {
+    const cellValue = transportation[columnKey as keyof TransportationData];
     switch (columnKey) {
       case "name":
         return (
-          <p className="text-bold text-small capitalize">{destination.name}</p>
+          <div className='min-w-[250px]'>
+            <p className="text-bold text-small capitalize">{transportation.name}</p>
+          </div>
         );
-      case "images":
+      case "tourCount":
         return (
           <div className='flex flex-row gap-3'>
-            {destination.images.map((image, index) => (
-              <Avatar key={index} src={image} />
-            ))}
+            <p className="text-bold text-small capitalize">{transportation.tourCount}</p>
           </div>
-        );
-      case "description":
-        return (
-          <div className='max-w-[400px] max-h-[300px] overflow-auto'>
-            {
-              destination.description.split('\n').map((line, lineIndex) => (
-                <React.Fragment key={lineIndex}>
-                  {line}
-                  {lineIndex < destination.description.split('\n').length - 1 && <br />}
-                </React.Fragment>
-              ))
-            }
-          </div>
-          // <div className='max-w-[400px] max-h-[400px] overflow-auto'>
-          //   <p className="text-bold text-small capitalize">{destination.description}</p>
-          // </div>
         );
       case "actions":
         return (
@@ -145,7 +130,7 @@ const Destination: React.FC = () => {
                   radius="full"
                   className="border-none"
                   onPress={() => {
-                    setDestinationSelected(destination._id)
+                    setDestinationSelected(transportation._id)
                     onOpenEdit()
                   }}
                 >
@@ -185,7 +170,7 @@ const Destination: React.FC = () => {
               base: "w-full",
               inputWrapper: "border-1",
             }}
-            placeholder="Nhập tên địa điểm muốn tìm"
+            placeholder="Nhập tên phương tiện muốn tìm"
             size="sm"
             startContent={<AiOutlineSearch className="text-default-300" />}
             value={filterValue}
@@ -200,12 +185,12 @@ const Destination: React.FC = () => {
               size="sm"
               onPress={onOpen}
             >
-              Thêm địa điểm
+              Thêm phương tiện
             </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Hiện có {destinations.length} địa điểm</span>
+          <span className="text-default-400 text-small">Hiện có {transportations.length} địa điểm</span>
         </div>
       </div>
     );
@@ -216,7 +201,7 @@ const Destination: React.FC = () => {
     visibleColumns,
     onSearchChange,
     onRowsPerPageChange,
-    destinations.length,
+    transportations.length,
     hasSearchFilter,
   ]);
 
@@ -307,17 +292,8 @@ const Destination: React.FC = () => {
         </TableBody>
       </Table>
 
-      {
-        isOpen && (
-          <AddDestination
-            isOpen={isOpen}
-            onClose={onClose}
-            onOpenChange={onOpenChange}
-          />
-        )
-      }
     </div>
   )
 }
 
-export default Destination
+export default Transportation

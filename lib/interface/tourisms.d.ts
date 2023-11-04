@@ -6,3 +6,9 @@ type DestinationData = {
   images: string[];
   description: string;
 }
+
+type TransportationData = {
+  _id: string;
+  name: string;
+  tourCount: number
+}
