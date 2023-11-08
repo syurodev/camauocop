@@ -159,7 +159,7 @@ const AddDestination: React.FC<IProps> = ({
                 </ModalBody>
                 <ModalFooter>
                   <Button variant="light" onPress={onClose}>
-                    Close
+                    Đóng
                   </Button>
                   <Button color="success" type='submit' isDisabled={isSubmitting}>
                     {

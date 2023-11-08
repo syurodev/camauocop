@@ -210,7 +210,6 @@ export default function AdminShops() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
   const onRowsPerPageChange = React.useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setRowsPerPage(Number(e.target.value));
     setPage(1);

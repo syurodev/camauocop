@@ -28,7 +28,7 @@ export default function SearchComponent() {
     <div
       className='flex md:!hidden'
     >
-      <div ref={parentDivRef} className="relative w-full">
+      <div ref={parentDivRef} className="relative w-full my-4">
         <Search width={parentDivSize} />
       </div>
     </div>

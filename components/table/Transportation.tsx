@@ -4,13 +4,13 @@ import React from 'react'
 import { useDispatch } from "react-redux"
 import toast from 'react-hot-toast'
 import { AiOutlineSearch, AiOutlineEdit, AiOutlinePlus } from "react-icons/ai"
-import { Avatar, Button, Input, Pagination, Selection, SortDescriptor, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@nextui-org/react'
+import { Button, Input, Pagination, Selection, SortDescriptor, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@nextui-org/react'
 
 import { getTransportation } from '@/actions/tourisms'
 import { useAppSelector } from '@/redux/store'
 import { TransportationColum } from '@/lib/constant/TransportationColum'
-import AddDestination from '../form/AddDestination'
 import { setTransportations } from '@/redux/features/transportation-slice'
+import AddTransportation from '../form/AddTransportation'
 
 const INITIAL_VISIBLE_COLUMNS = ["Tên", "Số tour sử dụng", "Thao tác"];
 
@@ -101,6 +101,12 @@ const Transportation: React.FC = () => {
         return (
           <div className='flex flex-row gap-3'>
             <p className="text-bold text-small capitalize">{transportation.tourCount}</p>
+          </div>
+        );
+      case "description":
+        return (
+          <div className='min-w-[250px]'>
+            <p className="text-bold text-small capitalize">{transportation.description || "Không có"}</p>
           </div>
         );
       case "actions":
@@ -292,6 +298,15 @@ const Transportation: React.FC = () => {
         </TableBody>
       </Table>
 
+      {
+        isOpen && (
+          <AddTransportation
+            isOpen={isOpen}
+            onClose={onClose}
+            onOpenChange={onOpenChange}
+          />
+        )
+      }
     </div>
   )
 }

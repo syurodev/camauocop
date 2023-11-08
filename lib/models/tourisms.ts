@@ -8,10 +8,6 @@ export interface ITourisms extends Document {
   userId: string;
   status: TourismsStatus;
   tourName: string;
-  description: {
-    type: string;
-    content: any[];
-  };
   destination: string;
   duration: string;
   price: number;
@@ -21,7 +17,7 @@ export interface ITourisms extends Document {
     time: string;
     action: string;
   }];
-  transportation: string;
+  transportation: string[];
   accommodation: string;
   inclusions: [{
     content: string;
@@ -54,10 +50,6 @@ const TourismSchema: Schema = new Schema(
       default: "waiting",
     },
     tourName: { type: String, required: true },
-    description: {
-      type: { type: String },
-      content: { type: Array },
-    },
     destination: { type: Schema.Types.ObjectId, ref: Destination, required: true },
     duration: { type: String, required: true },
     price: { type: Number, required: true, default: 0 },
@@ -69,7 +61,7 @@ const TourismSchema: Schema = new Schema(
         action: { type: String, required: true }
       }
     ],
-    transportation: { type: Schema.Types.ObjectId, ref: Transportation, required: true },
+    transportation: [{ type: Schema.Types.ObjectId, ref: Transportation, required: true }],
     accommodation: { type: String, required: true },
     inclusions: [
       {

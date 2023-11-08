@@ -9,6 +9,8 @@ import shopInfoReducer from "./features/shop-info-slice"
 import adsReducer from "./features/ads-slice"
 import destinationReducer from "./features/destination-slice"
 import transportationReducer from "./features/transportation-slice"
+import tourTypeReducer from "./features/tour-type-slice"
+import toursReducer from "./features/tours-slice"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
 
 export const store = configureStore({
@@ -23,6 +25,8 @@ export const store = configureStore({
     adsReducer,
     destinationReducer,
     transportationReducer,
+    tourTypeReducer,
+    toursReducer,
   }
 })
 

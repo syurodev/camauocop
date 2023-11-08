@@ -267,8 +267,8 @@ const Search: React.FC<IProps> = ({ width }) => {
               innerWrapper: "bg-transparent",
               inputWrapper: [
                 "bg-transparent",
-                "bg-default-200/50",
-                "dark:bg-default/60",
+                "bg-default-200/40",
+                "dark:bg-default/50",
                 "backdrop-blur-xl",
                 "backdrop-saturate-200",
                 "hover:bg-default-200/70",

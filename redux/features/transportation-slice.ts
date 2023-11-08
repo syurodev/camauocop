@@ -17,7 +17,7 @@ export const transportation = createSlice({
         value: action.payload
       }
     },
-    pushDestination: (state, action: PayloadAction<TransportationData>) => {
+    pushTransportation: (state, action: PayloadAction<TransportationData>) => {
       if (state.value) {
         state.value && state.value.push(action.payload);
       }
@@ -25,5 +25,5 @@ export const transportation = createSlice({
   }
 })
 
-export const { setTransportations, pushDestination } = transportation.actions
+export const { setTransportations, pushTransportation } = transportation.actions
 export default transportation.reducer

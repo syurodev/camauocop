@@ -4,17 +4,18 @@ import React from 'react'
 import { useDispatch } from "react-redux"
 import toast from 'react-hot-toast'
 import { AiOutlineSearch, AiOutlineEdit, AiOutlinePlus } from "react-icons/ai"
-import { Avatar, Button, Input, Pagination, Selection, SortDescriptor, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@nextui-org/react'
+import { Button, Input, Pagination, Selection, SortDescriptor, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@nextui-org/react'
 
-import { getDestinations } from '@/actions/tourisms'
-import { setDestinations } from '@/redux/features/destination-slice'
+import { getTourType } from '@/actions/tourisms'
 import { useAppSelector } from '@/redux/store'
-import { DestinationColumns } from '@/lib/constant/DestinationColumns'
-import AddDestination from '../form/AddDestination'
+import { setTourTypes } from '@/redux/features/tour-type-slice'
+import { TourTypesColums } from '@/lib/constant/TourTypesColums'
+import AddTourType from '../form/AddTourType'
 
-const INITIAL_VISIBLE_COLUMNS = ["Tên", "Hình ảnh", "Mô tả", "Thao tác"];
+const INITIAL_VISIBLE_COLUMNS = ["Tên", "Số tour sử dụng", "Thao tác"];
 
-const Destination: React.FC = () => {
+const TourType: React.FC = () => {
+
   const dispatch = useDispatch()
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { isOpen: isOpenEdit, onOpen: onOpenEdit, onOpenChange: onOpenChangeEdit, onClose: onCloseEdit } = useDisclosure();
@@ -25,16 +26,16 @@ const Destination: React.FC = () => {
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-    column: "name",
+    column: "tourCount",
     direction: "ascending",
   });
 
   // GET DATA
   React.useEffect(() => {
     const fetchApi = async () => {
-      const res = await getDestinations()
+      const res = await getTourType()
       if (res.code === 200) {
-        dispatch(setDestinations(res.data!))
+        dispatch(setTourTypes(res.data!))
       } else {
         toast.error(res.message)
       }
@@ -43,11 +44,11 @@ const Destination: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const columns = DestinationColumns
+  const columns = TourTypesColums
 
-  const destinations: DestinationData[] = useAppSelector(state => state.destinationReducer.value)
+  const tourTypes: TourTypeData[] = useAppSelector(state => state.tourTypeReducer.value)
   const session = useAppSelector((state) => state.sessionReducer.value)
-  const pages = Math.ceil(destinations.length / rowsPerPage);
+  const pages = Math.ceil(tourTypes.length / rowsPerPage);
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -59,7 +60,7 @@ const Destination: React.FC = () => {
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredAds = [...destinations];
+    let filteredAds = [...tourTypes];
 
     if (hasSearchFilter) {
       filteredAds = filteredAds.filter((destination) =>
@@ -68,7 +69,7 @@ const Destination: React.FC = () => {
     }
     return filteredAds;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [destinations, filterValue, statusFilter]);
+  }, [tourTypes, filterValue, statusFilter]);
 
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -78,53 +79,29 @@ const Destination: React.FC = () => {
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: DestinationData, b: DestinationData) => {
-      const first = a[sortDescriptor.column as keyof DestinationData];
-      const second = b[sortDescriptor.column as keyof DestinationData];
+    return [...items].sort((a: TourTypeData, b: TourTypeData) => {
+      const first = a[sortDescriptor.column as keyof TourTypeData];
+      const second = b[sortDescriptor.column as keyof TourTypeData];
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((destination: DestinationData, columnKey: React.Key) => {
-    const cellValue = destination[columnKey as keyof DestinationData];
+  const renderCell = React.useCallback((tourType: TourTypeData, columnKey: React.Key) => {
+    const cellValue = tourType[columnKey as keyof TourTypeData];
     switch (columnKey) {
       case "name":
         return (
           <div className='min-w-[250px]'>
-            <p className="text-bold text-small capitalize">{destination.name}</p>
-          </div>
-        );
-      case "images":
-        return (
-          <div className='flex flex-row gap-3'>
-            {destination.images.map((image, index) => (
-              <Avatar key={index} src={image} />
-            ))}
+            <p className="text-bold text-small capitalize">{tourType.name}</p>
           </div>
         );
       case "tourCount":
         return (
-          <div className='min-w-[250px]'>
-            <p className="text-bold text-small capitalize">{destination.tourCount}</p>
+          <div className='flex flex-row gap-3'>
+            <p className="text-bold text-small capitalize">{tourType.tourCount}</p>
           </div>
-        );
-      case "description":
-        return (
-          <div className='min-w-[300px] max-w-[400px] max-h-[300px] overflow-auto'>
-            {
-              destination.description.split('\n').map((line, lineIndex) => (
-                <React.Fragment key={lineIndex}>
-                  {line}
-                  {lineIndex < destination.description.split('\n').length - 1 && <br />}
-                </React.Fragment>
-              ))
-            }
-          </div>
-          // <div className='max-w-[400px] max-h-[400px] overflow-auto'>
-          //   <p className="text-bold text-small capitalize">{destination.description}</p>
-          // </div>
         );
       case "actions":
         return (
@@ -153,7 +130,7 @@ const Destination: React.FC = () => {
                   radius="full"
                   className="border-none"
                   onPress={() => {
-                    setDestinationSelected(destination._id)
+                    setDestinationSelected(tourType._id)
                     onOpenEdit()
                   }}
                 >
@@ -193,7 +170,7 @@ const Destination: React.FC = () => {
               base: "w-full",
               inputWrapper: "border-1",
             }}
-            placeholder="Nhập tên địa điểm muốn tìm"
+            placeholder="Nhập tên loại tour muốn tìm"
             size="sm"
             startContent={<AiOutlineSearch className="text-default-300" />}
             value={filterValue}
@@ -208,12 +185,12 @@ const Destination: React.FC = () => {
               size="sm"
               onPress={onOpen}
             >
-              Thêm địa điểm
+              Thêm loại tour
             </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Hiện có {destinations.length} địa điểm</span>
+          <span className="text-default-400 text-small">Hiện có {tourTypes.length} loại tour</span>
         </div>
       </div>
     );
@@ -224,7 +201,7 @@ const Destination: React.FC = () => {
     visibleColumns,
     onSearchChange,
     onRowsPerPageChange,
-    destinations.length,
+    tourTypes.length,
     hasSearchFilter,
   ]);
 
@@ -317,7 +294,7 @@ const Destination: React.FC = () => {
 
       {
         isOpen && (
-          <AddDestination
+          <AddTourType
             isOpen={isOpen}
             onClose={onClose}
             onOpenChange={onOpenChange}
@@ -328,4 +305,4 @@ const Destination: React.FC = () => {
   )
 }
 
-export default Destination
+export default TourType

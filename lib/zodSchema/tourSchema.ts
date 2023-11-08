@@ -1,15 +1,8 @@
 import { z } from "zod";
 
-const DescriptionDataSchema = z.object({
-  type: z.string().optional(),
-  content: z.array(z.unknown()).refine((data) => data.length > 0, {
-    message: "Mô tả sản phẩm không được để trống",
-  }).optional(),
-});
-
 export const tourSchema = z.object({
+  userId: z.string().optional(),
   tourName: z.string(),
-  description: DescriptionDataSchema.optional(),
   destination: z.string(),
   duration: z.string(), // Định dạng theo số ngày và đêm, ví dụ: "5 days, 4 nights"
   price: z.coerce.number(),
@@ -47,8 +40,9 @@ export const tourSchema = z.object({
       .refine((value) => value.trim() !== "", {
         message: "Số điện thoại là bắt buộc",
       }),
-    link: z.string().url()
-  }),
+    link: z.string().url({ message: "Liên kết không hợp lệ" })
+  }).optional(),
+  tourContracts: z.array(z.string().url()).nonempty("Ít nhất phải có một file mô tả"),
   // languages: z.array(z.string()), // Ngôn ngữ trong tour
 });
 

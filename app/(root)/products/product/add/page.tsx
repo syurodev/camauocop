@@ -6,7 +6,6 @@ import { redirect } from 'next/navigation'
 
 const AddProductPage: React.FC = async () => {
   const session: Session | null = await getServerSession(authOptions)
-  let sessionData
 
   if (!session) {
     redirect("/login")
