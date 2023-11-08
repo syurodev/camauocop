@@ -80,7 +80,7 @@ const AddTourType: React.FC<IProps> = ({
 
                 </ModalBody>
                 <ModalFooter>
-                  <Button variant="light" onPress={onClose}>
+                  <Button variant="bordered" onPress={onClose}>
                     Đóng
                   </Button>
                   <Button color="success" type='submit' isDisabled={isSubmitting}>

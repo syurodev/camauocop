@@ -9,9 +9,11 @@ import toast from 'react-hot-toast'
 
 import { UploadButton, UploadDropzone } from '@/lib/uploadthing';
 import { useAppSelector } from '@/redux/store';
-import { addDestination } from '@/actions/tourisms';
-import { IDestination } from '@/lib/models/destination';
-import { pushDestination } from '@/redux/features/destination-slice';
+import { ISpecialty } from '@/lib/models/specialty';
+import { pushSpecialty } from '@/redux/features/specialtys-slice';
+import { addSpecialty } from '@/actions/specialty';
+import Tiptap from '../elements/Editor';
+import { DescriptionDataSchema } from '@/lib/zodSchema/products';
 
 type IProps = {
   isOpen: boolean;
@@ -19,7 +21,7 @@ type IProps = {
   onOpenChange: () => void;
 }
 
-const AddDestination: React.FC<IProps> = ({
+const AddSpecialty: React.FC<IProps> = ({
   isOpen,
   onClose,
   onOpenChange,
@@ -28,33 +30,34 @@ const AddDestination: React.FC<IProps> = ({
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false)
   const dispactch = useDispatch()
 
-  const DestinationSchema = z.object({
+  const SpecialtySchema = z.object({
     name: z.string(),
-    images: z.array(z.string().url()),
-    description: z.string(),
+    images: z.array(z.string().url(), { required_error: "Phải có ít nhất một hình ảnh" }),
+    description: DescriptionDataSchema.optional(),
   });
 
-  type IDestinationSchema = z.infer<typeof DestinationSchema>;
+  type ISpecialtySchema = z.infer<typeof SpecialtySchema>;
 
   const {
     register,
     setValue,
+    getValues,
     reset,
     handleSubmit,
     formState: { errors }
-  } = useForm<IDestinationSchema>({
-    resolver: zodResolver(DestinationSchema),
+  } = useForm<ISpecialtySchema>({
+    resolver: zodResolver(SpecialtySchema),
   })
 
   const session = useAppSelector((state) => state.sessionReducer.value)
 
-  const onSubmit = async (data: IDestinationSchema) => {
+  const onSubmit = async (data: ISpecialtySchema) => {
     setIsSubmitting(true)
-    const res = await addDestination(session?.user.accessToken!, data as IDestination)
+    const res = await addSpecialty(session?.user.accessToken!, data as ISpecialty)
     setIsSubmitting(false)
 
     if (res.code === 200) {
-      dispactch(pushDestination(res.data!))
+      dispactch(pushSpecialty(res.data!))
       toast.success(res.message)
       reset()
       onClose()
@@ -70,10 +73,10 @@ const AddDestination: React.FC<IProps> = ({
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader className="flex flex-col gap-1">Thêm địa điểm</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">Thêm đặc sản</ModalHeader>
                 <ModalBody className='flex flex-col gap-3'>
 
-                  <div className="flex justify-center items-center gap-1 ">
+                  <div className="flex flex-col justify-center items-center gap-1 ">
                     {images ? (
                       <div className='flex flex-col items-center justify-center gap-3'>
                         <div
@@ -132,12 +135,17 @@ const AddDestination: React.FC<IProps> = ({
                         }}
                       />
                     )}
+                    {
+                      errors.images && (
+                        <span className='text-red-500'>{errors.images?.message}</span>
+                      )
+                    }
                   </div>
 
                   <Input
                     isRequired
                     type="text"
-                    label="Tên địa điểm"
+                    label="Tên đặc sản"
                     variant="bordered"
                     className="max-w-full"
                     {...register("name")}
@@ -145,17 +153,12 @@ const AddDestination: React.FC<IProps> = ({
                     errorMessage={errors.name?.message}
                   />
 
-                  <Textarea
-                    isRequired
-                    label="Mô tả"
-                    labelPlacement="inside"
-                    description="nhập '\n' nếu bạn muốn xuống dòng"
-                    placeholder="Nhập mô tả địa điểm"
-                    className="max-w-full"
-                    {...register("description")}
-                    isInvalid={!!errors.description}
-                    errorMessage={errors.description?.message}
-                  />
+                  <p>Mô tả <span className='text-rose-500'>*</span></p>
+                  <Tiptap getValues={getValues} setValue={setValue} initialValue={""} />
+
+                  {errors.description && (
+                    <p className="text-rose-500 font-bold">Phải có mô tả sản phẩm</p>
+                  )}
 
                 </ModalBody>
                 <ModalFooter>
@@ -179,4 +182,4 @@ const AddDestination: React.FC<IProps> = ({
     </>
   )
 }
-export default AddDestination
+export default React.memo(AddSpecialty)

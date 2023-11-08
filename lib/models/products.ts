@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 import ProductType from "./productTypes";
 import Shop from "./shop";
+import Specialty from "./specialty";
 
 export interface IProduct extends Document {
   _id: string;
@@ -26,6 +27,7 @@ export interface IProduct extends Document {
   sold: number;
   createAt: Date;
   specialty: boolean;
+  specialtyId?: string;
   deleted: boolean;
   deleteAt?: Date;
 }
@@ -59,6 +61,7 @@ const ProductSchema: Schema = new Schema(
     ],
     images: [{ type: String }],
     specialty: { type: Boolean, default: false },
+    specialtyId: { type: Schema.Types.ObjectId, ref: Specialty },
     deleted: { type: Boolean, default: false },
     deleteAt: { type: Date },
   },

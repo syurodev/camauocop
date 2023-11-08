@@ -11,6 +11,7 @@ import destinationReducer from "./features/destination-slice"
 import transportationReducer from "./features/transportation-slice"
 import tourTypeReducer from "./features/tour-type-slice"
 import toursReducer from "./features/tours-slice"
+import specialtysReducer from "./features/specialtys-slice"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
 
 export const store = configureStore({
@@ -27,6 +28,7 @@ export const store = configureStore({
     transportationReducer,
     tourTypeReducer,
     toursReducer,
+    specialtysReducer,
   }
 })
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const DescriptionDataSchema = z.object({
+export const DescriptionDataSchema = z.object({
   type: z.string(),
   content: z.array(z.unknown()).refine((data) => data.length > 0, {
     message: "Mô tả sản phẩm không được để trống",

@@ -57,6 +57,7 @@ export const addDestination = async (accessToken: string, data: IDestination) =>
 
 export const getDestinations = async () => {
   try {
+    await connectToDB()
     const destinations: IDestination[] = await Destination.find()
 
     if (destinations.length > 0) {

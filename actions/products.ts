@@ -638,7 +638,7 @@ export async function getProductsSpecialty(
     let query: any = { deleted: false, specialty: true };
 
     if (slug && slug !== "all") {
-      query = { ...query, name: { $regex: slug, $options: "i" } };
+      query = { ...query, $expr: { $eq: ['$specialtyId', { $toObjectId: slug }] } };
     }
 
     const totalProducts = await Product.countDocuments(query);

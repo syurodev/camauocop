@@ -9,6 +9,8 @@ import { CiMenuKebab } from "react-icons/ci"
 
 import { getProductsSpecialty } from "@/actions/products";
 import { categories } from '@/lib/constant/CategoriesDefault'
+import { getSpecialtys } from "@/actions/specialty";
+import toast from "react-hot-toast";
 
 type IProps = {
   params: {
@@ -21,10 +23,12 @@ const ProductsOCOPPage: FC<IProps> = ({ params }) => {
   const slug = decodeURIComponent(params.slug);
   const [data, setData] = useState<IProductsResponse>();
   const [page, setPage] = useState<number>(1);
+  const [specialtys, setSpecialtys] = useState<SpecialtysData[]>([]);
   const [showFilter, setShowFilter] = useState<boolean>(false);
   const [filter, setFilter] = useState<Filter>({
     price: "",
   });
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -39,6 +43,19 @@ const ProductsOCOPPage: FC<IProps> = ({ params }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.slug, filter]);
 
+  useEffect(() => {
+    const fetchApi = async () => {
+      const res = await getSpecialtys()
+      if (res.code === 200) {
+        setSpecialtys(res.data!)
+      } else {
+        toast.error(res.message)
+      }
+    }
+    fetchApi()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div className="flex flex-row items-start gap-3 mt-3">
       <AnimatePresence>
@@ -52,35 +69,34 @@ const ProductsOCOPPage: FC<IProps> = ({ params }) => {
               className="sticky lg:hidden"
             >
               <Listbox
-                items={categories}
+                items={specialtys}
                 aria-label="Danh sách đặc sản"
-                onAction={(key) => router.push(`/products/ocop/${encodeURIComponent(key)}`)}
+                onAction={(key) => router.push(`/products/ocop/${key}`)}
               >
                 {(item) => (
                   <ListboxItem
-                    key={item.lable}
+                    key={item.name}
                   >
-                    {item.lable}
+                    {item.name}
                   </ListboxItem>
                 )}
               </Listbox>
             </motion.div>
           )
         }
-
       </AnimatePresence>
 
       <div className="hidden lg:!flex">
         <Listbox
-          items={categories}
+          items={specialtys}
           aria-label="Danh sách đặc sản"
-          onAction={(key) => router.push(`/products/ocop/${encodeURIComponent(key)}`)}
+          onAction={(key) => router.push(`/products/ocop/${key}`)}
         >
           {(item) => (
             <ListboxItem
-              key={item.lable}
+              key={item._id}
             >
-              {item.lable}
+              {item.name}
             </ListboxItem>
           )}
         </Listbox>
@@ -93,9 +109,6 @@ const ProductsOCOPPage: FC<IProps> = ({ params }) => {
         exit={{ width: "100%", height: 0, opacity: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="w-full flex justify-start">
-          <h2>{`Kết quả của: ${slug === "all" ? "Đặc sản" : slug}`}</h2>
-        </div>
         {/* SORT */}
         <div className="w-full flex justify-between lg:!justify-end gap-3">
           <Button

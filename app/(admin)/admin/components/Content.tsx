@@ -5,11 +5,13 @@ import { AiOutlineShop } from "react-icons/ai"
 import { LuPalmtree } from "react-icons/lu"
 import { RiMoneyDollarCircleLine } from "react-icons/ri"
 import { SiGoogleadsense } from "react-icons/si"
+import { HiSparkles } from "react-icons/hi2"
 
 import AdminShops from '@/components/table/AdminShops'
 import Analysis from './Analysis'
 import AdminAdvertisement from '@/components/table/AdminAdvertisement'
 import Tourism from './Tourism'
+import Specialty from './Specialty'
 
 const AdminContent: React.FC = () => {
   const [selected, setSelected] = React.useState<Set<any>>(new Set(["shops"]));
@@ -40,6 +42,15 @@ const AdminContent: React.FC = () => {
           </div>
         }>
           <Tourism />
+        </Tab>
+
+        <Tab key="specialty" title={
+          <div className='flex flex-row items-center gap-2'>
+            <HiSparkles className="text-lg" />
+            <span>Đặc sản</span>
+          </div>
+        }>
+          <Specialty />
         </Tab>
 
         <Tab key="advertisement" title={

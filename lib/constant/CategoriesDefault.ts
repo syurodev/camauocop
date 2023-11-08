@@ -3,7 +3,7 @@ export const categories = [
     id: 1,
     lable: "Cua biển Cà Mau",
     image: "/images/cua-bien.jpg",
-    description: "Tỉnh Cà Mau có chiều dài bờ biển 254 km, gần 70.000 ha đất rừng ngập mặn và trên 250.000 ha đất nuôi tôm kết hợp với các loài thủy sản khác nên sản lượng cua ở Cà Mau luôn dẫn đầu trong cả nước. Cua là một trong những mặt hàng có giá trị kinh tế cao và được đông đảo người tiêu dùng ưa chuộng.",
+    description: "Tỉnh Cà Mau có chiều dài bờ biển 254 km, gần 70.000 ha đất rừng ngập mặn và trên 250.000 ha đất nuôi tôm kết hợp với các loài thủy sản khác nên sản lượng cua ở Cà Mau luôn dẫn đầu trong cả nước. Cua là một trong những mặt hàng có giá trị kinh tế cao và được đông đảo người tiêu dùng ưa chuộng. ",
   },
   {
     id: 2,
