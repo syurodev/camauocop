@@ -3,14 +3,8 @@
 import * as React from "react";
 import { Card, Image, CardHeader, CardBody, Button } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { GrFormNextLink } from "react-icons/gr"
 
 import { categories } from "@/lib/constant/CategoriesDefault"
-
-type ProductType = {
-  typeName: string;
-  totalSold: number;
-};
 
 const Categories: React.FC = () => {
   const router = useRouter();
