@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { Avatar, Button, Card, CardBody, CardFooter, CardHeader, Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Skeleton, useDisclosure } from '@nextui-org/react'
+import { Avatar, Button, Card, CardBody, CardFooter, CardHeader, Chip, Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Skeleton, useDisclosure } from '@nextui-org/react'
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { TbTruckDelivery } from "react-icons/tb"
@@ -15,6 +15,7 @@ import { convertWeight } from '@/lib/convertWeight';
 import { getOrderDetail } from '@/actions/order';
 import DeliveryModal from './DeliveryModal';
 import { useAppSelector } from '@/redux/store';
+import CanceledOrder from './CanceledOrder';
 
 type IProps = {
   isOpenOrderDetailModal: boolean;
@@ -30,6 +31,7 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
   const [GHNCodeData, setGHNCodeData] = React.useState<GHNCodeResponse>()
   const [isDeliveryLoading, setIsDeliveryLoading] = React.useState<boolean>(true)
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { isOpen: isOpenCanceledOrder, onOpen: onOpenCanceledOrder, onOpenChange: onOpenChangeCanceledOrder, onClose: onCloseCanceledOrder } = useDisclosure();
 
   const [totalWidth, setTotalWidth] = React.useState<number>(0)
   const [totalHeight, setTotalHeight] = React.useState<number>(0)
@@ -132,7 +134,7 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
   }, [isOpenOrderDetailModal, session])
 
   return (
-    <section>
+    <>
       <Modal
         isOpen={isOpenOrderDetailModal}
         onOpenChange={onOpenChangeOrderDetailModal}
@@ -218,6 +220,27 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                   </CardBody>
                 </Card>
 
+                <Card>
+                  <CardHeader className='flex justify-between items-center'>
+                    <span>Trạng thái</span>
+
+                    <Chip color={orderDetail?.orderStatus === "canceled" ? "danger" : orderDetail?.orderStatus === "pending" ? "warning" : "success"}>{orderDetail?.orderStatus === "pending" ? "Đang chờ" : orderDetail?.orderStatus === "canceled" ? "Đã huỷ" : orderDetail?.orderStatus === "processed" ? "Đã xữ lý" : orderDetail?.orderStatus === "shipped" ? "Đang vận chuyển" : "Đã nhận hàng"}</Chip>
+                  </CardHeader>
+
+                  <Divider />
+
+                  <CardBody>
+                    <div className='mt-2'>
+                      <p>
+                        Ghi chú:
+                      </p>
+                      <p className='ps-2 text-sm'>
+                        {orderDetail?.note || "Không có"}
+                      </p>
+                    </div>
+                  </CardBody>
+                </Card>
+
                 <Card shadow='sm' className='p-2'>
                   <CardHeader>
                     Thông tin đơn hàng
@@ -225,8 +248,9 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
 
                   <Divider />
 
-                  <CardBody className='flex'>
-                    <h3 className='mb-3'>THÔNG TIN HÀNG HOÁ</h3>
+                  <CardBody className='flex flex-col gap-3'>
+                    <p>Mã đơn hàng <span className='text-primary'>#{orderDetail?._id}</span></p>
+                    <h3>THÔNG TIN HÀNG HOÁ</h3>
                     {
                       isLoading ? (
                         <div className='flex flex-row gap-3'>
@@ -377,7 +401,11 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                   Đóng
                 </Button>
 
-                <Button color='danger'>
+                <Button
+                  color='danger'
+                  isDisabled={orderDetail?.orderStatus !== "pending" && orderDetail?.orderStatus !== "processed"}
+                  onPress={onOpenCanceledOrder}
+                >
                   {
                     session?.user.role === "shop" && session?.user.shopId === orderDetail?.shopId._id ? (
                       orderDetail?.orderStatus !== "pending" ? "Huỷ đơn" : "Từ chối"
@@ -417,7 +445,19 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
           setTotalLength={setTotalLength}
         />
       }
-    </section>
+
+      {
+        isOpenCanceledOrder && (
+          <CanceledOrder
+            isOpen={isOpenCanceledOrder}
+            onClose={onCloseCanceledOrder}
+            onOpenChange={onOpenChangeCanceledOrder}
+            orderId={orderDetail?._id!}
+            onCloseDetailModal={onCloseOrderDetailModal}
+          />
+        )
+      }
+    </>
   )
 }
 

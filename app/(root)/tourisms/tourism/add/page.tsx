@@ -10,7 +10,10 @@ const AddTourismsPage: React.FC = async () => {
 
   if (!session) {
     redirect("/login")
+  } else if (session.user.role !== "partner") {
+    redirect("/")
   }
+
   return (
     <>
       <AddTourismsForm />

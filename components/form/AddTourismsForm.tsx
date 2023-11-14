@@ -28,7 +28,7 @@ const AddTourismsForm = () => {
       setDestinationsLoading(true)
       const res = await getDestinations()
       if (res.code === 200) {
-        setDestinations(res.data!)
+        setDestinations(JSON.parse(res.data!))
       } else {
         toast.error(res.message)
       }

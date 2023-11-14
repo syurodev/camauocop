@@ -49,6 +49,7 @@ type IOrderDetail = {
   district: string,
   ward: string,
   apartment: string,
+  note: string;
 }
 
 type IOrder = {

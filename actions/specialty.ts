@@ -12,8 +12,13 @@ export const getSpecialtys = async () => {
     if (specialtys && specialtys.length > 0) {
       const productCounts = await Product.aggregate([
         {
+          $match: {
+            specialtyId: { $ne: null },
+          },
+        },
+        {
           $group: {
-            _id: "$specialtyId",
+            _id: { $toString: "$specialtyId" },
             count: { $sum: 1 },
           },
         },
@@ -22,11 +27,13 @@ export const getSpecialtys = async () => {
       // Tạo một đối tượng Map để lưu trữ số lượng tour cho từng loại transportation
       const productCountMap = new Map<string, number>();
       productCounts.forEach((item: { _id: string; count: number }) => {
-        productCountMap.set(item._id, item.count);
+        if (item._id !== null) {
+          productCountMap.set(item._id, item.count);
+        }
       });
 
       const specialtysWithCount: SpecialtysData[] = specialtys.map((specialty: ISpecialty) => {
-        const count = productCountMap.get(specialty._id) || 0;
+        const count = productCountMap.get(specialty._id.toString()) || 0;
         return {
           _id: specialty._id.toString(),
           name: specialty.name,
@@ -35,10 +42,12 @@ export const getSpecialtys = async () => {
         };
       });
 
+      const sortedSpecialtysWithCount = specialtysWithCount.sort((a, b) => b.productCount - a.productCount);
+
       return {
         code: 200,
         message: "successfully",
-        data: specialtysWithCount
+        data: sortedSpecialtysWithCount
       }
     } else {
       return {
@@ -125,8 +134,13 @@ export const getSpecialtysDetail = async () => {
     if (specialtys && specialtys.length > 0) {
       const productCounts = await Product.aggregate([
         {
+          $match: {
+            specialtyId: { $ne: null },
+          },
+        },
+        {
           $group: {
-            _id: "$specialtyId",
+            _id: { $toString: "$specialtyId" },
             count: { $sum: 1 },
           },
         },
@@ -135,11 +149,13 @@ export const getSpecialtysDetail = async () => {
       // Tạo một đối tượng Map để lưu trữ số lượng tour cho từng loại transportation
       const productCountMap = new Map<string, number>();
       productCounts.forEach((item: { _id: string; count: number }) => {
-        productCountMap.set(item._id, item.count);
+        if (item._id !== null) {
+          productCountMap.set(item._id, item.count);
+        }
       });
 
       const specialtysWithCount: SpecialtysDetail[] = specialtys.map((specialty: ISpecialty) => {
-        const count = productCountMap.get(specialty._id) || 0;
+        const count = productCountMap.get(specialty._id.toString()) || 0;
         return {
           _id: specialty._id.toString(),
           name: specialty.name,
@@ -149,10 +165,12 @@ export const getSpecialtysDetail = async () => {
         };
       });
 
+      const sortedSpecialtysWithCount = specialtysWithCount.sort((a, b) => b.productCount - a.productCount);
+
       return {
         code: 200,
         message: "successfully",
-        data: specialtysWithCount
+        data: JSON.stringify(sortedSpecialtysWithCount)
       }
     } else {
       return {

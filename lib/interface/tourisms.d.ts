@@ -4,7 +4,10 @@ type DestinationData = {
   _id: string;
   name: string;
   images: string[];
-  description: string;
+  description: {
+    type: string;
+    content: any[];
+  };
   tourCount: number
 }
 
@@ -24,6 +27,7 @@ type TourTypeData = {
 type TourData = {
   _id: string,
   username: string
+  avatar: string
   status: TourismsStatus;
   tourName: string;
   destinationName: string

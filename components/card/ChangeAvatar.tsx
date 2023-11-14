@@ -32,6 +32,7 @@ const ChangeAvatar: React.FC<IProps> = ({ onClose }) => {
       dispatch(changeShopAvatar({
         image: shopAvatar
       }))
+      onClose()
     } else {
       toast.error(res.message)
     }

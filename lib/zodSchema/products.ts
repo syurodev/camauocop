@@ -11,6 +11,7 @@ export const AddProductZodSchema = z.object({
   shopId: z.string().optional(),
   productType: z.string().nonempty("Vui lòng chọn loại sản phẩm"),
   name: z.string().nonempty("Tên sản phẩm không thể bỏ trống"),
+  specialtyId: z.string().optional(),
   description: DescriptionDataSchema.optional(),
   images: z.array(z.string().url()).nonempty("Ít nhất phải có một hình ảnh"),
   // price: z.coerce.number().min(1, "Giá tiền không được bằng 0"),

@@ -11,6 +11,7 @@ import { setDestinations } from '@/redux/features/destination-slice'
 import { useAppSelector } from '@/redux/store'
 import { DestinationColumns } from '@/lib/constant/DestinationColumns'
 import AddDestination from '../form/AddDestination'
+import RenderDescription from '@/app/(root)/products/product/[id]/components/RenderDescription'
 
 const INITIAL_VISIBLE_COLUMNS = ["Tên", "Hình ảnh", "Mô tả", "Thao tác"];
 
@@ -34,7 +35,7 @@ const Destination: React.FC = () => {
     const fetchApi = async () => {
       const res = await getDestinations()
       if (res.code === 200) {
-        dispatch(setDestinations(res.data!))
+        dispatch(setDestinations(JSON.parse(res.data!)))
       } else {
         toast.error(res.message)
       }
@@ -87,7 +88,7 @@ const Destination: React.FC = () => {
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((destination: DestinationData, columnKey: React.Key) => {
+  const renderCell = React.useCallback((destination: DestinationData, columnKey: React.Key): React.ReactNode => {
     const cellValue = destination[columnKey as keyof DestinationData];
     switch (columnKey) {
       case "name":
@@ -98,9 +99,9 @@ const Destination: React.FC = () => {
         );
       case "images":
         return (
-          <div className='flex flex-row gap-3'>
+          <div className='flex flex-row gap-3 max-w-[300px] overflow-x-scroll'>
             {destination.images.map((image, index) => (
-              <Avatar key={index} src={image} />
+              <Avatar key={index} src={image} className='min-w-[40px]' />
             ))}
           </div>
         );
@@ -112,19 +113,9 @@ const Destination: React.FC = () => {
         );
       case "description":
         return (
-          <div className='min-w-[300px] max-w-[400px] max-h-[300px] overflow-auto'>
-            {
-              destination.description.split('\n').map((line, lineIndex) => (
-                <React.Fragment key={lineIndex}>
-                  {line}
-                  {lineIndex < destination.description.split('\n').length - 1 && <br />}
-                </React.Fragment>
-              ))
-            }
+          <div className='min-w-[300px] max-w-[400px] max-h-[100px] overflow-auto'>
+            <RenderDescription description={destination.description} />
           </div>
-          // <div className='max-w-[400px] max-h-[400px] overflow-auto'>
-          //   <p className="text-bold text-small capitalize">{destination.description}</p>
-          // </div>
         );
       case "actions":
         return (
@@ -164,7 +155,7 @@ const Destination: React.FC = () => {
           </div>
         );
       default:
-        return cellValue;
+        return <></>;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

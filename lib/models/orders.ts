@@ -37,6 +37,7 @@ export interface IOrderSchema extends Document {
   district: string;
   ward: string;
   apartment: string;
+  note?: string;
   length?: number;
   width?: number;
   height?: number;
@@ -66,6 +67,7 @@ const OrderSchema: Schema = new Schema({
   district: { type: String },
   ward: { type: String },
   apartment: { type: String },
+  note: { type: String, default: "" },
 });
 
 export default mongoose.models.Order || mongoose.model<IOrderSchema>('Order', OrderSchema);

@@ -64,7 +64,7 @@ export const getDestinations = async () => {
       const destinationCounts = await Tourism.aggregate([
         {
           $group: {
-            _id: "$destination",
+            _id: { $toString: "$destination" },
             count: { $sum: 1 },
           },
         },
@@ -78,7 +78,7 @@ export const getDestinations = async () => {
 
       // Kết hợp thông tin transportation và số lượng tour
       const destinationsWithCount: DestinationData[] = destinations.map((destination: IDestination) => {
-        const count = destinationsCountMap.get(destination._id) || 0;
+        const count = destinationsCountMap.get(destination._id.toString()) || 0;
         return {
           _id: destination._id.toString(),
           name: destination.name,
@@ -99,7 +99,7 @@ export const getDestinations = async () => {
       return {
         code: 200,
         message: "successfully",
-        data: destinationsWithCount
+        data: JSON.stringify(destinationsWithCount)
       }
     } else {
       return {
@@ -351,18 +351,21 @@ export const getTourisms = async (userId?: string) => {
     const tourisms = await Tourism.find(query)
       .populate('tourType', "name")
       .populate('destination', "name")
-      .populate('userId', "username email")
+      .populate('userId', "username email image")
       .populate({
         path: 'transportation',
         model: 'Transportation',
         select: "name"
       });
 
+    console.log(tourisms)
+
     if (tourisms.length > 0) {
       const result: TourData[] = tourisms.map(tourism => {
         return {
           _id: tourism._id.toString(),
-          username: tourism.userId.username || tourism.userId.email,
+          username: tourism?.userId?.username || tourism?.userId?.email || "",
+          avatar: tourism?.userId?.image || "",
           status: tourism.status,
           tourName: tourism.tourName,
           destinationName: tourism.destination.name,

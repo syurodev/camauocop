@@ -20,6 +20,7 @@ const Search: React.FC<IProps> = ({ width }) => {
   const [productTypes, setProductTypes] = useState<ProductTypeData[]>([])
   const [products, setProducts] = useState<ProductData[]>([])
   const [shops, setShops] = useState<ShopData[]>([])
+  const [specialtys, setSpecialtys] = useState<ProductTypeData[]>([])
   const [showSearchBox, setShowSearchBox] = useState<boolean>(false);
 
   let debounced = useDebounce(inputValue, 500);
@@ -34,6 +35,12 @@ const Search: React.FC<IProps> = ({ width }) => {
           setProductTypes(res.data.productTypes)
         } else {
           setProductTypes([])
+        }
+
+        if (res.data.specialtys.length > 0) {
+          setSpecialtys(res.data.specialtys)
+        } else {
+          setSpecialtys([])
         }
 
         if (res.data.shops.length > 0) {
@@ -89,6 +96,49 @@ const Search: React.FC<IProps> = ({ width }) => {
             transition={{ duration: 0.3 }}
             className={`shadow-sm bg-[#f1f1f2]/70 dark:bg-default/80 backdrop-saturate-200 backdrop-blur-3xl rounded-large`}>
             <div className="flex p-3 flex-col gap-3">
+              <div>
+                <p>
+                  Đặc sản
+                </p>
+                {
+                  searching ? (
+                    <Skeleton className="h-[16px] w-full rounded-lg" />
+                  ) : (
+                    specialtys.length > 0 ? (
+                      <div className='flex items-center gap-2 mt-1 w-full overflow-auto'>
+                        {
+                          specialtys.map(item => {
+                            return (
+                              <Link
+                                key={item._id}
+                                isBlock
+                                showAnchorIcon
+                                href={`/products/ocop/${item._id}`}
+                                anchorIcon={<BiLink />}
+                                className='whitespace-nowrap'
+                                color='success'
+                              >
+                                {item.name}
+                              </Link>
+                            )
+                          })
+                        }
+                      </div>
+                    ) : (
+                      <motion.p
+                        className='text-tiny'
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                      >
+                        Không tìm thấy loại sản phẩm
+                      </motion.p>
+                    )
+                  )
+                }
+              </div>
+
+              <Divider />
+
               <div>
                 <p>
                   Loại sản phẩm
@@ -190,7 +240,15 @@ const Search: React.FC<IProps> = ({ width }) => {
                 <div className='flex flex-row justify-between items-center'>
                   <p>Sản phẩm</p>
 
-                  <Button className='border-none' size='sm'>
+                  <Button
+                    className='border-none'
+                    variant='ghost'
+                    size='sm'
+                    onPress={() => {
+                      router.push(`/products/${encodeURIComponent(inputValue)}`)
+                      setShowSearchBox(false)
+                    }}
+                  >
                     Xem tất cả
                   </Button>
                 </div>

@@ -7,13 +7,9 @@ const SpecialtyPage = async () => {
   let data = ""
   const res = await getSpecialtysDetail()
 
-  if (res.code === 200) {
-    data = JSON.stringify(res.data)
-  }
-
   return (
     <>
-      <PageSlider data={data} />
+      <PageSlider data={res.data} />
     </>
   )
 }

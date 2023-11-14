@@ -12,10 +12,27 @@ export const getNotifications = async (userId: string, loadedNotificationsCount:
       .skip(loadedNotificationsCount)
       .limit(20);
 
-    return {
-      code: 200,
-      data: notifications
+    if (notifications.length > 0) {
+      return {
+        code: 200,
+        data: notifications.map(item => {
+          return {
+            userId: item.userId.toString(),
+            orderId: item.orderId.toString(),
+            content: item.content,
+            type: item.type as NotificationType,
+            status: item.status as NotificationStatus,
+          }
+        })
+      }
+    } else {
+      return {
+        code: 200,
+        data: []
+      }
     }
+
+
   } catch (error) {
     console.error(error)
     return {

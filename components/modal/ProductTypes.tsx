@@ -92,7 +92,7 @@ const ProductTypes: React.FC<IProductTypeModel> = ({
                 />
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="flat" onPress={onClose}>
+                <Button variant="bordered" onPress={onClose}>
                   Đóng
                 </Button>
                 <Button color="primary" type="submit" onPress={onSubmit}>
@@ -103,58 +103,6 @@ const ProductTypes: React.FC<IProductTypeModel> = ({
           )}
         </ModalContent>
       </Modal>
-      {/* <div className="flex justify-between w-full items-center">
-        <FormLabel>Loại sản phẩm:</FormLabel>
-        <Dialog>
-          <DialogTrigger asChild className="cursor-pointer">
-            <AiOutlinePlus className="text-xl" />
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Thêm loại hàng hoá</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="flex flex-col items-start">
-                <Label htmlFor="productType">Tên loại hàng hoá: </Label>
-                <Input
-                  id="productType"
-                  value={newProductTypes}
-                  onChange={(e) => setNewProductTypes(e.target.value)}
-                  className="mt-3"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit" onClick={onSubmit}>
-                Thêm
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-      <Select onValueChange={onChange} defaultValue={value}>
-        <FormControl>
-          <SelectTrigger>
-            <SelectValue placeholder="Chọn loại sản phẩm" />
-          </SelectTrigger>
-        </FormControl>
-        <SelectContent>
-          {productTypes.map((item, index) => {
-            return (
-              <motion.div
-                key={item._id}
-                initial={{ y: 0, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: index / 10 }}
-              >
-                <SelectItem key={item._id} value={item._id}>
-                  {item.name}
-                </SelectItem>
-              </motion.div>
-            );
-          })}
-        </SelectContent>
-      </Select> */}
     </>
   );
 };

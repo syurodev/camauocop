@@ -58,13 +58,13 @@ const ProductDetailPage: React.FC<Props> = async ({ params }) => {
                 </div>
 
                 <div className="w-full">
-                  <h2>Mô tả sản phẩm</h2>
+                  <h2 className="font-semibold">Mô tả sản phẩm</h2>
                   <RenderDescription description={data?.productDescription} />
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
-                <h2>Gợi ý</h2>
+                <h2 className="font-semibold">Gợi ý</h2>
                 <Recommectdation id={params.id} />
               </div>
             </div>

@@ -195,7 +195,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
       const products = await Product.find(query)
         .populate({
           path: "shopId",
-          select: "name _id phone delivery status image shop_id address",
+          select: "name _id phone delivery status image shop_id address, packageOptions",
         })
         .populate({
           path: "productType",
@@ -481,28 +481,32 @@ export async function setFavorite(
   }
 }
 
-export async function editProduct(id: string, data: IAddProductZodSchema, accessToken: string) {
+export async function editProduct(id: string, data: string, accessToken: string) {
   try {
     const token = verifyJwtToken(accessToken);
     if (!!token) {
       await connectToDB();
       const product: IProduct | null = await Product.findById(id);
 
+      const req: IAddProductZodSchema = JSON.parse(data);
+
       if (product) {
-        product.productType = data?.productType || product?.productType
-        product.name = data?.name || product?.name!
-        product.description = data?.description || product?.description
-        product.retailPrice = data?.retailPrice || product?.retailPrice
-        product.retail = data?.retail || product?.retail
-        product.packageOptions = data?.packageOptions || product?.packageOptions
-        product.images = data?.images || product?.images
-        if (data.unit === "kg") {
-          product.quantity = data?.quantity || product?.quantity
+        product.productType = req?.productType || product?.productType
+        product.name = req?.name || product?.name!
+        product.description = req?.description || product?.description
+        product.retailPrice = req?.retailPrice || product?.retailPrice
+        product.retail = req?.retail || product?.retail
+        product.packageOptions = req?.packageOptions || product?.packageOptions
+        product.images = req?.images || product?.images
+        if (req.unit === "kg") {
+          product.quantity = req?.quantity || product?.quantity
         } else {
-          product.quantity = convertToKg(data?.quantity, data?.unit) || product?.quantity
+          product.quantity = convertToKg(req?.quantity, req?.unit) || product?.quantity
         }
 
         await product.save()
+
+        revalidatePath(`/products/product/${id}`)
 
         return {
           code: 200,

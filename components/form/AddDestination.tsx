@@ -12,6 +12,8 @@ import { useAppSelector } from '@/redux/store';
 import { addDestination } from '@/actions/tourisms';
 import { IDestination } from '@/lib/models/destination';
 import { pushDestination } from '@/redux/features/destination-slice';
+import Tiptap from '../elements/Editor';
+import { DescriptionDataSchema } from '@/lib/zodSchema/products';
 
 type IProps = {
   isOpen: boolean;
@@ -30,8 +32,8 @@ const AddDestination: React.FC<IProps> = ({
 
   const DestinationSchema = z.object({
     name: z.string(),
-    images: z.array(z.string().url()),
-    description: z.string(),
+    images: z.array(z.string().url(), { required_error: "Phải có ít nhất một hình ảnh" }),
+    description: DescriptionDataSchema.optional(),
   });
 
   type IDestinationSchema = z.infer<typeof DestinationSchema>;
@@ -39,6 +41,7 @@ const AddDestination: React.FC<IProps> = ({
   const {
     register,
     setValue,
+    getValues,
     reset,
     handleSubmit,
     formState: { errors }
@@ -75,7 +78,7 @@ const AddDestination: React.FC<IProps> = ({
 
                   <div className="flex justify-center items-center gap-1 ">
                     {images ? (
-                      <div className='flex flex-col items-center justify-center gap-3'>
+                      <div className='flex flex-col items-center justify-between gap-3 w-full overflow-auto'>
                         <div
                           className='flex flex-row items-center justify-center gap-3'
                         >
@@ -145,17 +148,12 @@ const AddDestination: React.FC<IProps> = ({
                     errorMessage={errors.name?.message}
                   />
 
-                  <Textarea
-                    isRequired
-                    label="Mô tả"
-                    labelPlacement="inside"
-                    description="nhập '\n' nếu bạn muốn xuống dòng"
-                    placeholder="Nhập mô tả địa điểm"
-                    className="max-w-full"
-                    {...register("description")}
-                    isInvalid={!!errors.description}
-                    errorMessage={errors.description?.message}
-                  />
+                  <p>Mô tả <span className='text-rose-500'>*</span></p>
+                  <Tiptap getValues={getValues} setValue={setValue} initialValue={""} />
+
+                  {errors.description && (
+                    <p className="text-rose-500 font-bold">Phải có mô tả sản phẩm</p>
+                  )}
 
                 </ModalBody>
                 <ModalFooter>

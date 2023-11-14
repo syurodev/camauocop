@@ -1,12 +1,12 @@
 'use client'
 
 import React from 'react';
-import { IAddProductZodSchema } from '@/lib/zodSchema/products';
 import { useEditor, EditorContent, FloatingMenu, BubbleMenu } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { UseFormGetValues } from 'react-hook-form';
 import Heading from '@tiptap/extension-heading'
 import { Button, Card, CardBody } from '@nextui-org/react';
+import HardBreak from '@tiptap/extension-hard-break'
 
 interface EditorProps {
   setValue: (
@@ -23,6 +23,7 @@ const Tiptap: React.FC<EditorProps> = ({ getValues, setValue, initialValue }) =>
   const editor = useEditor({
     extensions: [
       StarterKit,
+      HardBreak,
       Heading.configure({
         levels: [1, 2, 3],
       }),

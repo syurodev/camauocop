@@ -192,7 +192,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
             </Tooltip>
 
             {
-              session?.user.role === "shop" && session?.user.shopId === order?.shopId && order?.status !== "pending" && (
+              session?.user.role === "shop" && session?.user.shopId === order?.shopId && order?.status !== "pending" && order?.status !== "canceled" && order?.status !== "delivered" && (
                 <Button
                   isIconOnly
                   size="sm"

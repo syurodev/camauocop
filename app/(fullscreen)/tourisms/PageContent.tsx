@@ -15,21 +15,16 @@ type IProps = {
   data: string
 }
 
-const PageSlider: React.FC<IProps> = ({ data }) => {
+const PageContent: React.FC<IProps> = ({ data }) => {
+  const destinations: DestinationData[] = JSON.parse(data)
   const router = useRouter()
-  let specialtys: SpecialtysDetail[] = []
-
-  if (data !== "") {
-    specialtys = JSON.parse(data)
-  }
-
-  const [currentIndex, setCurrentIndex] = React.useState<number>(0)
   const [gridView, setGridView] = React.useState<boolean>(false)
+  const [currentIndex, setCurrentIndex] = React.useState<number>(0)
 
   return (
     <>
       {
-        specialtys.length > 0 ? (
+        destinations.length > 0 ? (
           <div>
             <motion.div
               className='relative w-screen h-screen'
@@ -74,10 +69,10 @@ const PageSlider: React.FC<IProps> = ({ data }) => {
                         className='grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4 xl:gap-5'
                       >
                         {
-                          specialtys.map((category, index) => {
+                          destinations.map((destination, index) => {
                             return (
                               <motion.div
-                                key={`gridViewImage${category._id}`}
+                                key={`gridViewImage${destination._id}`}
                                 initial={{ y: 15, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: 15, opacity: 0 }}
@@ -86,20 +81,20 @@ const PageSlider: React.FC<IProps> = ({ data }) => {
                                 <Card
                                   className="py-4 max-w-[258px]"
                                   isPressable
-                                  onPress={() => router.push(`/products/ocop/${category._id}`)}
+                                  onPress={() => router.push(`/products/ocop/${destination._id}`)}
                                 >
                                   <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
                                     <p className="text-tiny uppercase font-bold text-primary">Đặc sản</p>
                                     <div className='w-full max-h-[60px] overflow-hidden text-small'>
-                                      <RenderDescription description={category.description} />
+                                      <RenderDescription description={destination.description} />
                                     </div>
-                                    <h4 className="font-bold text-large line-clamp-1">{category.name}</h4>
+                                    <h4 className="font-bold text-large line-clamp-1">{destination.name}</h4>
                                   </CardHeader>
                                   <CardBody className="overflow-visible py-2">
                                     <Image
                                       alt="Card background"
                                       className="object-cover rounded-xl w-[270px] h-[200px]"
-                                      src={category.images[0]}
+                                      src={destination.images[0]}
                                       width={270}
                                       height={200}
                                     />
@@ -123,11 +118,11 @@ const PageSlider: React.FC<IProps> = ({ data }) => {
                       >
                         <AnimatePresence mode="wait">
                           {
-                            specialtys.map((category, index) => {
+                            destinations.map((destination, index) => {
                               return (
                                 index === currentIndex ? (
                                   <motion.div
-                                    key={`${category._id}item${index}`}
+                                    key={`${destination._id}item${index}`}
                                     initial={{ y: -15, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     exit={{ y: 15, opacity: 0 }}
@@ -136,8 +131,8 @@ const PageSlider: React.FC<IProps> = ({ data }) => {
                                   >
                                     <div className='flex flex-col lg:!flex-row justify-center items-start gap-3'>
                                       <Image
-                                        src={category.images[0]}
-                                        alt={category.name}
+                                        src={destination.images[0]}
+                                        alt={destination.name}
                                         radius='lg'
                                         width={300}
                                         height={300}
@@ -156,7 +151,7 @@ const PageSlider: React.FC<IProps> = ({ data }) => {
                                             transition={{ duration: 0.3, delay: 0.2 }}
                                             className='font-bold text-4xl'
                                           >
-                                            {category.name}
+                                            {destination.name}
                                           </motion.h2>
 
                                           <motion.div
@@ -175,7 +170,7 @@ const PageSlider: React.FC<IProps> = ({ data }) => {
                                                 radius='full'
                                                 size='sm'
                                                 className='border-none'
-                                                onPress={() => router.push(`/products/ocop/${category._id}`)}
+                                                onPress={() => router.push(`/products/ocop/${destination._id}`)}
                                               >
                                                 <GrFormNextLink className="text-lg" />
                                               </Button>
@@ -193,7 +188,7 @@ const PageSlider: React.FC<IProps> = ({ data }) => {
                                             exit={{ y: -15, opacity: 0 }}
                                             transition={{ duration: 0.3, delay: 0.4 }}
                                           >
-                                            <RenderDescription description={category.description} />
+                                            <RenderDescription description={destination.description} />
                                           </motion.h4>
                                         </div>
                                       </div>
@@ -211,11 +206,11 @@ const PageSlider: React.FC<IProps> = ({ data }) => {
                           className='absolute bottom-4 left-1/2 -translate-x-1/2 w-full items-center lg:!justify-center flex flex-row gap-4 overflow-auto z-30'
                         >
                           {
-                            specialtys.map((category, index) => {
+                            destinations.map((destination, index) => {
                               return (
                                 <Tooltip
-                                  content={category.name}
-                                  key={`imageButton${category._id}${index}`}
+                                  content={destination.name}
+                                  key={`imageButton${destination._id}${index}`}
 
                                 >
                                   <motion.div
@@ -225,8 +220,8 @@ const PageSlider: React.FC<IProps> = ({ data }) => {
                                     transition={{ duration: 0.3, delay: index / 10 }}
                                   >
                                     <Image
-                                      src={category.images[0]}
-                                      alt={category.name}
+                                      src={destination.images[0]}
+                                      alt={destination.name}
                                       radius='full'
                                       width={35}
                                       height={35}
@@ -247,19 +242,19 @@ const PageSlider: React.FC<IProps> = ({ data }) => {
                       >
                         <AnimatePresence mode="wait">
                           {
-                            specialtys.map((category, index) => {
+                            destinations.map((destination, index) => {
                               return (
                                 index === currentIndex ? (
                                   <motion.div
-                                    key={`bgImage${index}${category._id}`}
+                                    key={`bgImage${index}${destination._id}`}
                                     initial={{ y: -15, opacity: 0 }}
                                     animate={{ y: 0, opacity: 0.4 }}
                                     exit={{ y: 15, opacity: 0 }}
                                     transition={{ duration: 0.3 }}
                                   >
                                     <Image
-                                      src={category.images[0]}
-                                      alt={category.name}
+                                      src={destination.images[0]}
+                                      alt={destination.name}
                                       radius='none'
                                       width={"auto"}
                                       className='object-cover w-screen h-screen select-none cursor-default pointer-events-none brightness-75'
@@ -283,4 +278,4 @@ const PageSlider: React.FC<IProps> = ({ data }) => {
   )
 }
 
-export default PageSlider
+export default PageContent

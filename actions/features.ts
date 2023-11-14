@@ -4,6 +4,7 @@ import ProductType from "@/lib/models/productTypes";
 import Product from "@/lib/models/products";
 import Shop from "@/lib/models/shop";
 import { connectToDB } from "@/lib/utils"
+import Specialty, { ISpecialty } from "@/lib/models/specialty"
 
 export interface ProductTypeData {
   _id: string;
@@ -32,6 +33,7 @@ export interface SearchResponse {
     productTypes: ProductTypeData[],
     products: ProductData[],
     shops: ShopData[],
+    specialtys: ProductTypeData[],
   } | null
 }
 
@@ -51,6 +53,10 @@ export const search = async (value: string): Promise<SearchResponse> => {
       { $limit: 5 },
     ]).exec();
 
+    const specialtys = await Specialty.find({
+      name: { $regex: value, $options: "i" },
+    }).limit(5)
+
     const products = await Product.find({ name: { $regex: value, $options: 'i' } })
       .populate({
         path: 'shopId',
@@ -65,6 +71,14 @@ export const search = async (value: string): Promise<SearchResponse> => {
     let formattedShops: ShopData[] = []
     let formattedProducts: ProductData[] = []
     let formattedProductTypes: ProductTypeData[] = []
+    let formattedSpecialtys: ProductTypeData[] = []
+
+    if (specialtys.length > 0) {
+      formattedSpecialtys = specialtys.map((item) => ({
+        _id: item._id.toString(),
+        name: item.name,
+      }));
+    }
 
     if (productTypes.length > 0) {
       formattedProductTypes = productTypes.map((type) => ({
@@ -99,6 +113,7 @@ export const search = async (value: string): Promise<SearchResponse> => {
         productTypes: formattedProductTypes,
         products: formattedProducts,
         shops: formattedShops,
+        specialtys: formattedSpecialtys,
       }
     };
 

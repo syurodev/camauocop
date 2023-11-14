@@ -151,7 +151,12 @@ export default function Tour() {
     switch (columnKey) {
       case "username":
         return (
-          <p className="text-bold text-small capitalize">{tour.username}</p>
+          <User
+            name={tour.username}
+            avatarProps={{
+              src: tour.avatar
+            }}
+          />
         );
       case "tourName":
         return (

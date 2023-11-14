@@ -26,7 +26,7 @@ export const ourFileRouter = {
   advertisementImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
     .middleware(() => auth())
     .onUploadComplete(() => { }),
-  destinationImage: f({ image: { maxFileSize: "16MB", maxFileCount: 5 } })
+  destinationImage: f({ image: { maxFileSize: "16MB", maxFileCount: 12 } })
     .middleware(() => auth())
     .onUploadComplete(() => { }),
   tourContracts: f({ pdf: { maxFileSize: "8MB", maxFileCount: 3 } })

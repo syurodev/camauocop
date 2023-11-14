@@ -3,7 +3,7 @@
 import { convertToKg } from "@/lib/convertToKg";
 import Fee, { IFee } from "@/lib/models/fee";
 import Notification, { INotification } from "@/lib/models/notification";
-import Order from "@/lib/models/orders"
+import Order, { IOrderSchema } from "@/lib/models/orders"
 import Product, { IProduct } from "@/lib/models/products";
 import Shop, { IShop } from "@/lib/models/shop";
 import { connectToDB, verifyJwtToken } from "@/lib/utils";
@@ -312,7 +312,8 @@ export const getOrderDetail = async (id: string): Promise<IOrderDetailResponse> 
         province: order.province,
         district: order.district,
         ward: order.ward,
-        apartment: order.apartment
+        apartment: order.apartment,
+        note: order.note || "",
       }
 
       return {
@@ -492,6 +493,48 @@ export const changeOrderStatus = async (accessToken: string, orderId: string, ne
     return {
       code: 500,
       message: "Lỗi hệ thống, vui lòng thử lại"
+    }
+  }
+}
+
+export const canceledOrder = async (accessToken: string, orderId: string, note: string) => {
+  try {
+    const token = verifyJwtToken(accessToken)
+    if (!!token) {
+      await connectToDB()
+      const order: IOrderSchema | null = await Order.findById({ _id: orderId })
+
+      if (order) {
+        if (order.orderStatus === "pending" || order.orderStatus === "processed") {
+          await Order.findByIdAndUpdate({ _id: orderId }, { orderStatus: "canceled", note: note })
+
+          return {
+            code: 200,
+            message: "Huỷ đơn hàng thành công"
+          }
+        } else {
+          return {
+            code: 400,
+            message: "Chỉ có thể huỷ đơn trước khi được vận chuyển"
+          }
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không tìm thấy đơn hàng"
+        }
+      }
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại"
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại"
     }
   }
 }

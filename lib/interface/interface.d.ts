@@ -31,3 +31,6 @@ type INotificationResponse = {
 type Filter = {
   price?: string;
 }
+
+type NotificationType = 'bid' | 'win' | 'event' | 'order'
+type NotificationStatus = 'read' | 'unread'

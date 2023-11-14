@@ -75,7 +75,7 @@ const ProductsOCOPPage: FC<IProps> = ({ params }) => {
               >
                 {(item) => (
                   <ListboxItem
-                    key={item.name}
+                    key={item._id}
                   >
                     {item.name}
                   </ListboxItem>

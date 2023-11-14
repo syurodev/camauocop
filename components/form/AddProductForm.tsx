@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button, Input, Select, SelectItem, Switch, cn, Spinner, Card, CardHeader, CardBody, Divider, Link } from "@nextui-org/react";
+import { Button, Input, Select, SelectItem, Switch, cn, Spinner, Card, CardHeader, CardBody, Divider, Link, Skeleton } from "@nextui-org/react";
 import toast from "react-hot-toast";
 import { Session } from "next-auth";
 
@@ -18,6 +18,8 @@ import ProductTypes from "../modal/ProductTypes";
 import { unit } from "@/lib/constant/unit";
 import Tiptap from "../elements/Editor";
 import { IProduct } from "@/lib/models/products";
+import { getSpecialtys } from "@/actions/specialty";
+import { useRouter } from "next/navigation";
 
 type AddProductFormProps = {
   session: Session | null;
@@ -28,11 +30,41 @@ type AddProductFormProps = {
 };
 
 const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, productId, onClose, productData }) => {
+  const router = useRouter()
   const [productTypes, setProductTypes] = useState<IAddProductTypes[]>([]);
   const [retail, setRetail] = useState<boolean>(true);
   const [specialty, setSpecialty] = useState<boolean>(false);
+  const [specialtysData, setSpecialtysData] = useState<SpecialtysData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isProductTypesLoading, setProductTypesIsLoading] = useState<boolean>(false);
+  const [isSpecialtysDataLoading, setIsSpecialtysDataLoading] = useState<boolean>(false);
   const [priceInputFormated, setPriceInputFormated] = useState<string>("");
+
+  React.useEffect(() => {
+    if (productData) {
+      setRetail(productData?.retail)
+      setSpecialty(productData?.specialty)
+    }
+  }, [productData])
+
+  // GET PRODUCT TYPE
+  React.useEffect(() => {
+    const fetchApi = async () => {
+      setProductTypesIsLoading(true)
+      setIsSpecialtysDataLoading(true)
+      const res = await getProductTypes();
+      setProductTypesIsLoading(false)
+      setProductTypes(res);
+
+      const specialtysData = await getSpecialtys()
+      setIsSpecialtysDataLoading(false)
+
+      if (specialtysData.code === 200) {
+        setSpecialtysData(specialtysData.data!)
+      }
+    };
+    fetchApi();
+  }, []);
 
   const {
     register,
@@ -73,22 +105,6 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, 
     name: "packageOptions",
   });
 
-  React.useEffect(() => {
-    if (productData) {
-      setRetail(productData?.retail)
-      setSpecialty(productData?.specialty)
-    }
-  }, [productData])
-
-  // GET PRODUCT TYPE
-  React.useEffect(() => {
-    const fetchApi = async () => {
-      const res = await getProductTypes();
-      setProductTypes(res);
-    };
-    fetchApi();
-  }, []);
-
   const onSubmit = async (data: IAddProductZodSchema) => {
     if (session?.user.shopId) {
       data = {
@@ -97,7 +113,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, 
         specialty: specialty
       };
       if (edit && productId) {
-        const res = await editProduct(productId, data, session.user.accessToken);
+        const res = await editProduct(productId, JSON.stringify(data), session.user.accessToken);
         if (res.code === 200) {
           toast.success(res.message);
           onClose!();
@@ -110,8 +126,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, 
         setIsLoading(false)
         if (res.code === 200) {
           toast.success(res.message);
-          reset
-          return
+          router.push(`/shop/${session.user.shopId}`)
         }
 
         if (res.code === 500) {
@@ -184,60 +199,59 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, 
                 "group-data-[selected]:group-data-[pressed]:ml-4",
               ),
             }}
-            defaultSelected={specialty}
+            isSelected={specialty}
             onValueChange={handleSpecialty}
           >
             <div className="flex flex-col gap-1">
               <p className="text-medium">Đặc sản</p>
               <p className="text-tiny text-default-400">
-                <span>Sản phẩm đặc sản sẻ được hiển thị ở trang OCOP. </span>
-                {
-                  specialty && <>
-                    <br />
-                    <span className="font-semibold">
-                      Vui lòng đặt tên sản phẩm có chứa tên của đặc sản.
-                    </span>
-                    <br />
-                    <span className="!text-primary font-semibold">
-                      Ví dụ:
-                      <span className="font-bold"> Cá kèo </span>
-                      tươi ngon
-                    </span>
-                    <br />
-                    <span className="font-semibold text-danger">
-                      Lưu lý nếu đặt tên sai cách sản phẩm của bạn có thể sẻ không được hiện trong trang OCOP
-                    </span>
-                    <br />
-                    <Link
-                      isExternal
-                      showAnchorIcon
-                      color="success"
-                      size="sm"
-                      href={"/specialty"}
-                    >
-                      Xem tên đặc sản tại đây
-                    </Link>
-                  </>
-                }
+                <span>Sản phẩm đặc sản sẻ được hiển thị ở trang OCOP.</span>
               </p>
             </div>
           </Switch>
 
 
+          {
+            specialty ?
+              isSpecialtysDataLoading ? (
+                <Skeleton className="h-[56px] w-full rounded-lg" />
+              ) :
+                (<>
+                  <Select
+                    items={specialtysData}
+                    label="Chọn loại đặc sản"
+                    className="max-w-full"
+                    isRequired
+                    {...register("specialtyId")}
+                    isInvalid={!!errors.specialtyId}
+                    errorMessage={errors.specialtyId && errors.specialtyId.message}
+                    defaultSelectedKeys={[`${productData?.specialtyId || ""}`]}
+                  >
+                    {(item) => <SelectItem key={item._id}>{item.name}</SelectItem>}
+                  </Select>
+                </>) : <></>
+          }
+
           {/* Loại sản phẩm */}
           <div className="flex items-center">
-            <Select
-              items={productTypes}
-              label="Loại sản phẩm"
-              className="max-w-full"
-              isRequired
-              {...register("productType")}
-              isInvalid={!!errors.productType}
-              errorMessage={errors.productType && errors.productType.message}
-              defaultSelectedKeys={[`${productData?.productType || ""}`]}
-            >
-              {(type) => <SelectItem key={type._id}>{type.name}</SelectItem>}
-            </Select>
+            {
+              isProductTypesLoading ? (
+                <Skeleton className="h-[56px] w-full rounded-lg" />
+              ) : (
+                <Select
+                  items={productTypes}
+                  label="Loại sản phẩm"
+                  className="max-w-full"
+                  isRequired
+                  {...register("productType")}
+                  isInvalid={!!errors.productType}
+                  errorMessage={errors.productType && errors.productType.message}
+                  defaultSelectedKeys={[`${productData?.productType || ""}`]}
+                >
+                  {(type) => <SelectItem key={type._id}>{type.name}</SelectItem>}
+                </Select>
+              )
+            }
 
             <ProductTypes
               id={session?.user.shopId}
@@ -394,7 +408,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ session, edit = false, 
                 "group-data-[selected]:group-data-[pressed]:ml-4",
               ),
             }}
-            defaultSelected={retail}
+            isSelected={retail}
             onValueChange={handleRetail}
           >
             <div className="flex flex-col gap-1">

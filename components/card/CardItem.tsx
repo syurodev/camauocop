@@ -53,6 +53,14 @@ const CardItem: React.FC<CardItemProps> = ({
                     className="w-full object-cover h-[140px]"
                     src={data.productImages[0]}
                   />
+
+                  {
+                    data.specialty && (
+                      <div className="absolute bottom-[-12px] left-1/2 -translate-x-1/2 z-50 shadow-md rounded-full">
+                        <HiSparkles className="text-2xl" />
+                      </div>
+                    )
+                  }
                 </CardBody>
 
                 <CardFooter className="flex flex-col text-small justify-between">

@@ -587,6 +587,7 @@ export const changeShopSetting = async (accessToken: string, shopId: string, use
 
       const matchingShopPhones = await Shop.findOne({
         phone: data.phone,
+        _id: { $ne: shopId },
       })
 
       if (matchingUserPhones || matchingShopPhones) {

@@ -1,4 +1,15 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { generateHTML } from '@tiptap/html'
+import Bold from '@tiptap/extension-bold'
+import Italic from '@tiptap/extension-italic'
+import Document from '@tiptap/extension-document'
+import Paragraph from '@tiptap/extension-paragraph'
+import Text from '@tiptap/extension-text'
+import Heading from '@tiptap/extension-heading'
+import BulletList from '@tiptap/extension-bullet-list'
+import OrderedList from '@tiptap/extension-ordered-list'
+import ListItem from '@tiptap/extension-list-item'
+import HardBreak from '@tiptap/extension-hard-break'
 
 type IDescription = {
   description:
@@ -9,113 +20,27 @@ type IDescription = {
   | undefined;
 };
 
-interface TextContent {
-  type: 'text' | "paragraph";
-  text: string;
-  marks?: {
-    type: string;
-  }[];
-}
-
-interface ParagraphContent {
-  content: {
-    type: 'paragraph';
-    text: string;
-    marks?: {
-      type: string;
-    }
-  }[]
-}
-
-interface HeadingContent {
-  type: 'heading';
-  attrs: {
-    textAlign: string;
-    level: number;
-  };
-  content: TextContent[];
-  marks?: {
-    type: string;
-  }[];
-}
-
-// Component để biểu diễn một đoạn văn bản
-const TextComponent: React.FC<{ content: TextContent }> = ({ content }) => {
-  const classNames = [
-    content.marks?.some(mark => mark.type === 'bold') ? 'font-bold' : 'font-normal',
-    content.marks?.some(mark => mark.type === 'italic') ? 'italic' : 'not-italic',
-  ].join(' ');
-
-  return <span className={classNames}>{content.text}</span>;
-};
-
-// Component để biểu diễn một đoạn văn bản với thuộc tính textAlign
-const ParagraphComponent: React.FC<ParagraphContent> = ({ content }) => {
-  if (content && content.length > 0) {
-    return (
-      <p>
-        {
-          content.map((item, index: number) => {
-            return <TextComponent key={index} content={item as TextContent} />
-          })
-
-        }
-      </p>
-    )
-  } else {
-    return ""
-  }
-};
-
-// Component để biểu diễn một tiêu đề với thuộc tính textAlign và marks
-const HeadingComponent: React.FC<{ content: HeadingContent }> = ({ content }) => {
-  const textAlignClass = content.attrs?.textAlign === 'right' ? 'text-right' : content.attrs?.textAlign === 'center' ? 'text-center' : 'text-left';
-
-  let headingClass = '';
-
-  switch (content.attrs?.level) {
-    case 1:
-      headingClass = 'text-4xl'; // Tuỳ chỉnh kích thước tiêu đề
-      break;
-    case 2:
-      headingClass = 'text-3xl'; // Tuỳ chỉnh kích thước tiêu đề
-      break;
-    case 3:
-      headingClass = 'text-2xl'; // Tuỳ chỉnh kích thước tiêu đề
-      break;
-    default:
-      headingClass = 'text-xl'; // Tuỳ chỉnh kích thước tiêu đề mặc định
-  }
-
-  const fontWeightClass = content.content[0].marks?.some(mark => mark.type === 'bold') ? 'font-bold' : 'font-normal';
-  const fontStyleClass = content.content[0].marks?.some(mark => mark.type === 'italic') ? 'italic' : 'not-italic';
-
-  return (
-    <h1 className={`${textAlignClass} ${fontWeightClass} ${headingClass}`}>
-      <span className={fontStyleClass}>{content.content[0].text}</span>
-    </h1>
-  );
-};
-
-
 const RenderDescription: React.FC<IDescription> = ({ description }) => {
+  const output = useMemo(() => {
+    if (description) {
+      return generateHTML(description, [
+        Document,
+        Paragraph,
+        Text,
+        Bold,
+        Italic,
+        Heading,
+        OrderedList,
+        BulletList,
+        ListItem,
+        HardBreak
+        // other extensions …
+      ])
+    }
+  }, [description])
+
   return (
-    <div>
-      {description && description?.content && description?.content.length > 0 && description?.content.map((item: any, index: number) => {
-        switch (item.type) {
-          case 'paragraph':
-            if (item.content) {
-              return <ParagraphComponent key={index} content={item.content} />;
-            } else {
-              return <br />;
-            }
-          case 'heading':
-            return <HeadingComponent key={index} content={item} />;
-          default:
-            return null;
-        }
-      })}
-    </div>
+    <div dangerouslySetInnerHTML={{ __html: output || '' }} />
   );
 };
 

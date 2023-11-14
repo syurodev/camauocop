@@ -7,8 +7,8 @@ export interface INotification extends Document {
   userId: string;
   orderId: string;
   content: string;
-  type: 'bid' | 'win' | 'event' | 'order';
-  status: 'read' | 'unread';
+  type: NotificationType;
+  status: NotificationStatus;
 }
 
 // Schema definition for Notification

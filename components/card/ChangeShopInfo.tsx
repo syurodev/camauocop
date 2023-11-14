@@ -112,6 +112,7 @@ const ChangeShopInfo: React.FC<IProps> = ({ onClose }) => {
         name: data.name,
       }))
       toast.success(res.message)
+      onClose()
     } else {
       toast.error(res.message)
     }

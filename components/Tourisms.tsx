@@ -1,25 +1,28 @@
 "use client";
 
 import * as React from "react";
-import { Card, Image, CardHeader, CardBody, Button } from "@nextui-org/react";
+import { Card, Image, CardHeader, CardBody, Button, Skeleton } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 
-import { categories } from "@/lib/constant/CategoriesDefault"
 import { getDestinations } from "@/actions/tourisms";
 import { setDestinations } from "@/redux/features/destination-slice";
 import { useAppSelector } from "@/redux/store";
+import RenderDescription from "@/app/(root)/products/product/[id]/components/RenderDescription";
 
 const Tourisms: React.FC = () => {
+  const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const dispatch = useDispatch()
   const router = useRouter();
 
   React.useEffect(() => {
     const fetchApi = async () => {
+      setIsLoading(true)
       const res = await getDestinations()
+      setIsLoading(false)
       if (res.code === 200) {
-        dispatch(setDestinations(res.data!))
+        dispatch(setDestinations(JSON.parse(res.data!)))
       } else {
         toast.error(res.message)
       }
@@ -45,7 +48,7 @@ const Tourisms: React.FC = () => {
           size="sm"
           variant="flat"
           className="border-none"
-          onPress={() => router.push(`/specialty`)}
+          onPress={() => router.push(`/tourisms`)}
         >
           Xem tất cả
         </Button>
@@ -56,30 +59,41 @@ const Tourisms: React.FC = () => {
         className="w-full grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3 lg:gap-4 xl:gap-5"
       >
         {
-          destinations.slice(0, 6).map(destination => {
-            return (
-              <Card
-                key={destination._id}
-                className="py-4 max-w-[258px] m-auto"
-                isPressable
-                onPress={() => router.push(`/products/ocop/${encodeURIComponent(destination.name)}`)}
-              >
-                <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-                  <p className="text-tiny uppercase font-bold text-primary">Địa điểm</p>
-                  <small className="text-default-500 line-clamp-3">{destination.description || ""}</small>
-                  <h4 className="font-bold text-large line-clamp-1">{destination.name}</h4>
-                </CardHeader>
-                <CardBody className="overflow-visible py-2">
-                  <Image
-                    alt="Card background"
-                    src={destination.images[0]}
-                    width={"100%"}
-                    className="object-cover rounded-xl w-[270px] h-[180px]"
-                  />
-                </CardBody>
-              </Card>
-            )
-          })
+          isLoading ? (
+            Array.from({ length: 6 }).map((_, index) => {
+              return (
+                <Skeleton key={index} className="w-full h-[310px] rounded-lg shadow-sm">
+                  <div className="h-3 w-3/5 rounded-lg bg-default-200"></div>
+                </Skeleton>
+              )
+            })
+          ) :
+            destinations.slice(0, 6).map(destination => {
+              return (
+                <Card
+                  key={destination._id}
+                  className="py-4 max-w-[258px] m-auto"
+                  isPressable
+                  onPress={() => router.push(`/products/ocop/${encodeURIComponent(destination.name)}`)}
+                >
+                  <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+                    <p className="text-tiny uppercase font-bold text-primary">Địa điểm</p>
+                    <div className='w-full max-h-[60px] overflow-hidden text-small'>
+                      <RenderDescription description={destination.description} />
+                    </div>
+                    <h4 className="font-bold text-large line-clamp-1">{destination.name}</h4>
+                  </CardHeader>
+                  <CardBody className="overflow-visible py-2">
+                    <Image
+                      alt="Card background"
+                      src={destination.images[0]}
+                      width={"100%"}
+                      className="object-cover rounded-xl w-[270px] h-[180px]"
+                    />
+                  </CardBody>
+                </Card>
+              )
+            })
         }
       </div>
 

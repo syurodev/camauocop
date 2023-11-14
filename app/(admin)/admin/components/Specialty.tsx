@@ -25,8 +25,8 @@ const Specialty: React.FC = () => {
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-    column: "name",
-    direction: "ascending",
+    column: "productCount",
+    direction: "descending",
   });
 
   // GET DATA
