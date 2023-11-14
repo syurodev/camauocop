@@ -187,7 +187,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
                   setOrderSelected(order._id)
                   onOpenOrderDetail()
                 }}>
-                <AiOutlineEye />
+                <AiOutlineEye className="text-lg" />
               </Button>
             </Tooltip>
 
@@ -205,7 +205,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
                     onOpenChangeStatus()
                   }}
                 >
-                  <AiOutlineEdit />
+                  <AiOutlineEdit className="text-lg" />
                 </Button>
               )
             }

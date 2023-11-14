@@ -148,7 +148,7 @@ const Destination: React.FC = () => {
                     onOpenEdit()
                   }}
                 >
-                  <AiOutlineEdit />
+                  <AiOutlineEdit className="text-lg" />
                 </Button>
               )
             }

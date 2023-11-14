@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { TbTruckDelivery } from "react-icons/tb"
 import { RiMoneyDollarCircleLine } from "react-icons/ri"
 import { BiPhoneCall } from "react-icons/bi"
+import { HiOutlinePrinter } from "react-icons/hi";
+import { useReactToPrint } from 'react-to-print';
 
 import SlideShow from '@/components/elements/SlideShow';
 import { formattedPriceWithUnit } from '@/lib/formattedPriceWithUnit';
@@ -24,6 +26,44 @@ type IProps = {
   id: string
 }
 
+interface ComponentToPrintProps {
+  content: IOrderDetail | null;
+}
+
+class ComponentToPrint extends React.Component<ComponentToPrintProps> {
+  render() {
+    return (
+      this.props.content ? (
+        <div className='p-3'>
+          <p><span className='font-semibold'>Người bán: </span><span>{this.props.content.shopId.name}</span></p>
+          <p><span className='font-semibold'>Người mua: </span><span>{this.props.content.buyerId.username || this.props.content.buyerId.email}</span></p>
+
+          <p><span className='font-semibold'>Địa chỉ người mua: </span><span>{`${this.props.content.apartment} - ${this.props.content.ward} - ${this.props.content.district} - ${this.props.content.province}`}</span></p>
+
+          <div className='my-2'>
+            <p className='font-semibold'>Sản phẩm</p>
+
+            {
+              this.props.content.products.map((item, index) => {
+                return (
+                  <p key={item.productId}>
+                    {`${index + 1}: `}{item.productSnapshot.name}
+                  </p>
+                )
+              })
+            }
+          </div>
+
+          <p><span className='font-semibold'>Tổng tiền: </span><span>{formattedPriceWithUnit(this.props.content.totalAmount)}</span></p>
+        </div>
+      ) : (
+        <p>Không có thông tin</p>
+      )
+
+    );
+  }
+}
+
 const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrderDetailModal, onOpenChangeOrderDetailModal, id }) => {
   const [orderDetail, setOrderDetail] = React.useState<IOrderDetail | null>(null)
   const [serviceFee, setServiceFee] = React.useState<number>(0)
@@ -36,6 +76,8 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
   const [totalWidth, setTotalWidth] = React.useState<number>(0)
   const [totalHeight, setTotalHeight] = React.useState<number>(0)
   const [totalLength, setTotalLength] = React.useState<number>(0)
+
+  const printContentRef = React.useRef<ComponentToPrint | null>(null);
 
   const session = useAppSelector(state => state.sessionReducer.value)
 
@@ -132,6 +174,10 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpenOrderDetailModal, session])
+
+  const handlePrint = useReactToPrint({
+    content: () => printContentRef.current,
+  });
 
   return (
     <>
@@ -249,7 +295,16 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                   <Divider />
 
                   <CardBody className='flex flex-col gap-3'>
-                    <p>Mã đơn hàng <span className='text-primary'>#{orderDetail?._id}</span></p>
+                    <div className='flex flex-row items-center gap-2'>
+                      <span>Mã đơn hàng</span>
+                      {
+                        isLoading ? (
+                          <Skeleton className="h-4 w-1/4 rounded-lg bg-primary" />
+                        ) : (
+                          <span className='text-primary'>#{orderDetail?._id}</span>
+                        )
+                      }
+                    </div>
                     <h3>THÔNG TIN HÀNG HOÁ</h3>
                     {
                       isLoading ? (
@@ -401,6 +456,21 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                   Đóng
                 </Button>
 
+                {
+                  session?.user.role === "shop" && session?.user.shopId === orderDetail?.shopId._id && orderDetail?.orderStatus !== "pending" && orderDetail?.orderStatus !== "canceled" ? (
+                    <Button
+                      className="border-none"
+                      color='success'
+                      startContent={
+                        <HiOutlinePrinter className="text-lg" />
+                      }
+                      onPress={handlePrint}
+                    >
+                      In hoá đơn
+                    </Button>
+                  ) : <></>
+                }
+
                 <Button
                   color='danger'
                   isDisabled={orderDetail?.orderStatus !== "pending" && orderDetail?.orderStatus !== "processed"}
@@ -457,6 +527,11 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
           />
         )
       }
+
+      {/* Chỗ này là nơi chứa nội dung cần in */}
+      <div className='hidden'>
+        <ComponentToPrint ref={printContentRef} content={orderDetail} />
+      </div>
     </>
   )
 }

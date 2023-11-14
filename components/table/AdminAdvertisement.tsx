@@ -212,7 +212,7 @@ export default function AdminAdvertisement() {
                     onOpenEdit()
                   }}
                 >
-                  <AiOutlineEdit />
+                  <AiOutlineEdit className="text-lg" />
                 </Button>
               )
             }

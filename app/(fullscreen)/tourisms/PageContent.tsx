@@ -16,7 +16,11 @@ type IProps = {
 }
 
 const PageContent: React.FC<IProps> = ({ data }) => {
-  const destinations: DestinationData[] = JSON.parse(data)
+  let destinations: DestinationData[] = []
+
+  if (data !== "") {
+    destinations = JSON.parse(data)
+  }
   const router = useRouter()
   const [gridView, setGridView] = React.useState<boolean>(false)
   const [currentIndex, setCurrentIndex] = React.useState<number>(0)
