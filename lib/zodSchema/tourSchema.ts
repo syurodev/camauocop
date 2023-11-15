@@ -4,18 +4,18 @@ export const tourSchema = z.object({
   userId: z.string().optional(),
   tourName: z.string(),
   destination: z.string(),
-  duration: z.string(), // Định dạng theo số ngày và đêm, ví dụ: "5 days, 4 nights"
+  duration: z.string(),
   price: z.coerce.number(),
   numberOfPeople: z.string(),
-  tourType: z.string(), // Loại tour, ví dụ: "adventure", "sightseeing", "resort"
+  tourType: z.string(),
   itinerary: z.array(
     z.object({
       time: z.string(),
       action: z.string(),
     })
-  ), // Danh sách các hoạt động trong tour
-  transportation: z.string(), // Phương tiện di chuyển, ví dụ: "flight", "bus"
-  accommodation: z.string(), // Thông tin về chỗ ở
+  ),
+  transportation: z.string(),
+  accommodation: z.string(),
   inclusions: z.array(
     z.object({
       content: z.string(),

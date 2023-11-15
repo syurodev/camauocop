@@ -267,6 +267,7 @@ export const addTourType = async (accessToken: string, data: ITourType) => {
 
 export const getTourType = async () => {
   try {
+    await connectToDB()
     const allTourType: ITourType[] = await TourType.find();
 
     const transportationCounts = await Tourism.aggregate([
@@ -340,12 +341,27 @@ export const addTourism = async (accessToken: string, data: ITourSchema) => {
   }
 }
 
-export const getTourisms = async (userId?: string) => {
+export const getTourisms = async ({
+  userId,
+  destinationId,
+  status
+}: {
+  userId?: string,
+  destinationId?: string
+  status?: TourismsStatus
+}) => {
   try {
+    await connectToDB()
     let query: any = {}
 
     if (userId) {
       query = { ...query, userId: userId }
+    }
+    if (destinationId) {
+      query = { ...query, destination: destinationId }
+    }
+    if (status) {
+      query = { ...query, status: status }
     }
 
     const tourisms = await Tourism.find(query)
@@ -357,8 +373,6 @@ export const getTourisms = async (userId?: string) => {
         model: 'Transportation',
         select: "name"
       });
-
-    console.log(tourisms)
 
     if (tourisms.length > 0) {
       const result: TourData[] = tourisms.map(tourism => {
@@ -429,6 +443,94 @@ export const changeTourStatus = async (accessToken: string, tourId: string, stat
     return {
       code: 500,
       message: "Lỗi hệ thống vui lòng thử lại"
+    }
+  }
+}
+
+export const getTourDetail = async (_id: string) => {
+  try {
+    await connectToDB()
+    const tourism = await Tourism.findById(_id)
+      .populate('tourType', "name")
+      .populate('destination', "name")
+      .populate('userId', "username email image")
+      .populate({
+        path: 'transportation',
+        model: 'Transportation',
+        select: "name"
+      });
+
+    if (tourism) {
+      const result: TourDetailData = {
+        _id: tourism._id.toString(),
+        username: tourism?.userId?.username || tourism?.userId?.email || "",
+        avatar: tourism?.userId?.image || "",
+        status: tourism.status,
+        tourName: tourism.tourName,
+        destinationName: tourism.destination.name,
+        duration: tourism.duration,
+        tourContracts: tourism.tourContracts.map((item: string) => item),
+        price: tourism.price,
+        tourTypeName: tourism.tourType.name,
+        note: tourism.note || "",
+        accommodation: tourism.accommodation,
+        contactInformation: tourism.contactInformation,
+        destinationId: tourism.destination._id.toString(),
+        exclusions: tourism.exclusions.map((item: {
+          content: string;
+        }) => {
+          return {
+            content: item.content
+          }
+        }),
+        inclusions: tourism.inclusions.map((item: {
+          content: string;
+        }) => {
+          return {
+            content: item.content
+          }
+        }),
+        itinerary: tourism.itinerary.map((item: {
+          time: string;
+          action: string;
+        }) => {
+          return {
+            time: item.time,
+            action: item.action,
+          }
+        }),
+        numberOfPeople: tourism.numberOfPeople,
+        tourTypeId: tourism.tourType._id.toString(),
+        transportation: tourism.transportation.map((item: {
+          _id: string;
+          name: string;
+        }) => {
+          return {
+            _id: item._id,
+            name: item.name,
+          }
+        }),
+        userid: tourism.userId._id.toString()
+      }
+
+      return {
+        code: 200,
+        message: "successfully",
+        data: JSON.stringify(result)
+      }
+    } else {
+      return {
+        code: 404,
+        message: "Không tìm thấy thông tin tour",
+        data: null
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại",
+      data: null
     }
   }
 }

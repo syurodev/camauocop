@@ -68,7 +68,7 @@ export default function Tour() {
   //Get Data
   React.useEffect(() => {
     const fetchApi = async () => {
-      const res = await getTourisms()
+      const res = await getTourisms({})
       if (res.code === 200) {
         dispatch(setTours(JSON.parse(res.data!)))
       } else {

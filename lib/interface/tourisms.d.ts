@@ -41,6 +41,7 @@ type TourDetailData = {
   _id: string,
   userid: string,
   username: string
+  avatar: string
   status: TourismsStatus;
   tourName: string;
   destinationId: string
@@ -50,34 +51,33 @@ type TourDetailData = {
   numberOfPeople: string;
   tourTypeId: string;
   tourTypeName: string;
-  itinerary: [{
+  itinerary: {
     time: string;
     action: string;
-  }];
-  transportation: [
-    {
-      _id: string,
-      name: string
-    }
-  ];
+  }[];
+  transportation: {
+    _id: string,
+    name: string
+  }[];
   accommodation: string;
-  inclusions: [{
+  tourContracts: string[];
+  inclusions: {
     content: string;
-  }];
-  exclusions: [{
+  }[];
+  exclusions: {
     content: string;
-  }];
+  }[];
   contactInformation: {
     name: string;
     email: string;
     phone: string;
     link: string;
   };
-  optionalActivities?: [{
+  optionalActivities?: {
     content?: string;
-  }];
-  specialRequirements?: [{
+  }[];
+  specialRequirements?: {
     content?: string;
-  }];
+  }[];
   note?: string;
 }

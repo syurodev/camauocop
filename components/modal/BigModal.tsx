@@ -5,12 +5,13 @@ import { Modal, ModalContent, ModalHeader, ModalBody } from "@nextui-org/react";
 
 type IProps = {
   isOpen: boolean;
-  onClose?: () => void;
+  onClose: () => void;
   onOpenChange: () => void;
+  title: string;
   children: React.ReactNode
 }
 
-const BigModal: React.FC<IProps> = ({ isOpen, onClose, onOpenChange, children }) => {
+const BigModal: React.FC<IProps> = ({ isOpen, onClose, onOpenChange, title, children }) => {
 
   return (
     <div className="flex flex-col gap-2">
@@ -50,7 +51,7 @@ const BigModal: React.FC<IProps> = ({ isOpen, onClose, onOpenChange, children })
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Modal Title
+                {title}
               </ModalHeader>
               <ModalBody>
                 {children}

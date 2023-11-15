@@ -14,7 +14,9 @@ const TourismsPage: React.FC = async () => {
 
   return (
     res.code === 200 ? (
-      <PageContent data={res.data || ""} />
+      <>
+        <PageContent data={res.data || ""} />
+      </>
     ) : (
       <p>Không có địa điểm du lịch</p>
     )

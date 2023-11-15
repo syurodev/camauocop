@@ -18,6 +18,7 @@ export interface ITourisms extends Document {
     action: string;
   }];
   transportation: string[];
+  tourContracts: string[];
   accommodation: string;
   inclusions: [{
     content: string;
@@ -62,6 +63,7 @@ const TourismSchema: Schema = new Schema(
       }
     ],
     transportation: [{ type: Schema.Types.ObjectId, ref: Transportation, required: true }],
+    tourContracts: [{ type: String }],
     accommodation: { type: String, required: true },
     inclusions: [
       {
