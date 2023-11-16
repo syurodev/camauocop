@@ -10,7 +10,6 @@ import {
 import { BsFillCartCheckFill } from "react-icons/bs";
 import { BiMessageSquareDots } from "react-icons/bi";
 import { MdOutlineLocationOn } from "react-icons/md"
-import { Session } from "next-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -26,6 +25,7 @@ import { AppDispatch, useAppSelector } from "@/redux/store";
 import { pushCartItem } from "@/redux/features/cart-slice";
 import { setProductsDetail } from "@/redux/features/products-slice";
 import Comment from "./Comment";
+import Book from "./Book";
 
 
 type IProps = {
@@ -201,6 +201,21 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
             }
           </Button>
         </Tooltip>
+
+        <Tooltip content={`${!session ? "Đăng nhập" : session?.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Đặt trước"}`}>
+          <Button
+            variant="solid"
+            radius="full"
+            color="primary"
+            isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block" || session?.user.role === "partner" || session?.user.role === "admin"}
+            startContent={<AiOutlineDollarCircle className="text-xl" />}
+            onPress={handleBuyButtomClick}
+          >
+            {
+              !session ? "Đăng nhập để đặt trước" : session?.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Đặt trước"
+            }
+          </Button>
+        </Tooltip>
       </div>
 
       <div className="sticky z-10 top-32 right-5 hidden lg:!block">
@@ -334,6 +349,29 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
                   </Button>
                 </Tooltip>
 
+                <Popover placement="left">
+                  <PopoverTrigger>
+                    <Button
+                      variant="solid"
+                      radius="full"
+                      color="primary"
+                      isIconOnly
+                      isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block" || session?.user.role !== "shop"}
+                    // onPress={handleBuyButtomClick}
+                    >
+                      <AiOutlineDollarCircle className="text-xl" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <div className="px-1 py-2">
+                      <div className="text-small font-bold">Đặt trước</div>
+                      <div>
+                        <Book />
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
                 <Tooltip
                   content={`${!session ? "Đăng nhập" : "Bình luận"}`}
                   placement="left"
@@ -354,7 +392,7 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
       </div>
 
       {
-        session && (
+        session && isOpen && (
           <BuyModal
             isOpenBuyModal={isOpen}
             onOpenChangeBuyModal={onOpenChange}

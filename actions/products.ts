@@ -195,7 +195,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
       const products = await Product.find(query)
         .populate({
           path: "shopId",
-          select: "name _id phone delivery status image shop_id address, packageOptions",
+          select: "name _id phone delivery status image shop_id address packageOptions",
         })
         .populate({
           path: "productType",
@@ -203,6 +203,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
         });
 
       const formattedProducts: IProductDetail[] = products.map((product) => {
+
         return {
           _id: product._id.toString(),
           productName: product.name,
@@ -230,6 +231,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
           },
         };
       });
+
       return formattedProducts;
     } else {
       const product = await Product.findById(query)

@@ -30,6 +30,7 @@ export interface IOrderSchema extends Document {
   products: IProductInOrder[];
   totalAmount: number;
   orderStatus: OrderStatus;
+  orderType: OrderType,
   orderDate: Date;
   shippingCode?: string;
   delivery: string[];
@@ -61,6 +62,7 @@ const OrderSchema: Schema = new Schema({
   totalAmount: { type: Number, required: true },
   shippingCode: { type: String, default: "" },
   orderStatus: { type: String, enum: ['pending', 'processed', 'shipped', 'delivered', 'canceled'], default: 'pending' },
+  orderType: { type: String, enum: ['book', 'buy'], default: 'buy' },
   orderDate: { type: Date, required: true, default: Date.now() },
   delivery: { type: [String] },
   province: { type: String },

@@ -41,7 +41,7 @@ const CommentItem: React.FC<IProps> = ({ data, index }) => {
                         width={40}
                         radius='full'
                         alt='comment image'
-                        className='object-cover cursor-pointer'
+                        className='object-cover cursor-pointer w-[40px] h-[40px]'
                         onClick={onOpen}
                       />
                     )

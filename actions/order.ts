@@ -215,6 +215,7 @@ export const getOrders = async ({
             orderDateConvert: order.orderDate!.toISOString(),
             totalAmount: order.totalAmount,
             status: order.orderStatus,
+            orderType: order.orderType,
             productImage: firstImage,
           };
         });
@@ -307,6 +308,7 @@ export const getOrderDetail = async (id: string): Promise<IOrderDetailResponse> 
         totalAmount: order.totalAmount,
         fee: fee.feeAmount || 0,
         orderStatus: order.orderStatus,
+        orderType: order.orderType,
         orderDate: order.orderDate!.toISOString(),
         delivery: order.delivery,
         province: order.province,

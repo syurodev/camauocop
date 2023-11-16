@@ -5,11 +5,6 @@ export const OrderProductZodSchema = z.object({
   quantity: z.coerce.number().optional(),
   weight: z.coerce.number().optional(),
   unit: z.string().optional(),
-  // package: z.object({
-  //   unit: z.string(),
-  //   weight: z.coerce.number(),
-  //   price: z.coerce.number(),
-  // }).optional(),
   price: z.coerce.number().optional(),
   length: z.coerce.number().optional(),
   width: z.coerce.number().optional(),
@@ -40,6 +35,7 @@ export const OrderZodSchema = z.object({
   district: z.string().nonempty("Vui lòng chọn tỉnh"),
   ward: z.string().nonempty("Vui lòng chọn tỉnh"),
   apartment: z.string().nonempty("Vui lòng nhập số nhà"),
+  type: z.string(),
 })
 
 export type IOrderZodSchema = z.infer<typeof OrderZodSchema>

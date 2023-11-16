@@ -1,3 +1,6 @@
+type OrderStatus = 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled'
+type OrderType = 'book' | 'buy'
+
 type IOrderDetail = {
   _id: string
   buyerId: {
@@ -42,7 +45,8 @@ type IOrderDetail = {
   }],
   totalAmount: number,
   fee: number,
-  orderStatus: 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled',
+  orderStatus: OrderStatus,
+  orderType: OrderType,
   orderDate: string,
   delivery: string[],
   province: string,
@@ -68,7 +72,8 @@ type IOrder = {
     phone: string,
   },
   totalAmount: number,
-  orderStatus: 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled',
+  orderStatus: OrderStatus,
+  orderType: OrderType,
   products: [{
     productId: string,
     productSnapshot: {
@@ -110,12 +115,11 @@ type IOrders = {
   shopPhone: string
   totalAmount: number,
   status: OrderStatus,
+  orderType: OrderType,
   productImage: string,
   orderDate?: Date
   orderDateConvert?: string
 }
-
-type OrderStatus = 'pending' | 'processed' | 'shipped' | 'delivered' | 'canceled'
 
 type IOrderResponse = {
   code: number,

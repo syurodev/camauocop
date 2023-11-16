@@ -121,12 +121,16 @@ const CartView: React.FC<IProps> = ({ data }) => {
           )
         }
 
-        <BuyModal
-          isOpenBuyModal={isOpen}
-          onCloseBuyModal={onClose}
-          onOpenChangeBuyModal={onOpenChange}
-          session={session!}
-        />
+        {
+          isOpen && (
+            <BuyModal
+              isOpenBuyModal={isOpen}
+              onCloseBuyModal={onClose}
+              onOpenChangeBuyModal={onOpenChange}
+              session={session!}
+            />
+          )
+        }
       </>
     ) : (
       <></>

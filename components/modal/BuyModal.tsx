@@ -24,15 +24,6 @@ type IProps = {
 }
 
 const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenChangeBuyModal, session }) => {
-  // const [productsData, setProductsData] = React.useState<IProductDetail[] | null>(() => {
-  //   if (data === null) {
-  //     return null;
-  //   } else if (Array.isArray(data)) {
-  //     return data;
-  //   } else {
-  //     return [data];
-  //   }
-  // });
   const [provinceId, setProvinceId] = React.useState<number>(0)
   const [districtId, setDistrictId] = React.useState<number>(0)
   const [wardId, setWardId] = React.useState<string>("0")
@@ -45,21 +36,20 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
   const [deliveryServiceFee, setDeliveryServiceFee] = React.useState<number>(0)
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-
   const productsData = useAppSelector((state) => state.productsDetailReducer.value)
 
   // React Hook Form
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
+    formState: { errors },
     getValues,
     setValue,
   } = useForm<IOrderZodSchema>({
     resolver: zodResolver(OrderZodSchema),
+    defaultValues: ({
+      type: "buy"
+    })
   });
 
   // Initial Value
@@ -125,59 +115,6 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
       [productId]: 0,
     }))
   };
-
-  // const calculateProductPrice = (product: IProductDetail, retail: boolean, quantity: number, unit: WeightUnit) => {
-  //   if (product) {
-  //     if (retail) {
-  //       let currentQuantity = quantity
-  //       let quantityPack = 0
-  //       let totalPrice = 0;
-
-  //       const sortedPacks = [...product.packageOptions].sort((a, b) => b.weight - a.weight);
-
-  //       for (const packOption of sortedPacks) {
-  //         let quantityInPackUnit = 0
-  //         if (unit === packOption.unit) {
-  //           quantityInPackUnit = quantity
-  //         } else {
-  //           quantityInPackUnit = convertWeight(quantity, unit, packOption.unit)
-  //           currentQuantity = quantityInPackUnit
-  //         }
-
-  //         if (quantityInPackUnit >= packOption.weight) {
-  //           // Số lượng pack có thể mua
-  //           const numPacks = Math.floor(quantityInPackUnit / packOption.weight);
-
-  //           quantityPack = packOption.weight * numPacks
-
-  //           // Cộng totalPrice bằng giá của pack
-  //           totalPrice += numPacks * packOption.price;
-
-  //           // Trừ quantity theo số lượng mua được
-  //           quantity -= numPacks * packOption.weight;
-  //         }
-  //       }
-
-  //       // Kiểm tra quantity còn lớn hơn 0 không
-  //       if (currentQuantity - quantityPack > 0) {
-  //         // Kiểm tra unit của quantity có phải là kg không
-  //         if (unit === "kg") {
-  //           // Nhân quantity còn lại với giá bán lẻ của 1kg
-  //           totalPrice += (currentQuantity - quantityPack) * product.productPrice;
-  //         } else {
-  //           // Chuyển quantity về kg
-  //           const quantityInKg = convertWeight((currentQuantity - quantityPack), unit, "kg");
-  //           // Nhân quantity còn lại với giá bán lẻ của 1kg
-  //           totalPrice += quantityInKg * product.productPrice;
-  //         }
-  //       }
-
-  //       return totalPrice;
-  //     }
-  //   } else {
-  //     return 0
-  //   }
-  // };
 
   const handleWeightChange = (
     e: React.ChangeEvent<HTMLInputElement>,
