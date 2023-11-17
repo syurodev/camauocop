@@ -68,7 +68,7 @@ const ProductTypes: React.FC<IProductTypeModel> = ({
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="center"
-        backdrop="blur"
+        backdrop="opaque"
       >
         <ModalContent>
           {(onClose) => (

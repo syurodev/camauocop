@@ -35,8 +35,9 @@ export const OrderZodSchema = z.object({
   district: z.string().nonempty("Vui lòng chọn tỉnh"),
   ward: z.string().nonempty("Vui lòng chọn tỉnh"),
   apartment: z.string().nonempty("Vui lòng nhập số nhà"),
-  type: z.string(),
+  orderType: z.string(),
 })
+
 
 export type IOrderZodSchema = z.infer<typeof OrderZodSchema>
 
@@ -63,3 +64,14 @@ export const DeliveryOrderSchema = z.object({
 });
 
 export type IDeliveryOrderSchema = z.infer<typeof DeliveryOrderSchema>
+
+export const BookZodSchema = z.object({
+  buyerId: z.string().optional(),
+  shopId: z.string().optional(),
+  products: z.array(OrderProductZodSchema).optional(),
+  totalAmount: z.coerce.number().optional(),
+  orderType: z.string(),
+})
+
+
+export type IBookZodSchema = z.infer<typeof BookZodSchema>

@@ -91,6 +91,7 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
   }, [orders])
 
   const ordersData: IOrders[] = useAppSelector(state => state.ordersReducer.value)
+  console.log(ordersData)
   const pages = Math.ceil(ordersData.length / rowsPerPage);
 
   const hasSearchFilter = Boolean(filterValue);
@@ -160,6 +161,12 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
             <p className="text-bold text-small capitalize">{formatDate(cellValue)}</p>
             {/* <p className="text-bold text-tiny capitalize text-default-500">{shop.address}</p> */}
           </div>
+        );
+      case "orderType":
+        return (
+          <Chip className="capitalize select-none pointer-events-none" color={order.orderType === "buy" ? "default" : "secondary"} size="sm" variant="flat">
+            {order.orderType === "buy" ? "Mua hàng" : "Đặt trước"}
+          </Chip>
         );
       case "status":
         return (

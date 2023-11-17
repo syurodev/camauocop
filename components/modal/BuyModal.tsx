@@ -36,7 +36,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
   const [deliveryServiceFee, setDeliveryServiceFee] = React.useState<number>(0)
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-  const productsData = useAppSelector((state) => state.productsDetailReducer.value)
+  const productsData: IProductDetail[] | null = useAppSelector((state) => state.productsDetailReducer.value)
 
   // React Hook Form
   const {
@@ -48,7 +48,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
   } = useForm<IOrderZodSchema>({
     resolver: zodResolver(OrderZodSchema),
     defaultValues: ({
-      type: "buy"
+      orderType: "buy"
     })
   });
 
@@ -217,25 +217,25 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
 
     if (product) {
       product.packageOptions.forEach((packOption, i) => {
-        if (packOption.price === price) {
+        if (packOption?.price === price) {
           setPackSeleced((prevPackSeleced) => ({
             ...prevPackSeleced,
             [productId]: {
-              unit: packOption.unit,
-              weight: packOption.weight,
-              price: packOption.price,
-              length: packOption.length,
-              height: packOption.height,
-              width: packOption.width
+              unit: packOption?.unit,
+              weight: packOption?.weight,
+              price: packOption?.price,
+              length: packOption?.length,
+              height: packOption?.height,
+              width: packOption?.width
             } as ProductPack
           }))
 
-          setValue(`products.${index}.weight`, packOption.weight)
-          setValue(`products.${index}.unit`, packOption.unit)
-          setValue(`products.${index}.price`, packOption.price)
-          setValue(`products.${index}.length`, packOption.length)
-          setValue(`products.${index}.width`, packOption.width)
-          setValue(`products.${index}.height`, packOption.height)
+          setValue(`products.${index}.weight`, packOption?.weight)
+          setValue(`products.${index}.unit`, packOption?.unit)
+          setValue(`products.${index}.price`, packOption?.price)
+          setValue(`products.${index}.length`, packOption?.length)
+          setValue(`products.${index}.width`, packOption?.width)
+          setValue(`products.${index}.height`, packOption?.height)
           // setValue(`products.${index}.package`, {
           //   unit: packOption.unit,
           //   weight: packOption.weight,
@@ -267,18 +267,18 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
             totalWeight += convertWeight(productWeight[product?._id!], selectedUnits[product?._id!], "gram") * productQuantity[product?._id!]
           }
         } else {
-          length = +packSeleced[product?._id!].length
-          width = +packSeleced[product?._id!].width
-          height = +packSeleced[product?._id!].height
+          length = +packSeleced[product?._id!]?.length
+          width = +packSeleced[product?._id!]?.width
+          height = +packSeleced[product?._id!]?.height
           quantity = productQuantity[product?._id!]
 
-          if (packSeleced[product?._id!].unit === "gram") {
-            weight = packSeleced[product?._id!].weight
-            totalWeight += packSeleced[product?._id!].weight * productQuantity[product?._id!]
+          if (packSeleced[product?._id!]?.unit === "gram") {
+            weight = packSeleced[product?._id!]?.weight
+            totalWeight += packSeleced[product?._id!]?.weight * productQuantity[product?._id!]
           } else {
-            weight = convertWeight(packSeleced[product?._id!].weight, packSeleced[product?._id!].unit, "gram")
+            weight = convertWeight(packSeleced[product?._id!].weight!, packSeleced[product?._id!].unit!, "gram")
 
-            totalWeight += convertWeight(packSeleced[product?._id!].weight, packSeleced[product?._id!].unit, "gram") * productQuantity[product?._id!]
+            totalWeight += convertWeight(packSeleced[product?._id!].weight!, packSeleced[product?._id!].unit!, "gram") * productQuantity[product?._id!]
           }
         }
 
@@ -294,7 +294,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
 
       if (getValues("delivery")[0] === "Giao hàng nhanh") {
         const res = await getGHNServiceFee({
-          shop_id: productsData![0]?.shopInfo.shop_id.GHN!,
+          shop_id: productsData![0]?.shopInfo?.shop_id?.GHN!,
           to_district_id: districtId,
           to_ward_code: wardId,
           items: transformedArray,
@@ -307,7 +307,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
       }
     }
     if (isOpenBuyModal) {
-      if (productsData && productsData.length > 0) {
+      if (productsData && productsData.length > 0 && Object.keys(packSeleced).length > 0 || Object.keys(productWeight).length > 0) {
         handleGetDeliveryFee()
       }
     }
@@ -337,13 +337,13 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
           true
         )
       } else {
-        total += packSeleced[product?._id!].price * productQuantity[product?._id!]
+        total += packSeleced[product?._id!]?.price * productQuantity[product?._id!]
       }
     })
 
     formData.totalAmount = total + deliveryServiceFee
     formData.shopId = shopId
-    formData.buyerId = session.user._id
+    formData.buyerId = session?.user._id
 
     const res = await createOrder(formData)
     setIsLoading(false)
@@ -365,7 +365,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
         scrollBehavior="outside"
         size="5xl"
         placement="bottom"
-        backdrop="blur"
+        backdrop="opaque"
         isKeyboardDismissDisabled
         classNames={{
           base: "!max-w-[98%] !h-[95%] mx-2 !mb-0 !absolute !bottom-0 !rounded-b-none !overflow-auto"
@@ -444,7 +444,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                                       items={unit}
                                       label="Chọn đơn vị tính"
                                       className="max-w-full"
-                                      onSelectionChange={(keys) => handleUnitChange(product?._id!, Array.from(keys)[0].toString() as WeightUnit, index)}
+                                      onSelectionChange={(keys) => handleUnitChange(product?._id!, Array.from(keys)[0]?.toString() as WeightUnit, index)}
                                     >
                                       {(unit) => <SelectItem key={unit.name}>{unit.name}</SelectItem>}
                                     </Select>
@@ -457,7 +457,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                                       isInvalid={!!errors.products?.[index]?.weight}
                                       errorMessage={errors.products?.[index]?.weight?.message}
                                       {...register(`products.${index}.weight`)}
-                                      value={productWeight[product?._id!].toString()}
+                                      value={productWeight[product?._id!]?.toString()}
                                       onChange={(e) => handleWeightChange(e, product!,
                                         productWeightState[product?._id!], index, product?.productPrice!)}
                                     />
@@ -528,7 +528,7 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                                       isInvalid={!!errors.products?.[index]?.quantity}
                                       errorMessage={errors.products?.[index]?.quantity?.message}
                                       {...register(`products.${index}.quantity`)}
-                                      value={productQuantity[product?._id!].toString()}
+                                      value={productQuantity[product?._id!]?.toString()}
                                       onChange={(e) => {
                                         setProductQuantity((prevProductQuantity) => ({
                                           ...prevProductQuantity,
@@ -594,10 +594,10 @@ const BuyModal: React.FC<IProps> = ({ isOpenBuyModal, onCloseBuyModal, onOpenCha
                                   <div className="flex flex-row items-center justify-between">
                                     <span className="font-semibold text-primary">
                                       {
-                                        formattedPriceWithUnit(packSeleced[product?._id!].price * productQuantity[product?._id!])
+                                        formattedPriceWithUnit(packSeleced[product?._id!]?.price * productQuantity[product?._id!])
                                       }
                                     </span>
-                                    <span className="font-medium text-xs opacity-70">{packSeleced[product?._id!].weight * productQuantity[product?._id!]}{packSeleced[product?._id!].unit}</span>
+                                    <span className="font-medium text-xs opacity-70">{packSeleced[product?._id!]?.weight * productQuantity[product?._id!]}{packSeleced[product?._id!]?.unit}</span>
                                   </div>
                                 )
                               }

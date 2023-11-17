@@ -32,7 +32,7 @@ const CardItem: React.FC<CardItemProps> = ({
           <Popover
             placement="right"
             showArrow={true}
-            backdrop="blur"
+            backdrop="opaque"
             isOpen={isOpenPopover}
             onOpenChange={(open) => setIsOpenPopover(open)}
           >

@@ -64,6 +64,7 @@ type IOrder = {
     email: string
     image: string
     phone: string
+    role: UserRole
   },
   shopId: {
     _id: string,

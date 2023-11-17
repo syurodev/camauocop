@@ -41,6 +41,8 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
   const [favoriteLoading, setFavoriteLoading] = React.useState<boolean>(false);
   const [openCommemt, setOpenCommemt] = React.useState<boolean>(false);
   const [addToCartLoading, setAddToCartLoading] = React.useState<boolean>(false);
+  const [isBookOpen, setIsBookOpen] = React.useState(false);
+  const [isBookOpenMobile, setIsBookOpenMobile] = React.useState(false);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { isOpen: isOpenPhoneChange, onOpen: onOpenPhoneChange, onOpenChange: onOpenChangePhone, onClose: onClosePhoneChange } = useDisclosure();
   const router = useRouter()
@@ -202,20 +204,35 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
           </Button>
         </Tooltip>
 
-        <Tooltip content={`${!session ? "Đăng nhập" : session?.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Đặt trước"}`}>
-          <Button
-            variant="solid"
-            radius="full"
-            color="primary"
-            isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block" || session?.user.role === "partner" || session?.user.role === "admin"}
-            startContent={<AiOutlineDollarCircle className="text-xl" />}
-            onPress={handleBuyButtomClick}
-          >
-            {
-              !session ? "Đăng nhập để đặt trước" : session?.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Đặt trước"
-            }
-          </Button>
-        </Tooltip>
+        <Popover
+          placement="top"
+          backdrop="opaque"
+          showArrow
+          offset={10}
+          isOpen={isBookOpenMobile} onOpenChange={(open) => setIsBookOpenMobile(open)}
+        >
+          <PopoverTrigger>
+            <Button
+              variant="solid"
+              radius="full"
+              color="primary"
+              isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block"}
+              startContent={<AiOutlineDollarCircle className="text-xl" />}
+            >
+              {
+                !session ? "Đăng nhập để đặt trước" : session?.user.shopId === products?.shopId ? "Đây là sản phẩm của bạn" : "Đặt trước"
+              }
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <div className="px-1 py-2 flex flex-col gap-2">
+              <div className="text-lg font-bold">Đặt trước</div>
+              <div>
+                <Book setIsBookOpen={setIsBookOpenMobile} />
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="sticky z-10 top-32 right-5 hidden lg:!block">
@@ -349,24 +366,29 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
                   </Button>
                 </Tooltip>
 
-                <Popover placement="left">
+                <Popover
+                  placement="left"
+                  backdrop="opaque"
+                  showArrow
+                  offset={10}
+                  isOpen={isBookOpen} onOpenChange={(open) => setIsBookOpen(open)}
+                >
                   <PopoverTrigger>
                     <Button
                       variant="solid"
                       radius="full"
                       color="primary"
                       isIconOnly
-                      isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block" || session?.user.role !== "shop"}
-                    // onPress={handleBuyButtomClick}
+                      isDisabled={session?.user.shopId === products?.shopId || products?.shopInfo?.status === "block"}
                     >
                       <AiOutlineDollarCircle className="text-xl" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent>
-                    <div className="px-1 py-2">
-                      <div className="text-small font-bold">Đặt trước</div>
+                    <div className="px-1 py-2 flex flex-col gap-2">
+                      <div className="text-lg font-bold">Đặt trước</div>
                       <div>
-                        <Book />
+                        <Book setIsBookOpen={setIsBookOpen} />
                       </div>
                     </div>
                   </PopoverContent>
@@ -406,7 +428,7 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
         isOpen={isOpenPhoneChange}
         onOpenChange={onOpenChangePhone}
         placement="center"
-        backdrop="blur"
+        backdrop="opaque"
       >
         <ModalContent>
           {(onClosePhoneChange) => (

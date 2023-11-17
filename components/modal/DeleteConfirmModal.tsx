@@ -43,7 +43,7 @@ const DeleteConfirmModal: React.FC<IProps> = ({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       placement="center"
-      backdrop="blur"
+      backdrop="opaque"
     >
       <ModalContent>
         {(onClose) => (

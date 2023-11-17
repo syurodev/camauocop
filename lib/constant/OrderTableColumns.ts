@@ -3,6 +3,7 @@ export const getColumns = (auth: boolean) => {
     return [
       { name: "Khách hàng", uid: "buyerUsername", sortable: true },
       { name: "Ngày mua", uid: "orderDateConvert", sortable: true },
+      { name: "Loại đơn", uid: "orderType", sortable: true },
       { name: "Trạng thái", uid: "status", sortable: true },
       { name: "Giá trị đơn hàng", uid: "totalAmount", sortable: true },
       { name: "Thao tác", uid: "actions" },
@@ -11,6 +12,7 @@ export const getColumns = (auth: boolean) => {
     return [
       { name: "Cửa hàng", uid: "shopName", sortable: true },
       { name: "Ngày mua", uid: "orderDateConvert", sortable: true },
+      { name: "Loại đơn", uid: "orderType", sortable: true },
       { name: "Trạng thái", uid: "status", sortable: true },
       { name: "Giá trị đơn hàng", uid: "totalAmount", sortable: true },
       { name: "Thao tác", uid: "actions" },

@@ -7,8 +7,9 @@ import Order, { IOrderSchema } from "@/lib/models/orders"
 import Product, { IProduct } from "@/lib/models/products";
 import Shop, { IShop } from "@/lib/models/shop";
 import { connectToDB, verifyJwtToken } from "@/lib/utils";
-import { IDeliveryOrderSchema, IOrderZodSchema } from "@/lib/zodSchema/order"
+import { IBookZodSchema, IDeliveryOrderSchema, IOrderZodSchema } from "@/lib/zodSchema/order"
 import { GHNCreateOrder } from "./delivery";
+import User, { IUser } from "@/lib/models/users";
 
 type IGetOrdersProps = {
   id: string
@@ -153,6 +154,142 @@ export const createOrder = async (data: IOrderZodSchema) => {
   }
 }
 
+export const createBook = async (accessToken: string, data: IBookZodSchema) => {
+  try {
+    const token = verifyJwtToken(accessToken)
+
+    if (!!token) {
+      await connectToDB();
+
+      // Lấy thông tin user từ token
+      const user = await User.findById(token._id);
+
+      if (!user) {
+        return {
+          code: 404,
+          message: "Không tìm thấy người dùng",
+        };
+      }
+
+      let address: {
+        province: string;
+        district: string;
+        ward: string;
+        apartment: string;
+      } = {
+        province: "",
+        district: "",
+        ward: "",
+        apartment: "",
+      };
+
+      // Kiểm tra vai trò của user và lấy địa chỉ tương ứng
+      if (user.role === "individual" || user.role === "staff") {
+        address = user.address[0];
+      } else if (user.role === "shop") {
+        // Lấy thông tin cửa hàng của user
+        const shop = await Shop.findOne({ auth: user._id });
+
+        if (!shop) {
+          return {
+            code: 404,
+            message: "Không tìm thấy của hàng của người dùng",
+          };
+        }
+
+        address = shop.address[0];
+      }
+
+      const productSnapshots = await Promise.all(
+        data.products!.map(async (productInOrder) => {
+          const product = await Product.findById(productInOrder.productId);
+          if (!product) {
+            throw new Error(`Sản phẩm với id ${productInOrder.productId} không được tìm thấy.`);
+          }
+          return {
+            name: product.name,
+            retail: product.retail,
+            retailPrice: product.retailPrice,
+            images: product.images,
+            packageOptions: product.packageOptions,
+            productType: product.productType
+          };
+        })
+      );
+
+      // Thêm productSnapshots vào dữ liệu truyền vào
+      data.products!.forEach((productInOrder, index) => {
+        productInOrder.productSnapshot = productSnapshots[index];
+      });
+
+      const newOrder = new Order({
+        ...data,
+        province: address?.province || "",
+        district: address?.district || "",
+        ward: address?.ward || "",
+        apartment: address?.apartment || "",
+      })
+
+      const order = await newOrder.save()
+      if (order) {
+        const shopAuth: IShop | null = await Shop.findById({ _id: data.shopId })
+
+        if (!shopAuth) {
+          throw new Error(`Shop with ID ${data.shopId} not found.`);
+        }
+
+        const feePercentage = shopAuth.fee / 100;
+        const feeAmount = order.totalAmount * feePercentage;
+        const roundedFeeAmount = Math.floor(feeAmount);
+
+        const newFee: IFee = new Fee({
+          order_id: order._id,
+          feeAmount: roundedFeeAmount,
+          status: "pending"
+        })
+
+        await newFee.save()
+
+
+        // Sau khi lưu đơn hàng thành công, bạn có thể tạo một thông báo
+        const notificationData = {
+          userId: shopAuth.auth,
+          content: `Bạn có đơn hàng mới: Đơn hàng #${order._id}`,
+          type: 'order',
+          status: 'unread',
+          orderId: order._id
+        };
+
+        const notification = new Notification(notificationData);
+        await notification.save();
+
+
+        return {
+          code: 200,
+          message: "Đặt trước thành công"
+        }
+      } else {
+        return {
+          code: 400,
+          message: "Tạo đơn đặt trước thất bại vui lòng thử lại"
+        }
+      }
+
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại"
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi máy chủ vui lòng thử lại"
+    }
+  }
+}
+
 export const getOrders = async ({
   id,
   accessToken,
@@ -185,26 +322,33 @@ export const getOrders = async ({
         .sort({ orderDate: -1 })
         .populate({
           path: 'buyerId',
-          select: 'username email image phone',
+          select: 'username email image phone role',
         })
         .populate({
           path: 'shopId',
           select: 'name image phone',
         })
-        .select("_id buyerId shopId totalAmount orderStatus orderDate delivery products");
+        .select("_id buyerId shopId totalAmount orderStatus orderDate delivery products orderType");
 
       if (orders && orders.length > 0) {
-        const formattedOrders = orders.map((
-          order: IOrder
-        ): IOrders => {
+        const formattedOrders = await Promise.all(orders.map(async (order: IOrder): Promise<IOrders> => {
           const firstProduct = order.products[0];
           const productSnapshot = firstProduct.productSnapshot;
           const firstImage = productSnapshot.images[0];
+          let buyerUsername: string = order.buyerId.username || order.buyerId.email;
+
+          if (order.buyerId.role === "shop") {
+            const shop: IShop | null = await Shop.findOne({ auth: order.buyerId._id })
+
+            if (shop) {
+              buyerUsername = shop.name
+            }
+          }
 
           return {
             _id: order._id.toString(),
             buyerId: order.buyerId._id.toString(),
-            buyerUsername: order.buyerId.username || order.buyerId.email,
+            buyerUsername: buyerUsername,
             buyerImage: order.buyerId.image,
             buyerPhone: order.buyerId.phone,
             buyerEmail: order.buyerId.email || "",
@@ -218,7 +362,8 @@ export const getOrders = async ({
             orderType: order.orderType,
             productImage: firstImage,
           };
-        });
+        }));
+
         return {
           code: 200,
           data: JSON.stringify(formattedOrders),
