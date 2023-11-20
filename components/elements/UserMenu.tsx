@@ -6,6 +6,7 @@ import {
   DropdownItem,
   DropdownSection,
   Avatar,
+  useDisclosure
 } from "@nextui-org/react";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
@@ -21,11 +22,12 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-type IProps = {
-  session: Session;
-};
+import { useAppSelector } from "@/redux/store";
+import UserSetting from "../modal/UserSetting";
 
-const UserMenu: React.FC<IProps> = ({ session }) => {
+const UserMenu: React.FC = () => {
+  const session: Session | null = useAppSelector(state => state.sessionReducer.value)
+  const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
   const [themeIcon, setThemeIcon] = React.useState<string>("light")
   const { setTheme } = useTheme();
   const router = useRouter()
@@ -52,7 +54,7 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
           <Avatar
             as="button"
             className="transition-transform"
-            src={session?.user.image}
+            src={session?.user.image || ""}
           />
         </DropdownTrigger>
         <DropdownMenu
@@ -82,7 +84,7 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
               key="my-order"
               startContent={<TbShoppingCartCopy className="text-lg" />}
             >
-              <Link href={`/users/orders/${session.user._id}`}>Đơn hàng của tôi</Link>
+              <Link href={`/users/orders/${session?.user._id}`}>Đơn hàng của tôi</Link>
             </DropdownItem>
           </DropdownSection>
 
@@ -93,7 +95,7 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
               key="my-shop"
               startContent={<AiOutlineShop className="text-lg" />}
             >
-              <Link href={`/shop/${session.user.shopId}`}>Cửa hàng của tôi</Link>
+              <Link href={`/shop/${session?.user.shopId}`}>Cửa hàng của tôi</Link>
             </DropdownItem>
           </DropdownSection>
 
@@ -130,6 +132,7 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
             <DropdownItem
               key="settings"
               startContent={<AiOutlineSetting className="text-lg" />}
+              onPress={onOpen}
             >
               <span>Cài đặt tài khoản</span>
             </DropdownItem>
@@ -168,6 +171,12 @@ const UserMenu: React.FC<IProps> = ({ session }) => {
           </DropdownSection>
         </DropdownMenu>
       </Dropdown>
+
+      <UserSetting
+        isOpen={isOpen}
+        onClose={onClose}
+        onOpenChange={onOpenChange}
+      />
     </>
   );
 };

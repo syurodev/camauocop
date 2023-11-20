@@ -250,7 +250,7 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
                   </Tooltip>
                 )}
 
-                <UserMenu session={session} />
+                <UserMenu />
               </>
             ) : (
               <Button

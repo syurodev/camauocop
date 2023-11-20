@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react'
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectSection, SelectItem, Selection } from '@nextui-org/react';
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectSection, SelectItem, Selection, Spinner } from '@nextui-org/react';
 
 import { OrderStatus } from "@/lib/constant/OrderStatus"
 import { useDispatch } from 'react-redux';
@@ -28,9 +28,12 @@ const ChangeOrderStatus: React.FC<IProps> = ({
   const [value, setValue] = React.useState<Selection>(new Set([]));
   const dispatch = useDispatch()
   const session = useAppSelector(state => state.sessionReducer.value)
+  const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false)
 
   const handleChangeOrderStatus = async () => {
+    setIsSubmitting(true)
     const res = await changeOrderStatus(session?.user.accessToken!, orderId, Array.from(value)[0] as OrderStatus, orderStatus)
+    setIsSubmitting(false)
     if (res.code === 200) {
       toast.success(res.message)
       dispatch(updateOrderStatus({
@@ -77,7 +80,12 @@ const ChangeOrderStatus: React.FC<IProps> = ({
               <Button variant="bordered" onPress={onClose}>
                 Đóng
               </Button>
-              <Button color={`${Array.from(value)[0] === "canceled" ? "danger" : "success"}`} onPress={handleChangeOrderStatus}>
+              <Button color={`${Array.from(value)[0] === "canceled" ? "danger" : "success"}`} onPress={handleChangeOrderStatus} isDisabled={isSubmitting}>
+                {
+                  isSubmitting && (
+                    <Spinner size='sm' />
+                  )
+                }
                 Cập nhật
               </Button>
             </ModalFooter>

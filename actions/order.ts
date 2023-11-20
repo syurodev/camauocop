@@ -43,9 +43,45 @@ type IProductOrder = {
   height?: number;
 }
 
+type Address = {
+  province: string;
+  district: string;
+  ward: string;
+  apartment: string;
+}
+
+const isEqualAddress = (addr1: Address, addr2: Address) => {
+  return (
+    addr1.province === addr2.province &&
+    addr1.district === addr2.district &&
+    addr1.ward === addr2.ward &&
+    addr1.apartment === addr2.apartment
+  );
+};
+
 export const createOrder = async (data: IOrderZodSchema) => {
   try {
     await connectToDB();
+
+    const user = await User.findById(data.buyerId);
+    if (!user) {
+      throw new Error(`Không tìm thấy người dùng với ID ${data.buyerId}.`);
+    }
+
+    const userAddress = {
+      province: data.province,
+      district: data.district,
+      ward: data.ward,
+      apartment: data.apartment,
+    };
+
+    if (!user.address || !user.address.some((addr: Address) => isEqualAddress(addr, userAddress))) {
+      if (!user.address) {
+        user.address = [];
+      }
+      user.address.push(userAddress);
+      await user.save();
+    }
 
     const productSnapshots = await Promise.all(
       data.products!.map(async (productInOrder) => {

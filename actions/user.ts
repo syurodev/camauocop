@@ -1,5 +1,6 @@
 "use server"
 
+import { IUserInfoSchema } from "@/components/card/ChangeUserInfo"
 import User from "@/lib/models/users"
 import { connectToDB, verifyJwtToken } from "@/lib/utils"
 
@@ -43,6 +44,106 @@ export const updatePhone = async (phone: string, id: string, accessToken: string
     return {
       code: 500,
       message: "Lỗi hệ thống vui lòng thử lại"
+    }
+  }
+}
+
+export const changeUserAvatar = async (userId: string, accessToken: string, image: string) => {
+  try {
+    const token = verifyJwtToken(accessToken)
+
+    if (!!token) {
+      await connectToDB()
+
+      const shop = await User.findByIdAndUpdate(userId, { image: image })
+
+      if (shop) {
+        return {
+          code: 200,
+          message: "Thay đổi ảnh đại diện cửa hàng thành công"
+        }
+      } else {
+        return {
+          code: 400,
+          message: "Thay đổi ảnh đại diện thất bại, vui lòng thử lại"
+        }
+      }
+
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại"
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại"
+    }
+  }
+}
+
+export const changeUserInfo = async (accessToken: string, userId: string, data: IUserInfoSchema) => {
+  try {
+    const token = verifyJwtToken(accessToken)
+
+    if (!!token) {
+      const matchingUserPhones = await User.findOne({
+        phone: data.phone,
+        _id: { $ne: userId },
+      })
+
+      if (matchingUserPhones) {
+        return {
+          code: 401,
+          message: "Số điện thoại đã được sử dụng",
+        }
+      }
+
+      const matchingUsername = await User.findOne({
+        $and: [
+          { username: { $ne: "" } },
+          { username: data.username },
+          { _id: { $ne: userId } }
+        ]
+      })
+
+      if (matchingUsername) {
+        return {
+          code: 401,
+          message: "Tên đăng nhập đã được sử dụng",
+        }
+      }
+
+      const shop = await User.findByIdAndUpdate(userId, {
+        phone: data.phone,
+        username: data.username,
+        email: data.email,
+      })
+
+      if (shop) {
+        return {
+          code: 200,
+          message: "Thay đổi thông tin người dùng thành công",
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không tìm thấy thông tin người dùng",
+        }
+      }
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại",
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại",
     }
   }
 }

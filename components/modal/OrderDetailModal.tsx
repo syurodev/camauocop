@@ -348,14 +348,14 @@ const OrderDetailModal: React.FC<IProps> = ({ isOpenOrderDetailModal, onCloseOrd
                                   </h4>
                                   <div className='ps-2'>
                                     <p>
-                                      Khối lượng: {product.weight}{product.unit}
+                                      Khối lượng: {`${product.retail ? `${product.weight * product.quantity}${product.unit}` : `${product.weight}${product.unit}`}`}
                                     </p>
                                     {
                                       product.retail === false && <p>Số lượng: {product.quantity} gói</p>
                                     }
                                     <p>
                                       Giá tiền:
-                                      <span className='text-primary font-semibold'> {product.retail ? formattedPriceWithUnit(product.price) : formattedPriceWithUnit(product.price * product.quantity)}
+                                      <span className='text-primary font-semibold'> {product.retail ? formattedPriceWithUnit(product.price * product.quantity) : formattedPriceWithUnit(product.price * product.quantity)}
                                       </span>
                                     </p>
                                   </div>

@@ -1,23 +1,19 @@
 "use client"
-
 import React from 'react'
 import { Modal, ModalBody, ModalContent, ModalHeader, Tab, Tabs } from '@nextui-org/react';
-
 import ChangeAvatar from '../card/ChangeAvatar';
-import ChangeShopInfo from '../card/ChangeShopInfo';
+import ChangeUserInfo from '../card/ChangeUserInfo';
 
 type IProps = {
   isOpen: boolean;
   onClose: () => void;
   onOpenChange: () => void;
-  shopId: string,
 }
 
-const ShopSetting: React.FC<IProps> = ({
+const UserSetting: React.FC<IProps> = ({
   isOpen,
   onClose,
   onOpenChange,
-  shopId,
 }) => {
   return (
     <Modal
@@ -30,7 +26,7 @@ const ShopSetting: React.FC<IProps> = ({
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              Cài đặt cửa hàng
+              Cài đặt tài khoản
             </ModalHeader>
             <ModalBody>
               <Tabs
@@ -38,10 +34,10 @@ const ShopSetting: React.FC<IProps> = ({
                 className='max-w-full flex flex-col justify-center'
               >
                 <Tab key="avatar" title="Ảnh đại diện">
-                  <ChangeAvatar onClose={onClose} role='shop' />
+                  <ChangeAvatar onClose={onClose} role='user' />
                 </Tab>
                 <Tab key="info" title="Thông tin">
-                  <ChangeShopInfo onClose={onClose} />
+                  <ChangeUserInfo onClose={onClose} />
                 </Tab>
               </Tabs>
             </ModalBody>
@@ -52,4 +48,4 @@ const ShopSetting: React.FC<IProps> = ({
   )
 }
 
-export default React.memo(ShopSetting)
+export default React.memo(UserSetting)
