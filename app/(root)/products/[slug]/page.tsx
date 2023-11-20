@@ -1,4 +1,5 @@
 "use client";
+
 import { getProducts, searchProducts } from "@/actions/products";
 import { FC, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";

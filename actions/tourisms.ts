@@ -1,11 +1,17 @@
 "use server"
 
+import { Types } from 'mongoose';
+
 import Destination, { IDestination } from "@/lib/models/destination"
 import TourType, { ITourType } from "@/lib/models/tourType";
 import Tourism from "@/lib/models/tourisms";
 import Transportation, { ITransportation } from "@/lib/models/transportation";
 import { connectToDB, verifyJwtToken } from "@/lib/utils";
 import { ITourSchema } from "@/lib/zodSchema/tourSchema";
+
+const isValidObjectId = (slug: string): boolean => {
+  return Types.ObjectId.isValid(slug) && slug.length === 24;
+};
 
 export const addDestination = async (accessToken: string, data: IDestination) => {
   try {
@@ -87,14 +93,6 @@ export const getDestinations = async () => {
           tourCount: count,
         };
       });
-      // const result: DestinationData[] = destinations.map(destination => (
-      //   {
-      //     _id: destination._id.toString(),
-      //     name: destination.name,
-      //     images: destination.images,
-      //     description: destination.description,
-      //   }
-      // ))
 
       return {
         code: 200,
@@ -532,5 +530,72 @@ export const getTourDetail = async (_id: string) => {
       message: "Lỗi hệ thống vui lòng thử lại",
       data: null
     }
+  }
+}
+
+export const searchTours = async (slug: string, page: number) => {
+  try {
+    const limit = 20;
+    const skip = (page - 1) * limit;
+    let query: any = { status: 'accepted' }
+    if (isValidObjectId(slug)) {
+      query = { ...query, destination: slug }
+    } else {
+      query = { ...query, tourName: { $regex: slug, $options: 'i' } }
+    }
+
+    const totalTours = await Tourism.countDocuments(query);
+    const totalPages = Math.ceil(totalTours / limit);
+
+    const tourisms = await Tourism.find(query)
+      .populate('tourType', "name")
+      .populate('destination', "name images")
+      .populate('userId', "username email image")
+      .populate({
+        path: 'transportation',
+        model: 'Transportation',
+        select: "name"
+      })
+      .limit(limit)
+      .skip(skip)
+
+    if (tourisms.length > 0) {
+      const result: TourData[] = tourisms.map(tourism => {
+        return {
+          _id: tourism._id.toString(),
+          username: tourism?.userId?.username || tourism?.userId?.email || "",
+          avatar: tourism?.userId?.image || "",
+          status: tourism.status,
+          tourName: tourism.tourName,
+          destinationName: tourism.destination.name,
+          duration: tourism.duration,
+          price: tourism.price,
+          tourTypeName: tourism.tourType.name,
+          note: tourism.note || "",
+        }
+      })
+
+      return {
+        code: 200,
+        message: "sucessfully",
+        data: JSON.stringify(result),
+        totalPages: totalPages
+      }
+    } else {
+      return {
+        code: 404,
+        message: "Không có tour",
+        data: null,
+        totalPages: 0
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      code: 500,
+      message: "Lỗi hệ thống vui lòng thử lại",
+      data: null,
+      totalPages: 0,
+    };
   }
 }
