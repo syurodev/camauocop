@@ -1,9 +1,10 @@
 "use client"
 
 import React from 'react'
-import { Card, CardBody, CardHeader, Image, useDisclosure } from '@nextui-org/react'
+import { Button, Card, CardBody, CardHeader, Image, useDisclosure } from '@nextui-org/react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+import { GoHome } from "react-icons/go";
 
 import RenderDescription from '@/app/(root)/products/product/[id]/components/RenderDescription'
 import BigModal from '@/components/modal/BigModal'
@@ -29,8 +30,19 @@ const PageContent: React.FC<IProps> = ({ data }) => {
   return (
     <>
       <div
-        className='grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4 xl:gap-5 p-5'
+        className='grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4 xl:gap-5 p-5 relative'
       >
+        <Button
+          isIconOnly
+          radius='full'
+          variant='solid'
+          size='sm'
+          className='absolute top-3 left-3 z-40'
+          onPress={() => router.push("/")}
+        >
+          <GoHome className="text-lg" />
+        </Button>
+
         {
           destinations.length > 0 ? destinations.map((item, index) => {
             return (
@@ -40,6 +52,7 @@ const PageContent: React.FC<IProps> = ({ data }) => {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 15, opacity: 0 }}
                 transition={{ duration: 0.3, delay: index / 10 }}
+                className='m-auto'
               >
                 <Card
                   className="py-4 max-w-[258px]"
