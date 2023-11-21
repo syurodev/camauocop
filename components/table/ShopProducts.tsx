@@ -303,7 +303,12 @@ const ShopProducts: React.FC<IProps> = ({ shopId, shopAuth }) => {
                       transition={{ duration: 0.3, delay: index / 10 }}
                       key={product?._id}
                     >
-                      <CardItem data={product} />
+                      <CardItem
+                        key={`product${product?._id}`}
+                        data={product}
+                        editButton={shopAuth || false}
+                        deleteButton={shopAuth || false}
+                      />
                     </motion.div>
                   )) : <span>Không có sản phẩm</span>
                 }
@@ -314,37 +319,6 @@ const ShopProducts: React.FC<IProps> = ({ shopId, shopAuth }) => {
           </motion.div>
         </AnimatePresence>
       </div>
-
-      {/* <div className="grid items-center sm:grid-cols-2 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4 xl:gap-5">
-        {isLoading
-          ? Array.from({ length: 12 }).map((_, index) => (
-            <Card shadow="sm" key={index}>
-              <Skeleton isLoaded={!isLoading} className="rounded-lg">
-                <CardBody className="overflow-visible p-0">
-                  <div className="w-full h-[140px]"></div>
-                </CardBody>
-              </Skeleton>
-
-              <CardFooter className="flex flex-col text-small justify-between">
-                <Skeleton isLoaded={!isLoading} className="rounded-lg">
-                  <b className="line-clamp-2">productname</b>
-                </Skeleton>
-                <Skeleton isLoaded={!isLoading} className="rounded-lg mt-2">
-                  <p className="text-default-500">productprice</p>
-                </Skeleton>
-              </CardFooter>
-            </Card>
-          ))
-          : products.length > 0 &&
-          products.map((item) => {
-            return <CardItem
-              key={item?._id}
-              data={item}
-              editButton={shopAuth || false}
-              deleteButton={shopAuth || false}
-            />;
-          })}
-      </div> */}
     </div>
   )
 }
