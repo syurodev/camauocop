@@ -1,4 +1,5 @@
 "use server";
+import ProductType from "@/lib/models/productTypes";
 import Product from "@/lib/models/products";
 
 export interface ProductTypesResponse {
@@ -56,5 +57,38 @@ export async function getProductTypes() {
       code: 500,
       data: []
     };
+  }
+}
+
+export async function getShopProductType(shopId: string) {
+  try {
+    const result = await ProductType.find({ shopId: shopId })
+
+    if (result.length > 0) {
+      const data = result.map(item => {
+        return {
+          _id: item._id.toString(),
+          typeName: item.name
+        }
+      })
+
+      return {
+        code: 200,
+        mesage: "successfully",
+        data
+      }
+    } else return {
+      code: 404,
+      message: "Không có loại sản phẩm",
+      data: null
+    }
+
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi máy chủ vui lòng thử lại",
+      data: null
+    }
   }
 }

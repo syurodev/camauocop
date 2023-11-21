@@ -85,6 +85,7 @@ const ProductsPage: FC<IProps> = ({ params }) => {
                 <Accordion
                   variant="bordered"
                   isCompact
+                  defaultExpandedKeys={["1"]}
                 >
                   <AccordionItem key="1" aria-label="Loại sản phẩm" title="Loại sản phẩm">
                     <div className="flex flex-col gap-3">
@@ -134,6 +135,7 @@ const ProductsPage: FC<IProps> = ({ params }) => {
           <Accordion
             variant="bordered"
             isCompact
+            defaultExpandedKeys={["1"]}
           >
             <AccordionItem key="1" aria-label="Loại sản phẩm" title="Loại sản phẩm">
               <div className="flex flex-col gap-3">
@@ -157,9 +159,9 @@ const ProductsPage: FC<IProps> = ({ params }) => {
               </div>
             </AccordionItem>
 
-            <AccordionItem key="2" aria-label="Khoản giá" title="Khoản giá">
+            {/* <AccordionItem key="2" aria-label="Khoản giá" title="Khoản giá">
               2
-            </AccordionItem>
+            </AccordionItem> */}
 
             {/* <AccordionItem key="3" aria-label="Accordion 3" title="Accordion 3">
         3

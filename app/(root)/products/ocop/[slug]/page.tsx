@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CiMenuKebab } from "react-icons/ci"
 
 import { getProductsSpecialty } from "@/actions/products";
-import { categories } from '@/lib/constant/CategoriesDefault'
 import { getSpecialtys } from "@/actions/specialty";
 import toast from "react-hot-toast";
 

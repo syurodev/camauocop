@@ -124,6 +124,7 @@ export async function getProducts(
   limitItems: number = 12,
   shopId?: string,
   deleted: boolean = false,
+  typeId?: string,
 ): Promise<IProductsResponse> {
   try {
     await connectToDB();
@@ -134,6 +135,10 @@ export async function getProducts(
 
     if (shopId) {
       query = { ...query, shopId: shopId };
+    }
+
+    if (typeId && typeId !== "all") {
+      query = { ...query, productType: typeId };
     }
 
     const totalProducts = await Product.countDocuments(query);

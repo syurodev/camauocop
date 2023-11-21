@@ -78,6 +78,7 @@ const TourismsPage: React.FC<IProps> = ({ params }) => {
                 <Accordion
                   variant="bordered"
                   isCompact
+                  defaultExpandedKeys={["1"]}
                 >
                   <AccordionItem key="1" aria-label="Điểm đến" title="Điểm đến">
                     <div className="flex flex-col gap-3">
@@ -119,6 +120,7 @@ const TourismsPage: React.FC<IProps> = ({ params }) => {
           <Accordion
             variant="bordered"
             isCompact
+            defaultExpandedKeys={["1"]}
           >
             <AccordionItem key="1" aria-label="Điểm đến" title="Điểm đến">
               <div className="flex flex-col gap-3">
