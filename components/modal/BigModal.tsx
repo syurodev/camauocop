@@ -14,7 +14,7 @@ type IProps = {
 const BigModal: React.FC<IProps> = ({ isOpen, onClose, onOpenChange, title, children }) => {
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 showScroll">
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}

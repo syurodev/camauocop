@@ -3,10 +3,15 @@ body,
 :root {
   height: 100%;
   box-sizing: border-box;
-  scrollbar-gutter: auto !important;
+  scrollbar-gutter: auto;
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   width: 0px;
   height: 0px;
 }
+
+.showScroll::-webkit-scrollbar {
+  width: 7px !important;
+  height: 7px !important;
+} */

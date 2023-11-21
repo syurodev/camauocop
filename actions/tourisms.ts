@@ -61,10 +61,16 @@ export const addDestination = async (accessToken: string, data: IDestination) =>
   }
 }
 
-export const getDestinations = async () => {
+export const getDestinations = async (_id?: string) => {
   try {
     await connectToDB()
-    const destinations: IDestination[] = await Destination.find()
+    let query: any = {}
+
+    if (_id) {
+      query = { _id: _id }
+    }
+
+    const destinations: IDestination[] = await Destination.find(query)
 
     if (destinations.length > 0) {
       const destinationCounts = await Tourism.aggregate([
@@ -117,10 +123,17 @@ export const getDestinations = async () => {
   }
 }
 
-export const getTransportation = async () => {
+export const getTransportation = async (_id?: string) => {
   try {
+    await connectToDB()
+
+    let query: any = {}
+
+    if (_id) {
+      query = { _id: _id }
+    }
     // Lấy danh sách tất cả transportation
-    const allTransportation: ITransportation[] = await Transportation.find();
+    const allTransportation: ITransportation[] = await Transportation.find(query);
 
     // Đếm số tour đang sử dụng mỗi loại transportation
     const transportationCounts = await Tourism.aggregate([

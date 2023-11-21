@@ -184,14 +184,6 @@ const ShopProducts: React.FC<IProps> = ({ shopId, shopAuth }) => {
                         }
                       </div>
                     </AccordionItem>
-
-                    {/* <AccordionItem key="2" aria-label="Khoản giá" title="Khoản giá">
-                    2
-                  </AccordionItem> */}
-
-                    {/* <AccordionItem key="3" aria-label="Accordion 3" title="Accordion 3">
-        3
-      </AccordionItem> */}
                   </Accordion>
                 </div>
               </motion.div>

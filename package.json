@@ -13,6 +13,7 @@
     "@nextui-org/react": "^2.2.0",
     "@react-stately/data": "^3.10.3",
     "@reduxjs/toolkit": "^1.9.7",
+    "@studio-freight/lenis": "^1.0.27",
     "@tippyjs/react": "^4.2.6",
     "@tiptap/extension-bullet-list": "^2.1.12",
     "@tiptap/extension-hard-break": "^2.1.12",
