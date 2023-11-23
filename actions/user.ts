@@ -1,7 +1,7 @@
 "use server"
 
 import { IUserInfoSchema } from "@/components/card/ChangeUserInfo"
-import User from "@/lib/models/users"
+import User, { IUser } from "@/lib/models/users"
 import { connectToDB, verifyJwtToken } from "@/lib/utils"
 
 export const updatePhone = async (phone: string, id: string, accessToken: string) => {
@@ -144,6 +144,57 @@ export const changeUserInfo = async (accessToken: string, userId: string, data: 
     return {
       code: 500,
       message: "Lỗi hệ thống vui lòng thử lại",
+    }
+  }
+}
+
+export const searchUser = async (slug: string, role?: UserRole) => {
+  try {
+    await connectToDB()
+
+    let query: any = {
+      $or: [
+        { username: { $regex: slug, $options: "i" } },
+        { email: { $regex: slug, $options: "i" } },
+        { phone: { $regex: slug, $options: "i" } },
+      ],
+    };
+
+    if (role) {
+      query = { ...query, role: role }
+    }
+
+    const users: IUser[] = await User.find(query);
+
+    if (users.length > 0) {
+      const result = users.map(user => {
+        return {
+          _id: user._id.toString() as string,
+          username: user.username && user.username !== "" ? user.username : user.email,
+          phone: user.phone || "",
+          avatar: user.image || ""
+        }
+      })
+
+      return {
+        code: 200,
+        message: "successfully",
+        data: result
+      }
+    } else {
+      return {
+        code: 404,
+        message: "Không tìm thấy người dùng",
+        data: null
+      }
+    }
+
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi máy chủ vui lòng thử lại",
+      data: null
     }
   }
 }

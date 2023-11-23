@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux'
 export default function Wrapper({ children, info }: { children: ReactNode, info: string }) {
   const data = JSON.parse(info)
   const dispatch = useDispatch()
-
+  console.log(data)
   useEffect(() => {
     dispatch(setShopInfo(data))
     // eslint-disable-next-line react-hooks/exhaustive-deps

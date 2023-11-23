@@ -91,7 +91,6 @@ const Orders: React.FC<IProps> = ({ isLoading, orders, role, shopId }) => {
   }, [orders])
 
   const ordersData: IOrders[] = useAppSelector(state => state.ordersReducer.value)
-  console.log(ordersData)
   const pages = Math.ceil(ordersData.length / rowsPerPage);
 
   const hasSearchFilter = Boolean(filterValue);

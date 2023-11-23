@@ -11,8 +11,6 @@ type IProps = {
 };
 
 const DestinationPage: React.FC<IProps> = async ({ params }) => {
-  console.log(params)
-
   const destinations = await getDestinations(params.id)
 
   if (destinations.code !== 200) {

@@ -32,7 +32,7 @@ const TopSide: React.FC = () => {
                   {
                     data.staffs.length > 0 && data.staffs.map((staff) => {
                       return (
-                        <Avatar key={staff._id} size='sm' src={staff.avatar} />
+                        <Avatar key={`avatar staff ${staff._id}`} size='sm' src={staff.avatar} />
                       )
                     })
                   }

@@ -25,6 +25,13 @@ export type IShopSettingData = {
   tax: string;
 }
 
+// Hàm kiểm tra quyền của người dùng
+const userHasPermission = (userId: string, shopAuth: string): boolean => {
+  if (userId === shopAuth) {
+    return true;
+  } else return false
+};
+
 export const shopRegister = async ({ data, district_id, ward_code }: IProps) => {
   try {
     await connectToDB();
@@ -188,7 +195,7 @@ export const getShopInfo = async (id: string): Promise<ShopInfoResponse> => {
     const shop = await Shop.findById(id)
       .populate({
         path: 'auth',
-        select: '_id image'
+        select: '_id image',
       })
       .populate({
         path: 'staffs.staffId',
@@ -210,16 +217,16 @@ export const getShopInfo = async (id: string): Promise<ShopInfoResponse> => {
     // Tính tổng doanh thu từ các đơn hàng
     const totalRevenue = orders.reduce((acc, order) => acc + order.totalAmount, 0);
 
-    const staffsData = shop.staffs.map((staff: { _id: string, image: string }) => ({
-      avatar: staff.image,
-      _id: staff._id.toString(),
-    }));
+    const staffsData = shop.staffs
+      .filter((staff: { staffStatus: string }) => staff.staffStatus === 'working')
+      .map((staff: { staffId: { _id: string; image: string } }) => ({
+        avatar: staff.staffId.image,
+        _id: staff.staffId._id.toString(),
+      }));
 
-    const ads = await Advertisement.find({ shopId: id, type: "home", status: "running" })
+    const ads = await Advertisement.find({ shopId: id, type: 'home', status: 'running' });
 
-    const adsResult = ads.map((ad: { _id: string, image: string }) => {
-      return ad.image
-    })
+    const adsResult = ads.map((ad: { _id: string, image: string }) => ad.image);
 
     const shopInfo: IShopInfo = {
       _id: shop._id.toString(),
@@ -231,7 +238,7 @@ export const getShopInfo = async (id: string): Promise<ShopInfoResponse> => {
       phone: shop.phone,
       auth: {
         avatar: shop.auth.image,
-        _id: shop.auth._id.toString()
+        _id: shop.auth._id.toString(),
       },
       staffs: staffsData,
       totalRevenue,
@@ -239,17 +246,18 @@ export const getShopInfo = async (id: string): Promise<ShopInfoResponse> => {
     };
     return {
       code: 200,
-      message: "successfully",
-      data: shopInfo
-    }
+      message: 'Successfully',
+      data: shopInfo,
+    };
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return {
       code: 500,
-      message: "Lỗi lấy thông tin shop",
-    }
+      message: 'Lỗi lấy thông tin shop',
+    };
   }
-}
+};
+
 
 export const topProduct = async (shopId: string, accessToken: string): Promise<TopSellingProductResponse> => {
   try {
@@ -644,3 +652,196 @@ export const changeShopSetting = async (accessToken: string, shopId: string, use
     }
   }
 }
+
+export const getStaffs = async (accessToken: string, shopId: string) => {
+  try {
+    const token = verifyJwtToken(accessToken)
+    if (!!token) {
+      await connectToDB()
+      const shop: IShop | null = await Shop.findById(shopId)
+
+      if (shop) {
+        const staffIds = shop.staffs.length > 0 ? shop.staffs.map((item) => item.staffId) : []
+
+        // Lấy thông tin nhân viên
+        const staffDetails: IUser[] = await User.find({ _id: { $in: staffIds } });
+        if (staffDetails.length > 0) {
+          const staffData = shop.staffs.map((staff, index) => ({
+            staffId: staff.staffId.toString() as string,
+            staffStatus: staff.staffStatus,
+            dateJoining: staff.dateJoining.toISOString(),
+            userDetails: {
+              _id: staffDetails[index]._id.toString() as string,
+              username: staffDetails[index].username && staffDetails[index].username !== "" ? staffDetails[index].username : staffDetails[index].email,
+              phone: staffDetails[index].phone || "",
+              avatar: staffDetails[index].image || ""
+            },
+          }));
+
+          return {
+            code: 200,
+            message: "successfully",
+            data: staffData
+          }
+        } else {
+          return {
+            code: 404,
+            message: "Không có nhân viên",
+            data: null
+          }
+        }
+
+      } else {
+        return {
+          code: 404,
+          message: "Không tìm thấy cửa hàng",
+          data: null
+        }
+      }
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực hiện chức năng này vui lòng đăng nhập và thử lại",
+        data: null
+      }
+    }
+
+  } catch (error) {
+    console.log(error)
+    return {
+      code: 500,
+      message: "Lỗi máy chủ vui lòng thử lại",
+      data: null
+    }
+  }
+}
+
+export const addStaff = async (accessToken: string, shopId: string, staffId: string) => {
+  try {
+    const token = verifyJwtToken(accessToken);
+
+    if (!!token) {
+      await connectToDB();
+      const shop: IShop | null = await Shop.findById(shopId);
+
+      if (shop) {
+        // Kiểm tra xem người dùng hiện tại có quyền thêm nhân viên không
+        if (userHasPermission(token._id, shop.auth.toString())) {
+          // Kiểm tra xem nhân viên đã tồn tại trong cửa hàng chưa
+          const existingStaff = shop.staffs.find((staff) => staff.staffId.toString() === staffId);
+
+          if (existingStaff) {
+            return {
+              code: 400,
+              message: "Nhân viên đã tồn tại trong cửa hàng",
+            };
+          }
+
+          // Thêm nhân viên mới vào mảng staffs của cửa hàng
+          shop.staffs.push({
+            staffId: staffId,
+            staffStatus: "pending",
+            dateJoining: new Date(),
+          });
+
+          await shop.save();
+
+          // Cập nhật vai trò của người dùng thành "staff"
+          await User.findByIdAndUpdate(staffId, { role: "staff" });
+
+          return {
+            code: 200,
+            message: "Thêm nhân viên thành công",
+          };
+        } else {
+          return {
+            code: 403,
+            message: "Bạn không có quyền thêm nhân viên vào cửa hàng này",
+          };
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không tìm thấy cửa hàng",
+        };
+      }
+    } else {
+      return {
+        code: 403,
+        message: "Bạn không có quyền thực hiện chức năng này, vui lòng đăng nhập và thử lại",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      code: 500,
+      message: "Lỗi hệ thống, vui lòng thử lại",
+    };
+  }
+};
+
+export const changeStaffStatus = async (
+  accessToken: string,
+  shopId: string,
+  staffId: string,
+  newStatus: StaffStatus
+) => {
+  try {
+    const token = verifyJwtToken(accessToken);
+
+    if (!!token) {
+      await connectToDB();
+      const shop: IShop | null = await Shop.findById(shopId);
+
+      if (shop) {
+        // Kiểm tra xem người dùng hiện tại có quyền thêm nhân viên không
+        if (userHasPermission(token._id.toString(), shop.auth.toString())) {
+          const staffIndex = shop.staffs.findIndex((staff) => staff.staffId.toString() === staffId);
+
+          if (staffIndex !== -1) {
+            // Chuyển đổi trạng thái của nhân viên trong mảng staffs
+            shop.staffs[staffIndex].staffStatus = newStatus;
+
+            // Lưu cập nhật vào cơ sở dữ liệu
+            await shop.save();
+
+            if (newStatus === "stopWorking") {
+              await User.findByIdAndUpdate(staffId, { role: "individual" });
+            }
+
+            return {
+              code: 200,
+              message: "Chuyển đổi trạng thái nhân viên thành công",
+            };
+          } else {
+            return {
+              code: 403,
+              message: "Bạn không có quyền thay đổi trạng thái nhân viên trong cửa hàng này",
+            };
+          }
+        } else {
+          return {
+            code: 403,
+            message: "Bạn không có quyền thực hiện chức năng này, vui lòng đăng nhập và thử lại",
+          };
+        }
+      } else {
+        return {
+          code: 404,
+          message: "Không tìm thấy cửa hàng",
+        };
+      }
+    } else {
+      return {
+        code: 401,
+        message: "Bạn không có quyền thực hiện chức năng này, vui lòng đăng nhập và thử lại",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      code: 500,
+      message: "Lỗi hệ thống, vui lòng thử lại",
+    };
+  }
+};

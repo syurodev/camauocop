@@ -24,6 +24,7 @@ export interface IShop extends Document {
   staffs: [{
     staffId: string,
     staffStatus: StaffStatus
+    dateJoining: Date
   }]
   image?: string;
   tax?: string;

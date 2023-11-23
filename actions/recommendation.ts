@@ -84,6 +84,7 @@ const extractProductDescription = (product: IProduct): string => {
     }
   })
 
+  console.log(result)
   return result;
 };
 

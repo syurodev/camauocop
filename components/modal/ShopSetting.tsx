@@ -5,6 +5,7 @@ import { Modal, ModalBody, ModalContent, ModalHeader, Tab, Tabs } from '@nextui-
 
 import ChangeAvatar from '../card/ChangeAvatar';
 import ChangeShopInfo from '../card/ChangeShopInfo';
+import ShopStaff from '../card/ShopStaff';
 
 type IProps = {
   isOpen: boolean;
@@ -25,8 +26,9 @@ const ShopSetting: React.FC<IProps> = ({
       onOpenChange={onOpenChange}
       placement="center"
       backdrop="opaque"
+      size='2xl'
     >
-      <ModalContent>
+      <ModalContent className='max-h-[80%] overflow-auto'>
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
@@ -42,6 +44,9 @@ const ShopSetting: React.FC<IProps> = ({
                 </Tab>
                 <Tab key="info" title="Thông tin">
                   <ChangeShopInfo onClose={onClose} />
+                </Tab>
+                <Tab key="staffs" title="Nhân viên">
+                  <ShopStaff onClose={onClose} shopId={shopId} />
                 </Tab>
               </Tabs>
             </ModalBody>
