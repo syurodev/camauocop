@@ -13,6 +13,8 @@ import { type IAddProductZodSchema } from "@/lib/zodSchema/products";
 import { type IAddProductTypeZodSchema } from "@/lib/zodSchema/products";
 import { convertToKg } from "@/lib/convertToKg";
 import Cart, { ICart } from "@/lib/models/carts"
+import Rating, { IRating } from "@/lib/models/rating";
+import Order from "@/lib/models/orders";
 
 type Product = {
   _id: ObjectId;
@@ -29,6 +31,13 @@ type Product = {
     height: number;
   }[];
 };
+
+function calculateAverageRating(users: { point: number }[]): number {
+  if (users.length === 0) return 0;
+  const totalPoints = users.reduce((sum, user) => sum + user.point, 0);
+  const averageRating = totalPoints / users.length;
+  return Number(averageRating.toFixed(1));
+}
 
 export async function addProduct(data: string) {
   try {
@@ -207,7 +216,9 @@ export async function getProductDetail(_id: string | string[], userId?: string):
           select: "name _id",
         });
 
-      const formattedProducts: IProductDetail[] = products.map((product) => {
+      const formattedProducts: IProductDetail[] = await Promise.all(products.map(async (product) => {
+        const rating = await Rating.findOne({ productId: product._id });
+        const averageRating = rating ? calculateAverageRating(rating.users) : 0;
 
         return {
           _id: product._id.toString(),
@@ -222,6 +233,8 @@ export async function getProductDetail(_id: string | string[], userId?: string):
           productCreatedAt: product.createdAt,
           productDeletedAt: product.deleteAt,
           specialty: product.specialty,
+          rating: averageRating,
+          numberOfRatings: rating ? rating.users.length : 0,
           shopId: product.shopId._id.toString() || "",
           productTypeName: product.productType.name.toString(),
           productTypeId: product.productType._id.toString(),
@@ -235,7 +248,7 @@ export async function getProductDetail(_id: string | string[], userId?: string):
             image: product.shopId.image || "",
           },
         };
-      });
+      }));
 
       return formattedProducts;
     } else {
@@ -254,12 +267,33 @@ export async function getProductDetail(_id: string | string[], userId?: string):
       }
 
       let isFavorite = false;
+      let hasRated = false;
+      let userRating = 0;
+
       if (userId) {
         const favorite: IFavorite | null = await Favorite.findOne({ userId });
         if (favorite) {
           isFavorite = favorite.products.some((favoriteProduct) => favoriteProduct.productId.toString() === _id);
         }
+
+        const hasPurchased = await Order.exists({
+          buyerId: userId,
+          'products.productId': _id,
+          'orderStatus': 'delivered'
+        });
+
+        // Kiểm tra xem người dùng đã đánh giá sản phẩm hay chưa
+        if (hasPurchased) {
+          const rating: IRating | null = await Rating.findOne({ productId: _id, 'users.userId': userId });
+          if (rating) {
+            hasRated = true;
+            userRating = rating.users.find(user => user.userId.toString() === userId)?.point || 0;
+          }
+        }
       }
+
+      const rating: IRating | null = await Rating.findOne({ productId: product._id });
+      const averageRating = rating ? calculateAverageRating(rating.users) : 0;
 
       // Format the data
       const formattedProduct: IProductDetail = {
@@ -272,6 +306,10 @@ export async function getProductDetail(_id: string | string[], userId?: string):
         productSold: product.sold || 0,
         productQuantity: product.quantity,
         specialty: product.specialty,
+        rating: averageRating,
+        numberOfRatings: rating ? rating.users.length : 0,
+        hasRated,
+        userRating,
         productImages: product.images,
         productCreatedAt: product.createdAt,
         productDeletedAt: product.deleteAt,

@@ -28,6 +28,10 @@ type IProductDetail = {
   packageOptions: ProductPack[];
   productPrice: number;
   productSold: number;
+  rating: number;
+  numberOfRatings: number;
+  hasRated?: boolean;
+  userRating?: number;
   specialty: boolean;
   productQuantity: number;
   productImages: string[];
