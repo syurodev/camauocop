@@ -16,8 +16,8 @@ const AdvertisementSchema: Schema = new Schema(
   {
     shopId: { type: Schema.Types.ObjectId, ref: Shop, required: true },
     image: { type: String, required: true },
-    status: { type: String, default: "waiting" },
-    type: { type: String, default: "home" },
+    status: { type: String, enum: ["accept", "refused", "running", "stopped", "waiting"], default: "waiting" },
+    type: { type: String, enum: ["home", "public"], default: "home" },
     note: { type: String, default: "" },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },

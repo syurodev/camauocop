@@ -37,7 +37,7 @@ const Column: React.FC<IProps> = ({ images, y = 0, index }) => {
         images.map((src, index) => {
           return (
             //image container
-            <div key={index} className='w-full h-full relative rounded-lg overflow-hidden'>
+            <div key={index} className='w-full h-full relative rounded-xl overflow-hidden'>
               <Image
                 src={src}
                 alt='image'

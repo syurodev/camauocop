@@ -74,7 +74,7 @@ const Tourisms: React.FC = () => {
                   key={destination._id}
                   className="py-4 max-w-[258px] m-auto"
                   isPressable
-                  onPress={() => router.push(`/products/ocop/${encodeURIComponent(destination.name)}`)}
+                  onPress={() => router.push(`/tourisms/destination/${destination._id}`)}
                 >
                   <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
                     <p className="text-tiny uppercase font-bold text-primary">Địa điểm</p>

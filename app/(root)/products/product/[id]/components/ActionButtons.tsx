@@ -9,7 +9,7 @@ import {
 } from "react-icons/ai";
 import { BsFillCartCheckFill } from "react-icons/bs";
 import { BiMessageSquareDots } from "react-icons/bi";
-import { MdOutlineLocationOn } from "react-icons/md"
+import { MdOutlineLocationOn, MdOutlineHowToVote } from "react-icons/md"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -405,6 +405,20 @@ const ActionButtons: React.FC<IProps> = ({ data }) => {
                     onPress={() => setOpenCommemt(true)}
                   >
                     <BiMessageSquareDots className="text-xl" />
+                  </Button>
+                </Tooltip>
+
+                <Tooltip
+                  content={`${!session ? "Đăng nhập" : "Đánh giá"}`}
+                  placement="left"
+                >
+                  <Button
+                    isIconOnly
+                    variant="flat"
+                    radius="full"
+                    onPress={() => setOpenCommemt(true)}
+                  >
+                    <MdOutlineHowToVote className="text-xl" />
                   </Button>
                 </Tooltip>
               </motion.div>
