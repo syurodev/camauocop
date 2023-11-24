@@ -7,7 +7,6 @@ export interface IRating extends Document {
   users: {
     userId: string,
     point: 1 | 2 | 3 | 4 | 5,
-    addedDate: Date
   }[]
 }
 
@@ -24,10 +23,6 @@ const RatingSchema: Schema = new Schema({
       required: true
     },
     point: { type: Number, enum: [1, 2, 3, 4, 5], require: true, default: 1 },
-    addedDate: {
-      type: Date,
-      default: Date.now
-    }
   }]
 });
 
