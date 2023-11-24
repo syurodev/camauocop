@@ -50,7 +50,7 @@ const OrderSchema: Schema = new Schema({
   products: [{
     productId: { type: Schema.Types.ObjectId, ref: Product, required: true },
     productSnapshot: { type: Object, required: true },
-    quantity: { type: Number },
+    quantity: { type: Number, default: 1 },
     weight: { type: Number },
     unit: { type: String },
     price: { type: Number },

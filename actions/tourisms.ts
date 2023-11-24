@@ -157,7 +157,6 @@ export const getTransportation = async (_id?: string) => {
       return {
         _id: transport._id.toString(),
         name: transport.name,
-        description: transport.description || "Không có",
         tourCount: count,
       };
     });
@@ -198,7 +197,6 @@ export const addTransportation = async (accessToken: string, data: ITransportati
         const result: TransportationData = {
           _id: res._id.toString(),
           name: res.name,
-          description: res.description || "Không có",
           tourCount: 0
         }
 

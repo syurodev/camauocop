@@ -14,7 +14,6 @@ type DestinationData = {
 type TransportationData = {
   _id: string;
   name: string;
-  description: string;
   tourCount: number
 }
 

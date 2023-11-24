@@ -8,7 +8,7 @@ import { Button, Input, Pagination, Selection, SortDescriptor, Table, TableBody,
 
 import { getTransportation } from '@/actions/tourisms'
 import { useAppSelector } from '@/redux/store'
-import { TransportationColum } from '@/lib/constant/TransportationColum'
+import { TransportationColumn } from '@/lib/constant/TransportationColum'
 import { setTransportations } from '@/redux/features/transportation-slice'
 import AddTransportation from '../form/AddTransportation'
 
@@ -44,7 +44,7 @@ const Transportation: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const columns = TransportationColum
+  const columns = TransportationColumn
 
   const transportations: TransportationData[] = useAppSelector(state => state.transportationReducer.value)
   const session = useAppSelector((state) => state.sessionReducer.value)
@@ -101,12 +101,6 @@ const Transportation: React.FC = () => {
         return (
           <div className='flex flex-row gap-3'>
             <p className="text-bold text-small capitalize">{transportation.tourCount}</p>
-          </div>
-        );
-      case "description":
-        return (
-          <div className='min-w-[250px]'>
-            <p className="text-bold text-small capitalize">{transportation.description || "Không có"}</p>
           </div>
         );
       case "actions":
