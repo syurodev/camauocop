@@ -124,7 +124,7 @@ const Nav: React.FC<IProps> = ({ sessionData }) => {
       <Navbar maxWidth="2xl">
         <NavbarBrand style={{ flex: 1 }} className="flex items-center h-full gap-2 w-fit">
           <Link href={"/"} className="font-bold">
-            SeaMarketHub
+            <span>CAMAU</span><span className="text-primary">OCOP</span>
           </Link>
         </NavbarBrand>
 
