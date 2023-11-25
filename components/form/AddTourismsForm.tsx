@@ -165,7 +165,7 @@ const AddTourismsForm = () => {
         className='flex flex-col gap-4'
       >
         <div
-          className='flex flex-col gap-4 md:flex-row items-baseline'
+          className='flex flex-col gap-4 md:!flex-row items-baseline'
         >
           <div className='flex flex-col gap-4 w-full'>
             {/* Tên tour */}
