@@ -63,6 +63,7 @@ export const getProductData = async () => {
     });
     return processedDocs;
   }
+
   return processedDocs;
 };
 
@@ -83,8 +84,6 @@ const extractProductDescription = (product: IProduct): string => {
 
     }
   })
-
-  console.log(result)
   return result;
 };
 
@@ -143,10 +142,12 @@ export const calcSimilarities = async () => {
       const vj = docVectors[j].vector;
       const similarity = vi.getCosineSimilarity(vj);
 
-      if (similarity > MIN_SCORE) {
-        data[idi].push({ id: idj, score: similarity });
-        data[idj].push({ id: idi, score: similarity });
-      }
+      // if (similarity > MIN_SCORE) {
+      //   data[idi].push({ id: idj, score: similarity });
+      //   data[idj].push({ id: idi, score: similarity });
+      // }
+      data[idi].push({ id: idj, score: similarity });
+      data[idj].push({ id: idi, score: similarity });
     }
   }
 
@@ -171,6 +172,7 @@ export const getSimilarDocuments = async (_id: string) => {
   if (similarDocuments === undefined) {
     return [];
   }
+
   return similarDocuments;
 };
 

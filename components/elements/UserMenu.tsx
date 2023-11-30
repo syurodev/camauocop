@@ -100,6 +100,17 @@ const UserMenu: React.FC = () => {
           </DropdownSection>
 
           <DropdownSection showDivider
+            className={`${session?.user.role === "partner" ? "block" : "hidden"}`}
+          >
+            <DropdownItem
+              key="my-shop"
+              startContent={<AiOutlineShop className="text-lg" />}
+            >
+              <Link href={`/partner/${session?.user._id}`}>Quản lý tour</Link>
+            </DropdownItem>
+          </DropdownSection>
+
+          <DropdownSection showDivider
             className={`${session?.user.role === "individual" ? "block" : "hidden"}`}
           >
             <DropdownItem
