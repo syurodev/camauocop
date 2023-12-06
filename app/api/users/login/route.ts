@@ -11,30 +11,35 @@ interface RequestBody {
 }
 
 export async function POST(req: Request) {
-  const body: RequestBody = await req.json()
+  try {
+    const body: RequestBody = await req.json()
 
-  await connectToDB()
+    await connectToDB()
 
-  const user = await User.findOne({ $or: [{ username: body.username }, { email: body.username }] })
-  const { password, ...userWithoutPassword } = (user as any)._doc;
+    const user: IUser | null = await User.findOne({ $or: [{ username: body.username }, { email: body.username }] })
+    const { password, ...userWithoutPassword } = (user as any)._doc;
 
-  if (user && (await byrypt.compare(body.password, user.password))) {
-    const accessToken = signJwtAccessToken(userWithoutPassword);
+    if (user && (await byrypt.compare(body.password, user.password))) {
+      const accessToken = signJwtAccessToken(userWithoutPassword);
 
-    let result = {
-      ...userWithoutPassword,
-      accessToken
-    }
-
-    if (user.role !== "individual") {
-      const shop = await Shop.findOne({ auth: userWithoutPassword._id })
-
-      if (shop) {
-        const shopId = shop._id
-        result = { ...result, shopId }
+      let result = {
+        ...userWithoutPassword,
+        accessToken
       }
-    }
 
-    return new Response(JSON.stringify(result))
-  } else return new Response(JSON.stringify(null))
+      if (user.role !== "individual") {
+        const shop = await Shop.findOne({ auth: userWithoutPassword._id })
+
+        if (shop) {
+          const shopId = shop._id
+          result = { ...result, shopId }
+        }
+      }
+
+      return new Response(JSON.stringify(result))
+    } else return new Response(JSON.stringify(null))
+  } catch (error) {
+    console.log(error)
+    return new Response(JSON.stringify(null))
+  }
 }
